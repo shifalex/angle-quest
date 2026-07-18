@@ -23,6 +23,7 @@
           <button type="button" data-language="en" aria-pressed="false">English</button>
           <button type="button" data-language="ru" aria-pressed="false">Русский</button>
         </div>
+        <button id="player-menu-button" class="course-menu-button player-menu-button" type="button">שחקן: — ▾</button>
         <button id="course-menu-button" class="course-menu-button" type="button">בחירת רמה</button>
         <span class="hud-item"><b id="score">0</b> XP</span>
         <span class="hud-item">שלב <b id="level-number">1</b>/<span id="level-count">1</span></span>
@@ -130,6 +131,30 @@
         <button type="button" data-course-start="180">180°</button>
         <button type="button" data-course-start="master">MASTER — מעורבב</button>
       </div>
+    </section>
+  </div>
+
+  <div id="player-menu" class="player-menu" hidden>
+    <section class="player-menu-card" role="dialog" aria-modal="true" aria-labelledby="player-menu-title">
+      <div class="player-menu-heading">
+        <div>
+          <p class="eyebrow">LOCAL PLAYERS</p>
+          <h2 id="player-menu-title">מי משחק?</h2>
+        </div>
+        <button id="player-menu-close" class="modal-close" type="button" aria-label="סגירה">×</button>
+      </div>
+      <p id="player-menu-note" class="player-menu-note">השם וההיסטוריה נשמרים רק בדפדפן הזה — בלי סיסמה ובלי חשבון.</p>
+      <form id="player-form" class="player-form">
+        <input id="player-name" type="text" maxlength="24" autocomplete="off" placeholder="שם השחקן" aria-label="שם השחקן">
+        <button id="player-create" class="primary-button compact" type="submit">הוספה</button>
+      </form>
+      <div id="player-list" class="player-list" aria-label="שחקנים שמורים"></div>
+      <section id="player-records" class="player-records" hidden>
+        <h3 id="player-records-title">השיאים וההתקדמות</h3>
+        <div id="level-records" class="level-records"></div>
+        <h3 id="game-history-title">משחקים אחרונים</h3>
+        <div id="game-history" class="game-history"></div>
+      </section>
     </section>
   </div>
 

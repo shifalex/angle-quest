@@ -202,8 +202,20 @@ const savedLanguage = (() => {
   }
 })();
 
+const PLAYER_STORE_KEY = "angleQuestPlayersV1";
+const playerStore = (() => {
+  try {
+    const stored = JSON.parse(localStorage.getItem(PLAYER_STORE_KEY));
+    if (stored && stored.players && typeof stored.players === "object") return stored;
+  } catch { /* Start with an empty local player list. */ }
+  return { activePlayerId: null, players: {} };
+})();
+
 const state = {
   language: savedLanguage,
+  activePlayerId: playerStore.activePlayerId,
+  activeRunId: null,
+  runScore: 0,
   levelIndex: 0,
   score: 0,
   category: null,
@@ -265,15 +277,15 @@ const uiText = {
 
 Object.assign(uiText.he, {
   tutorialPrimitives: "פרימיטיבים", practicePrimitives: "פרימיטיבים", tutorialEqual: "זוויות שוות", practiceEqual: "זוויות שוות", tutorial180: "180°", practice180: "180°", tutorialMode: "בחרו כלי", practiceMode: "בחרו כלי",
-  levelComplete: "הרמה הושלמה", levelCompleteBody: "סיימתם 10 שאלות. אפשר לעבור לרמה הבאה.", nextLevel: "לרמה הבאה", chooseLevel: "בחירת רמה", chooseStart: "מאיפה מתחילים?", chooseStartBody: "אפשר להתחיל מכל משפחה או לעבור ישר לשלב המעורבב.", startEqual: "זוויות שוות", startMaster: "MASTER — מעורבב", complete: "כל הכבוד! צברתם {score} XP.", completeHint: "סיימתם את כל הרמות."
+  levelComplete: "הרמה הושלמה", levelCompleteBody: "סיימתם 10 שאלות. אפשר לעבור לרמה הבאה.", nextLevel: "לרמה הבאה", chooseLevel: "בחירת רמה", chooseStart: "מאיפה מתחילים?", chooseStartBody: "אפשר להתחיל מכל משפחה או לעבור ישר לשלב המעורבב.", startEqual: "זוויות שוות", startMaster: "MASTER — מעורבב", complete: "כל הכבוד! צברתם {score} XP.", completeHint: "סיימתם את כל הרמות.", player: "שחקן", whoPlays: "מי משחק?", localPlayerNote: "השם וההיסטוריה נשמרים רק בדפדפן הזה — בלי סיסמה ובלי חשבון.", playerName: "שם השחקן", addPlayer: "הוספה", recordsTitle: "השיאים וההתקדמות", recentGames: "משחקים אחרונים", notDone: "לא בוצע", inProgress: "בתהליך — {done}/10", completedStatus: "הושלם — שיא {xp} XP", noGames: "עדיין אין משחקים שמורים", close: "סגירה", firstTry: "ניחוש ראשון: {count}"
 });
 Object.assign(uiText.en, {
   tutorialPrimitives: "Primitives", practicePrimitives: "Primitives", tutorialEqual: "Equal angles", practiceEqual: "Equal angles", tutorial180: "180°", practice180: "180°", tutorialMode: "Choose a tool", practiceMode: "Choose a tool",
-  levelComplete: "Level complete", levelCompleteBody: "You completed 10 questions. You can continue to the next level.", nextLevel: "Next level", chooseLevel: "Choose level", chooseStart: "Where do you want to start?", chooseStartBody: "Start with any family or jump directly to the mixed Master level.", startEqual: "Equal angles", startMaster: "MASTER — Mixed", complete: "Well done! You earned {score} XP.", completeHint: "You completed every level."
+  levelComplete: "Level complete", levelCompleteBody: "You completed 10 questions. You can continue to the next level.", nextLevel: "Next level", chooseLevel: "Choose level", chooseStart: "Where do you want to start?", chooseStartBody: "Start with any family or jump directly to the mixed Master level.", startEqual: "Equal angles", startMaster: "MASTER — Mixed", complete: "Well done! You earned {score} XP.", completeHint: "You completed every level.", player: "Player", whoPlays: "Who is playing?", localPlayerNote: "The name and history are stored only in this browser — no password or account.", playerName: "Player name", addPlayer: "Add", recordsTitle: "Records and progress", recentGames: "Recent games", notDone: "Not attempted", inProgress: "In progress — {done}/10", completedStatus: "Completed — best {xp} XP", noGames: "No saved games yet", close: "Close", firstTry: "First guesses: {count}"
 });
 Object.assign(uiText.ru, {
   tutorialPrimitives: "Примитивы", practicePrimitives: "Примитивы", tutorialEqual: "Равные углы", practiceEqual: "Равные углы", tutorial180: "180°", practice180: "180°", tutorialMode: "Выберите инструмент", practiceMode: "Выберите инструмент",
-  levelComplete: "Уровень пройден", levelCompleteBody: "Вы завершили 10 вопросов. Можно перейти к следующему уровню.", nextLevel: "Следующий уровень", chooseLevel: "Выбрать уровень", chooseStart: "С чего начать?", chooseStartBody: "Начните с любого семейства или сразу перейдите к смешанному уровню Мастер.", startEqual: "Равные углы", startMaster: "МАСТЕР — Смешанный", complete: "Отлично! Вы заработали {score} XP.", completeHint: "Вы прошли все уровни."
+  levelComplete: "Уровень пройден", levelCompleteBody: "Вы завершили 10 вопросов. Можно перейти к следующему уровню.", nextLevel: "Следующий уровень", chooseLevel: "Выбрать уровень", chooseStart: "С чего начать?", chooseStartBody: "Начните с любого семейства или сразу перейдите к смешанному уровню Мастер.", startEqual: "Равные углы", startMaster: "МАСТЕР — Смешанный", complete: "Отлично! Вы заработали {score} XP.", completeHint: "Вы прошли все уровни.", player: "Игрок", whoPlays: "Кто играет?", localPlayerNote: "Имя и история хранятся только в этом браузере — без пароля и аккаунта.", playerName: "Имя игрока", addPlayer: "Добавить", recordsTitle: "Рекорды и прогресс", recentGames: "Последние игры", notDone: "Не выполнено", inProgress: "В процессе — {done}/10", completedStatus: "Завершено — рекорд {xp} XP", noGames: "Сохранённых игр пока нет", close: "Закрыть", firstTry: "С первой попытки: {count}"
 });
 
 function t(key, values = {}) {
@@ -335,6 +347,200 @@ function updateCourseMenuButton(level = levels[state.levelIndex]) {
   $("course-menu-button").setAttribute("aria-label", `${t("chooseLevel")}: ${courseSectionLabel(section)}`);
 }
 
+function makeLocalId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function persistPlayerStore() {
+  playerStore.activePlayerId = state.activePlayerId;
+  try { localStorage.setItem(PLAYER_STORE_KEY, JSON.stringify(playerStore)); } catch { /* Progress remains available for this session. */ }
+}
+
+function activePlayer() {
+  return state.activePlayerId ? playerStore.players[state.activePlayerId] || null : null;
+}
+
+function sectionStartIndex(section) {
+  if (section === "equal") return levels.findIndex(level => level.family === "שוות");
+  if (section === "180") return levels.findIndex(level => level.family === "180°");
+  if (section === "master") return levels.findIndex(level => level.mode === "master");
+  return 0;
+}
+
+function beginPlayerRun(section) {
+  const player = activePlayer();
+  if (!player) return;
+  const now = new Date().toISOString();
+  const run = {
+    id: makeLocalId("run"),
+    section,
+    startedAt: now,
+    updatedAt: now,
+    completed: 0,
+    total: 10,
+    xp: 0,
+    firstTryCorrect: 0,
+    status: "in_progress"
+  };
+  player.history = Array.isArray(player.history) ? player.history : [];
+  player.history.unshift(run);
+  player.history = player.history.slice(0, 100);
+  player.lastPlayedAt = now;
+  state.activeRunId = run.id;
+  state.runScore = 0;
+  persistPlayerStore();
+}
+
+function updatePlayerRun(completed, earnedXP, firstTryCorrect) {
+  const player = activePlayer();
+  if (!player) return;
+  let run = (player.history || []).find(item => item.id === state.activeRunId);
+  if (!run) {
+    beginPlayerRun(courseSectionForLevel(levels[state.levelIndex]));
+    run = (player.history || []).find(item => item.id === state.activeRunId);
+  }
+  if (!run) return;
+  state.runScore += earnedXP;
+  run.completed = Math.max(run.completed || 0, completed);
+  run.xp = state.runScore;
+  run.firstTryCorrect = (run.firstTryCorrect || 0) + (firstTryCorrect ? 1 : 0);
+  run.updatedAt = new Date().toISOString();
+  if (run.completed >= run.total) {
+    run.completed = run.total;
+    run.status = "completed";
+    run.endedAt = run.updatedAt;
+  }
+  player.lastPlayedAt = run.updatedAt;
+  persistPlayerStore();
+}
+
+function formatLocalDate(value) {
+  if (!value) return "—";
+  const locales = { he: "he-IL", en: "en-US", ru: "ru-RU" };
+  return new Intl.DateTimeFormat(locales[state.language], { dateStyle: "short", timeStyle: "short" }).format(new Date(value));
+}
+
+function renderPlayerMenu() {
+  const list = $("player-list");
+  list.replaceChildren();
+  const players = Object.values(playerStore.players).sort((a, b) => (b.lastPlayedAt || b.createdAt).localeCompare(a.lastPlayedAt || a.createdAt));
+  players.forEach(player => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "player-chip";
+    button.textContent = player.name;
+    button.dataset.playerId = player.id;
+    button.setAttribute("aria-current", String(player.id === state.activePlayerId));
+    button.addEventListener("click", () => activatePlayer(player.id));
+    list.append(button);
+  });
+
+  const player = activePlayer();
+  $("player-records").hidden = !player;
+  $("player-menu-close").hidden = !player;
+  if (!player) return;
+
+  const sections = ["primitives", "equal", "180", "master"];
+  const records = $("level-records");
+  records.replaceChildren();
+  sections.forEach(section => {
+    const history = (player.history || []).filter(run => run.section === section);
+    const completedRuns = history.filter(run => run.status === "completed");
+    const best = completedRuns.reduce((highest, run) => Math.max(highest, run.xp || 0), 0);
+    const current = history.find(run => run.status === "in_progress");
+    const card = document.createElement("div");
+    card.className = `level-record${completedRuns.length ? " completed" : ""}`;
+    const title = document.createElement("strong");
+    title.textContent = courseSectionLabel(section);
+    const status = document.createElement("span");
+    status.textContent = completedRuns.length
+      ? t("completedStatus", { xp: best })
+      : current ? t("inProgress", { done: current.completed || 0 }) : t("notDone");
+    card.append(title, status);
+    records.append(card);
+  });
+
+  const historyElement = $("game-history");
+  historyElement.replaceChildren();
+  const recent = (player.history || []).slice(0, 12);
+  if (!recent.length) {
+    const empty = document.createElement("div");
+    empty.className = "history-empty";
+    empty.textContent = t("noGames");
+    historyElement.append(empty);
+    return;
+  }
+  recent.forEach(run => {
+    const row = document.createElement("div");
+    row.className = "history-row";
+    const name = document.createElement("strong");
+    name.textContent = courseSectionLabel(run.section);
+    const progress = document.createElement("span");
+    progress.textContent = `${run.completed || 0}/${run.total || 10} • ${run.xp || 0} XP`;
+    progress.title = t("firstTry", { count: run.firstTryCorrect || 0 });
+    const time = document.createElement("time");
+    time.dateTime = run.updatedAt;
+    time.textContent = formatLocalDate(run.updatedAt);
+    row.append(name, progress, time);
+    historyElement.append(row);
+  });
+}
+
+function showPlayerMenu() {
+  renderPlayerMenu();
+  $("player-menu").hidden = false;
+  if (!activePlayer()) $("player-name").focus();
+}
+
+function closePlayerMenu() {
+  if (!activePlayer()) return;
+  $("player-menu").hidden = true;
+}
+
+function activatePlayer(playerId) {
+  const player = playerStore.players[playerId];
+  if (!player) return;
+  state.activePlayerId = playerId;
+  playerStore.activePlayerId = playerId;
+  const resumable = (player.history || []).find(run => run.status === "in_progress" && run.completed < 10);
+  if (resumable) {
+    state.activeRunId = resumable.id;
+    state.runScore = resumable.xp || 0;
+    state.score = resumable.xp || 0;
+    state.levelIndex = Math.min(sectionStartIndex(resumable.section) + (resumable.completed || 0), sectionStartIndex(resumable.section) + 9);
+  } else {
+    state.levelIndex = 0;
+    state.score = 0;
+    beginPlayerRun("primitives");
+  }
+  $("score").textContent = state.score;
+  persistPlayerStore();
+  $("player-menu").hidden = true;
+  loadLevel();
+  updateTouchInterface(true);
+}
+
+function createOrSelectPlayer(name) {
+  const cleanName = name.trim().replace(/\s+/g, " ").slice(0, 24);
+  if (!cleanName) return;
+  const existing = Object.values(playerStore.players).find(player => player.name.toLocaleLowerCase() === cleanName.toLocaleLowerCase());
+  if (existing) {
+    activatePlayer(existing.id);
+    return;
+  }
+  const now = new Date().toISOString();
+  const player = { id: makeLocalId("player"), name: cleanName, createdAt: now, lastPlayedAt: now, history: [] };
+  playerStore.players[player.id] = player;
+  state.activePlayerId = player.id;
+  persistPlayerStore();
+  activatePlayer(player.id);
+}
+
+function updatePlayerButton() {
+  const player = activePlayer();
+  $("player-menu-button").textContent = `${t("player")}: ${player?.name || "—"} ▾`;
+}
+
 function applyLanguage(reload = true) {
   const isRtl = state.language === "he";
   document.documentElement.lang = state.language;
@@ -375,6 +581,16 @@ function applyLanguage(reload = true) {
   document.querySelector('[data-course-start="equal"]').textContent = t("startEqual");
   document.querySelector('[data-course-start="180"]').textContent = "180°";
   document.querySelector('[data-course-start="master"]').textContent = t("startMaster");
+  updatePlayerButton();
+  $("player-menu-title").textContent = t("whoPlays");
+  $("player-menu-note").textContent = t("localPlayerNote");
+  $("player-name").placeholder = t("playerName");
+  $("player-name").setAttribute("aria-label", t("playerName"));
+  $("player-create").textContent = t("addPlayer");
+  $("player-records-title").textContent = t("recordsTitle");
+  $("game-history-title").textContent = t("recentGames");
+  $("player-menu-close").setAttribute("aria-label", t("close"));
+  renderPlayerMenu();
   const levelLabel = document.querySelector(".hud-item:nth-last-child(1)");
   if (levelLabel) levelLabel.childNodes[0].textContent = `${t("level")} `;
   if (reload) loadLevel();
@@ -707,7 +923,7 @@ function placeSelected(point) {
     x: point.x,
     y: point.y,
     rotation: defaultPlacementRotation(state.category, target.rotation, state.degrees),
-    mirrored: Boolean(target.mirrored)
+    mirrored: false
   };
   state.dimensions = { arm: 112, cross: 112, gap: 92, spine: 132 };
   state.triangleVertices = state.category === "משולש"
@@ -915,6 +1131,18 @@ function toolMarkerRotation(category, degrees) {
   if (primitiveTools.includes(category)) return -degrees / 2;
   if (category === "משולש") return triangleGeometry().rotation;
   return category === "מתאימות" ? degrees / 2 : 0;
+}
+
+function effectiveToolRotation(category, degrees, piece = state.piece) {
+  const markerRotation = toolMarkerRotation(category, degrees);
+  const mirroredMarkerRotation = piece.mirrored ? 180 - markerRotation : markerRotation;
+  return normalizeAngle(piece.rotation + mirroredMarkerRotation);
+}
+
+function placementRotationForTarget(category, degrees, targetRotation, mirrored) {
+  const markerRotation = toolMarkerRotation(category, degrees);
+  const mirroredMarkerRotation = mirrored ? 180 - markerRotation : markerRotation;
+  return normalizeAngle(targetRotation - mirroredMarkerRotation);
 }
 
 function renderAngleMarker(group, marker) {
@@ -1273,23 +1501,23 @@ function check() {
   const targetDegrees = level.choices.find(c => c.id === level.correctChoice).degrees;
   const anchor = pieceAnchorPosition();
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
-  const effectiveRotation = normalizeAngle(state.piece.rotation + toolMarkerRotation(state.category, state.degrees));
+  const effectiveRotation = effectiveToolRotation(state.category, state.degrees);
   const turn = angleDistance(effectiveRotation, target.rotation);
   const sizeDifference = Math.abs(state.degrees - targetDegrees);
   const angleTolerance = 5;
-  const mirrorRelevant = state.category === "מתחלפות" || state.category === "מתאימות";
-  const mirrorMatches = !mirrorRelevant || state.piece.mirrored === Boolean(target.mirrored);
-  if (distance <= level.target.tolerance && turn <= level.target.rotationTolerance && sizeDifference <= angleTolerance && mirrorMatches) {
+  if (distance <= level.target.tolerance && turn <= level.target.rotationTolerance && sizeDifference <= angleTolerance) {
     state.piece = {
       x: target.x,
       y: target.y,
-      rotation: normalizeAngle(target.rotation - toolMarkerRotation(state.category, state.degrees)),
-      mirrored: Boolean(target.mirrored)
+      rotation: placementRotationForTarget(state.category, state.degrees, target.rotation, state.piece.mirrored),
+      mirrored: state.piece.mirrored
     };
     state.solved = true;
     const baseXP = level.xpBase || 100;
     const firstChoiceBonus = state.firstChoiceCorrect ? Math.round(baseXP * .5) : 0;
-    state.score += baseXP + firstChoiceBonus;
+    const earnedXP = baseXP + firstChoiceBonus;
+    state.score += earnedXP;
+    updatePlayerRun(level.exerciseNumber, earnedXP, state.firstChoiceCorrect);
     $("score").textContent = state.score;
     renderPiece();
     feedback(firstChoiceBonus
@@ -1304,9 +1532,6 @@ function check() {
     pulse(80);
   } else if (turn > level.target.rotationTolerance) {
     feedback(t("rotateMore"), false);
-    pulse(80);
-  } else if (!mirrorMatches) {
-    feedback(t("mirrorNeeded"), false);
     pulse(80);
   } else {
     feedback(t("angleNeeded", { target: Math.round(targetDegrees), current: Math.round(state.degrees) }), false);
@@ -1348,6 +1573,7 @@ function advanceToNextStage() {
   $("stage-transition").hidden = true;
   if ($("stage-transition-next").dataset.finalStage === "true") return;
   state.levelIndex += 1;
+  beginPlayerRun(courseSectionForLevel(levels[state.levelIndex]));
   loadLevel();
 }
 
@@ -1359,6 +1585,11 @@ function showCourseMenu() {
 }
 
 function startCourseAt(section) {
+  if (!activePlayer()) {
+    $("course-menu").hidden = true;
+    showPlayerMenu();
+    return;
+  }
   const indexBySection = {
     primitives: 0,
     equal: levels.findIndex(level => level.family === "שוות"),
@@ -1372,6 +1603,7 @@ function startCourseAt(section) {
   state.levelIndex = selectedIndex;
   state.score = 0;
   $("score").textContent = "0";
+  beginPlayerRun(section);
   loadLevel();
   updateTouchInterface(true);
 }
@@ -1393,6 +1625,7 @@ function loadLevel() {
   $("level-number").textContent = level.exerciseNumber;
   $("level-count").textContent = level.exerciseCount;
   updateCourseMenuButton(level);
+  updatePlayerButton();
   $("mission-title").textContent = `${localizedStageName(level.stageName)} • ${level.exerciseNumber}/${level.exerciseCount}`;
   $("mission-hint").textContent = level.phase === "beginner"
     ? t("beginnerHint")
@@ -1519,9 +1752,18 @@ $("touch-tutorial-try").addEventListener("click", () => {
 $("stage-transition-next").addEventListener("click", advanceToNextStage);
 $("course-menu-button").addEventListener("click", showCourseMenu);
 document.querySelectorAll("[data-course-start]").forEach(button => button.addEventListener("click", () => startCourseAt(button.dataset.courseStart)));
+$("player-menu-button").addEventListener("click", showPlayerMenu);
+$("player-menu-close").addEventListener("click", closePlayerMenu);
+$("player-form").addEventListener("submit", event => {
+  event.preventDefault();
+  createOrSelectPlayer($("player-name").value);
+  $("player-name").value = "";
+});
 touchPointerQuery.addEventListener?.("change", () => updateTouchInterface(false));
 
 $("level-count").textContent = "10";
 updateTouchInterface(false);
 applyLanguage(true);
+if (state.activePlayerId && playerStore.players[state.activePlayerId]) activatePlayer(state.activePlayerId);
+else showPlayerMenu();
 updateTouchInterface(true);
