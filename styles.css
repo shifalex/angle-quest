@@ -110,7 +110,19 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .point-handle-hit { fill: transparent; cursor: move; }
 .handle-label { fill: var(--ink); font-size: 14px; font-weight: 800; text-anchor: middle; paint-order: stroke; stroke: #071019; stroke-width: 5px; pointer-events: none; }
 .arena-tip { position: absolute; left: 12px; bottom: 10px; max-width: calc(100% - 24px); color: var(--muted); background: rgba(7,11,20,.75); padding: 5px 8px; border-radius: 8px; font-size: .76rem; pointer-events: none; }
-.arena-actions { direction: ltr; justify-content: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.arena-actions {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  direction: ltr;
+  gap: 8px;
+  margin-top: 14px;
+}
+.arena-actions > button,
+.arena-actions .primary-button.compact {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 8px;
+}
 .angle-size-button { color: var(--cyan); }
 .mirror-button { color: var(--orange); }
 .mirror-button[aria-pressed="true"] { border-color: var(--orange); background: rgba(255,159,67,.12); }
@@ -206,6 +218,11 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
   .mission { padding: 14px; }
   .arena-heading { flex-wrap: wrap; }
   .arena-heading .angle-readout { margin-inline-start: 46px; }
+}
+
+@media (max-width: 640px) {
+  body:not(.touch-ui) .arena-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body:not(.touch-ui) .arena-actions #check-button { grid-column: 1 / -1; }
 }
 
 @media (max-width: 430px) {
