@@ -113,7 +113,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .arena-actions {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  direction: ltr;
+  direction: inherit;
   gap: 8px;
   margin-top: 14px;
 }
@@ -209,7 +209,12 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 }
 .footer-note { color: var(--muted); font-size: .78rem; text-align: center; padding: 18px 0 4px; }
 
-@media (max-width: 780px) {
+@media (min-width: 701px) and (max-width: 1050px) {
+  .arena-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .arena-actions #check-button { grid-column: span 2; }
+}
+
+@media (max-width: 700px) {
   .app-shell { padding: 10px; }
   .game-layout { grid-template-columns: 1fr; }
   .loadout, .play-panel { padding: 14px; }
