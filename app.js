@@ -248,6 +248,7 @@ const state = {
   dragging: null,
   dragMoved: false,
   dragStartPointer: null,
+  rotationAnchor: null,
   lastPieceTap: 0,
   pointDragStart: null,
   triangleVertices: null,
@@ -1108,21 +1109,30 @@ function mirrorScaleTransform(centerX, scaleX) {
   return `translate(${centerX * (1 - scaleX)} 0) scale(${scaleX} 1)`;
 }
 
-function animateMirrorFlip(fromMirrored, toMirrored) {
+function animateMirrorFlip(fromMirrored, toMirrored, fixedAnchor) {
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+  const group = pieceLayer.querySelector(".piece");
   const content = pieceLayer.querySelector(".piece-content");
-  if (!content) return;
+  if (!group || !content) return;
   const centerX = shapeMirrorCenterX(augmentedShape(levels[state.levelIndex]));
   const startScale = fromMirrored ? -1 : 1;
   const endScale = toMirrored ? -1 : 1;
-  content.setAttribute("transform", mirrorScaleTransform(centerX, startScale));
+  const rotation = state.piece.rotation * Math.PI / 180;
+  const renderFrame = scale => {
+    const localAnchorX = centerX * (1 - scale);
+    const x = fixedAnchor.x - localAnchorX * Math.cos(rotation);
+    const y = fixedAnchor.y - localAnchorX * Math.sin(rotation);
+    group.setAttribute("transform", `translate(${x} ${y}) rotate(${state.piece.rotation})`);
+    content.setAttribute("transform", mirrorScaleTransform(centerX, scale));
+  };
+  renderFrame(startScale);
   const startedAt = performance.now();
   const duration = 320;
   const frame = now => {
     const progress = Math.min(1, (now - startedAt) / duration);
     const eased = progress < .5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
     const scale = startScale + (endScale - startScale) * eased;
-    content.setAttribute("transform", mirrorScaleTransform(centerX, scale));
+    renderFrame(scale);
     if (progress < 1 && content.isConnected) requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
@@ -1319,6 +1329,7 @@ function startMove(event) {
 function startRotate(event) {
   event.stopPropagation();
   event.preventDefault();
+  state.rotationAnchor = pieceAnchorPosition();
   state.dragging = "rotate";
   svg.setPointerCapture(event.pointerId);
 }
@@ -1354,7 +1365,8 @@ svg.addEventListener("pointermove", event => {
     state.piece.x = Math.max(25, Math.min(695, p.x - state.dragOffset.x));
     state.piece.y = Math.max(25, Math.min(405, p.y - state.dragOffset.y));
   } else if (state.dragging === "rotate") {
-    state.piece.rotation = normalizeAngle(Math.atan2(p.y - state.piece.y, p.x - state.piece.x) * 180 / Math.PI + 90);
+    const anchor = state.rotationAnchor || pieceAnchorPosition();
+    setPieceRotation(Math.atan2(p.y - anchor.y, p.x - anchor.x) * 180 / Math.PI + 90, anchor);
   } else if (state.dragging.startsWith("resize:")) {
     const level = levels[state.levelIndex];
     const choice = level.choices.find(c => c.id === state.choice);
@@ -1378,6 +1390,7 @@ svg.addEventListener("pointerup", event => {
   if (svg.hasPointerCapture(event.pointerId)) svg.releasePointerCapture(event.pointerId);
   state.dragging = null;
   state.dragStartPointer = null;
+  state.rotationAnchor = null;
   state.pointDragStart = null;
 });
 
@@ -1458,20 +1471,33 @@ function pieceAnchorPosition() {
   };
 }
 
+function keepPieceAnchorAt(fixedAnchor) {
+  const movedAnchor = pieceAnchorPosition();
+  state.piece.x += fixedAnchor.x - movedAnchor.x;
+  state.piece.y += fixedAnchor.y - movedAnchor.y;
+}
+
+function setPieceRotation(nextRotation, fixedAnchor = pieceAnchorPosition()) {
+  state.piece.rotation = normalizeAngle(nextRotation);
+  keepPieceAnchorAt(fixedAnchor);
+}
+
 function rotate(delta) {
   if (!state.equipped || state.solved) return;
-  state.piece.rotation = normalizeAngle(state.piece.rotation + delta);
+  setPieceRotation(state.piece.rotation + delta);
   renderPiece();
 }
 
 function toggleMirror() {
   if (!state.equipped || state.solved) return;
+  const fixedAnchor = pieceAnchorPosition();
   const wasMirrored = state.piece.mirrored;
   state.piece.mirrored = !state.piece.mirrored;
+  keepPieceAnchorAt(fixedAnchor);
   $("mirror-button").setAttribute("aria-pressed", String(state.piece.mirrored));
   feedback(t(state.piece.mirrored ? "mirrorOn" : "mirrorOff"), true);
   renderPiece();
-  animateMirrorFlip(wasMirrored, state.piece.mirrored);
+  animateMirrorFlip(wasMirrored, state.piece.mirrored, fixedAnchor);
 }
 
 function angleBounds(type, locked = false) {
