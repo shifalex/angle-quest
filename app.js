@@ -378,6 +378,17 @@ function activePlayer() {
   return state.activePlayerId ? playerStore.players[state.activePlayerId] || null : null;
 }
 
+function mostRecentPlayerId() {
+  const players = Object.values(playerStore.players);
+  if (!players.length) return null;
+  players.sort((a, b) => {
+    const aTime = Date.parse(a.lastPlayedAt || a.createdAt || 0) || 0;
+    const bTime = Date.parse(b.lastPlayedAt || b.createdAt || 0) || 0;
+    return bTime - aTime;
+  });
+  return players[0].id;
+}
+
 function sectionStartIndex(section) {
   if (section === "equal") return levels.findIndex(level => level.family === "שוות");
   if (section === "180") return levels.findIndex(level => level.family === "180°");
@@ -529,6 +540,7 @@ function activatePlayer(playerId) {
   if (!player) return;
   state.activePlayerId = playerId;
   playerStore.activePlayerId = playerId;
+  player.lastPlayedAt = new Date().toISOString();
   const linkedCourse = pendingLinkedCourse;
   const resumable = linkedCourse ? null : (player.history || []).find(run => run.status === "in_progress" && run.completed < 10);
   if (linkedCourse) {
@@ -1800,6 +1812,9 @@ touchPointerQuery.addEventListener?.("change", () => updateTouchInterface(false)
 $("level-count").textContent = "10";
 updateTouchInterface(false);
 applyLanguage(true);
-if (state.activePlayerId && playerStore.players[state.activePlayerId]) activatePlayer(state.activePlayerId);
+const returningPlayerId = state.activePlayerId && playerStore.players[state.activePlayerId]
+  ? state.activePlayerId
+  : mostRecentPlayerId();
+if (returningPlayerId) activatePlayer(returningPlayerId);
 else showPlayerMenu();
 updateTouchInterface(true);
