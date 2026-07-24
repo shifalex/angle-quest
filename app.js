@@ -193,14 +193,32 @@ levels.splice(0, levels.length,
   ...masterPractice
 );
 
+const supportedLanguages = ["he", "en", "ru"];
+const supportedCourseSections = ["primitives", "equal", "180", "master"];
+const initialLinkSettings = (() => {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const language = params.get("lang");
+    const course = params.get("course");
+    return {
+      language: supportedLanguages.includes(language) ? language : null,
+      course: supportedCourseSections.includes(course) ? course : null
+    };
+  } catch {
+    return { language: null, course: null };
+  }
+})();
+
 const savedLanguage = (() => {
+  if (initialLinkSettings.language) return initialLinkSettings.language;
   try {
     const value = localStorage.getItem("angleQuestLanguage");
-    return ["he", "en", "ru"].includes(value) ? value : "he";
+    return supportedLanguages.includes(value) ? value : "he";
   } catch {
     return "he";
   }
 })();
+let pendingLinkedCourse = initialLinkSettings.course;
 
 const PLAYER_STORE_KEY = "angleQuestPlayersV1";
 const playerStore = (() => {
@@ -216,7 +234,7 @@ const state = {
   activePlayerId: playerStore.activePlayerId,
   activeRunId: null,
   runScore: 0,
-  levelIndex: 0,
+  levelIndex: initialLinkSettings.course ? Math.max(0, sectionStartIndex(initialLinkSettings.course)) : 0,
   score: 0,
   category: null,
   firstChoiceMade: false,
@@ -367,6 +385,15 @@ function sectionStartIndex(section) {
   return 0;
 }
 
+function syncShareUrl(section = courseSectionForLevel(levels[state.levelIndex])) {
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set("lang", state.language);
+    url.searchParams.set("course", supportedCourseSections.includes(section) ? section : "primitives");
+    window.history.replaceState({}, "", url);
+  } catch { /* The game still works when URL updates are unavailable. */ }
+}
+
 function beginPlayerRun(section) {
   const player = activePlayer();
   if (!player) return;
@@ -502,8 +529,16 @@ function activatePlayer(playerId) {
   if (!player) return;
   state.activePlayerId = playerId;
   playerStore.activePlayerId = playerId;
-  const resumable = (player.history || []).find(run => run.status === "in_progress" && run.completed < 10);
-  if (resumable) {
+  const linkedCourse = pendingLinkedCourse;
+  const resumable = linkedCourse ? null : (player.history || []).find(run => run.status === "in_progress" && run.completed < 10);
+  if (linkedCourse) {
+    state.activeRunId = null;
+    state.runScore = 0;
+    state.score = 0;
+    state.levelIndex = Math.max(0, sectionStartIndex(linkedCourse));
+    pendingLinkedCourse = null;
+    beginPlayerRun(linkedCourse);
+  } else if (resumable) {
     state.activeRunId = resumable.id;
     state.runScore = resumable.xp || 0;
     state.score = resumable.xp || 0;
@@ -1625,6 +1660,7 @@ function loadLevel() {
   $("level-number").textContent = level.exerciseNumber;
   $("level-count").textContent = level.exerciseCount;
   updateCourseMenuButton(level);
+  syncShareUrl(courseSectionForLevel(level));
   updatePlayerButton();
   $("mission-title").textContent = `${localizedStageName(level.stageName)} • ${level.exerciseNumber}/${level.exerciseCount}`;
   $("mission-hint").textContent = level.phase === "beginner"
