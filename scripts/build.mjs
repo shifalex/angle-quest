@@ -10,5 +10,14 @@ for (const file of ["index.html", "app.js", "styles.css"]) {
 await cp("audio", "dist/public/audio", { recursive: true });
 await writeFile(
   "dist/server/index.js",
-  `export default { async fetch(request, env) { return env.ASSETS.fetch(request); } };\n`
+  `export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname === "/" || url.pathname.endsWith("/")) {
+      url.pathname += "index.html";
+      return env.ASSETS.fetch(new Request(url, request));
+    }
+    return env.ASSETS.fetch(request);
+  }
+};\n`
 );
