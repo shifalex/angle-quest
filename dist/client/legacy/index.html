@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <title>Angle Quest — משימת הזוויות</title>
+  <link rel="stylesheet" href="styles.css?v=4">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">∠</span>
+        <div>
+          <p class="eyebrow">ANGLE QUEST</p>
+          <h1>משימת הזוויות</h1>
+        </div>
+      </div>
+      <div class="hud" aria-label="מצב המשחק">
+        <div class="language-switcher" role="group" aria-label="בחירת שפה">
+          <button type="button" data-language="he" aria-pressed="true">עברית</button>
+          <button type="button" data-language="en" aria-pressed="false">English</button>
+          <button type="button" data-language="ru" aria-pressed="false">Русский</button>
+        </div>
+        <button id="player-menu-button" class="course-menu-button player-menu-button" type="button">שחקן: — ▾</button>
+        <button id="course-menu-button" class="course-menu-button" type="button">בחירת רמה</button>
+        <span class="hud-item"><b id="score">0</b> XP</span>
+        <span class="hud-item">שלב <b id="level-number">1</b>/<span id="level-count">1</span></span>
+      </div>
+    </header>
+
+    <section class="mission" aria-labelledby="mission-title">
+      <div>
+        <p class="eyebrow">CURRENT MISSION</p>
+        <h2 id="mission-title">טוען משימה…</h2>
+        <p id="mission-hint" class="mission-hint"></p>
+      </div>
+      <button id="sound-toggle" class="icon-button" type="button" aria-pressed="true" aria-label="כיבוי הקראה">🔊</button>
+    </section>
+
+    <section class="game-layout">
+      <aside class="loadout" aria-labelledby="loadout-title">
+        <div class="panel-heading">
+          <span class="step-chip">1</span>
+          <div>
+            <p class="eyebrow">CHOOSE YOUR TOOL</p>
+          <h2 id="loadout-title">בחרו כלי</h2>
+          </div>
+        </div>
+
+        <fieldset id="category-list" class="choice-group">
+          <legend>ארגז הזוויות</legend>
+        </fieldset>
+      </aside>
+
+      <section class="play-panel" aria-labelledby="arena-title">
+        <div class="panel-heading arena-heading">
+          <span class="step-chip">2</span>
+          <div>
+            <p class="eyebrow">PLACE THE ANGLE</p>
+            <h2 id="arena-title">גררו אל הזווית החסרה</h2>
+          </div>
+          <div id="angle-readout" class="angle-readout" aria-live="polite">בחרו זווית</div>
+        </div>
+
+        <div id="arena" class="arena">
+          <button id="mirror-help" class="mirror-help" type="button" aria-label="הדרכת מראה">?</button>
+          <svg id="geometry" viewBox="0 0 720 430" role="img" aria-labelledby="diagram-title diagram-desc">
+            <title id="diagram-title">תרגיל זוויות</title>
+            <desc id="diagram-desc">שרטוט גאומטרי עם זווית נתונה ומקום לזווית חסרה.</desc>
+            <g id="scene-layer"></g>
+            <g id="target-layer"></g>
+            <g id="piece-layer"></g>
+          </svg>
+          <div id="arena-tip" class="arena-tip">גררו כדי להזיז • דאבל־קליק/טאפ בכל השרטוט: פליפ • ● זווית • ■ גובה/אורך</div>
+        </div>
+
+        <div class="arena-actions">
+          <button id="check-button" class="primary-button compact" type="button" disabled>בדיקה</button>
+          <button id="angle-larger" class="secondary-button angle-size-button" type="button" disabled aria-label="הגדלת מפתח הזווית">+ זווית</button>
+          <button id="angle-smaller" class="secondary-button angle-size-button" type="button" disabled aria-label="הקטנת מפתח הזווית">− זווית</button>
+          <button id="rotate-right" class="secondary-button" type="button" disabled>סיבוב ↷</button>
+          <button id="rotate-left" class="secondary-button" type="button" disabled aria-label="סיבוב נגד כיוון השעון">↶ נגד השעון</button>
+          <button id="mirror-button" class="secondary-button mirror-button" type="button" disabled aria-pressed="false">⇋ מראה</button>
+          <button id="discard-button" class="secondary-button discard-button" type="button" disabled>⌫ זריקה</button>
+        </div>
+        <p id="feedback" class="feedback" aria-live="assertive"></p>
+      </section>
+    </section>
+
+    <footer class="footer-note">נבנה ללמידה בתנועה: בוחרים, אוספים, מניחים ומגלים.</footer>
+  </main>
+
+  <div id="touch-tutorial" class="touch-tutorial" hidden>
+    <section class="touch-tutorial-card" role="dialog" aria-modal="true" aria-labelledby="touch-tutorial-title">
+      <div class="mirror-demo" aria-hidden="true">
+        <span class="mirror-demo-shape">F</span>
+        <span class="tap-ring tap-ring-one"></span>
+        <span class="tap-ring tap-ring-two"></span>
+      </div>
+      <p class="eyebrow">TOUCH MOVE</p>
+      <h2 id="touch-tutorial-title">מראה בדאבל־טאפ</h2>
+      <p id="touch-tutorial-body">הקישו פעמיים במהירות בכל מקום בשרטוט. הכלי יתהפך סביב המרכז שלו.</p>
+      <div class="touch-tutorial-actions">
+        <button id="touch-tutorial-try" class="secondary-button" type="button">הציגו שוב</button>
+        <button id="touch-tutorial-close" class="primary-button compact" type="button">הבנתי</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="stage-transition" class="stage-transition" hidden>
+    <section class="stage-transition-card" role="dialog" aria-modal="true" aria-labelledby="stage-transition-title">
+      <div class="mini-confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="stage-complete-icon" aria-hidden="true">✓</div>
+      <p class="eyebrow">LEVEL COMPLETE</p>
+      <h2 id="stage-transition-title">הרמה הושלמה</h2>
+      <p id="stage-transition-body">סיימתם 10 שאלות. אפשר לעבור לרמה הבאה.</p>
+      <button id="stage-transition-next" class="primary-button compact" type="button">לרמה הבאה</button>
+    </section>
+  </div>
+
+  <div id="course-menu" class="course-menu" hidden>
+    <section class="course-menu-card" role="dialog" aria-modal="true" aria-labelledby="course-menu-title">
+      <p class="eyebrow">CHOOSE A LEVEL</p>
+      <h2 id="course-menu-title">מאיפה מתחילים?</h2>
+      <p id="course-menu-body">אפשר להתחיל מכל משפחה או לעבור ישר לשלב המעורבב.</p>
+      <div class="course-menu-grid">
+        <button type="button" data-course-start="primitives">פרימיטיבים</button>
+        <button type="button" data-course-start="equal">זוויות שוות</button>
+        <button type="button" data-course-start="180">180°</button>
+        <button type="button" data-course-start="master">MASTER — מעורבב</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="player-menu" class="player-menu" hidden>
+    <section class="player-menu-card" role="dialog" aria-modal="true" aria-labelledby="player-menu-title">
+      <div class="player-menu-heading">
+        <div>
+          <p class="eyebrow">LOCAL PLAYERS</p>
+          <h2 id="player-menu-title">מי משחק?</h2>
+        </div>
+        <button id="player-menu-close" class="modal-close" type="button" aria-label="סגירה">×</button>
+      </div>
+      <p id="player-menu-note" class="player-menu-note">השם וההיסטוריה נשמרים רק בדפדפן הזה — בלי סיסמה ובלי חשבון.</p>
+      <form id="player-form" class="player-form">
+        <input id="player-name" type="text" maxlength="24" autocomplete="off" placeholder="שם השחקן" aria-label="שם השחקן">
+        <button id="player-create" class="primary-button compact" type="submit">הוספה</button>
+      </form>
+      <div id="player-list" class="player-list" aria-label="שחקנים שמורים"></div>
+      <section id="player-records" class="player-records" hidden>
+        <h3 id="player-records-title">השיאים וההתקדמות</h3>
+        <div id="level-records" class="level-records"></div>
+        <h3 id="game-history-title">משחקים אחרונים</h3>
+        <div id="game-history" class="game-history"></div>
+      </section>
+    </section>
+  </div>
+
+  <script src="app.js?v=4"></script>
+</body>
+</html>
