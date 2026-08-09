@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111827">
   <title>Angle Quest — משימת הזוויות</title>
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=21">
 </head>
 <body>
   <main class="app-shell">
@@ -80,6 +80,10 @@
           <button id="check-button" class="primary-button compact" type="button" disabled>בדיקה</button>
           <button id="angle-larger" class="secondary-button angle-size-button" type="button" disabled aria-label="הגדלת מפתח הזווית">+ זווית</button>
           <button id="angle-smaller" class="secondary-button angle-size-button" type="button" disabled aria-label="הקטנת מפתח הזווית">− זווית</button>
+          <button id="shape-width-smaller" class="secondary-button shape-control" type="button" hidden disabled>צר יותר</button>
+          <button id="shape-width-larger" class="secondary-button shape-control" type="button" hidden disabled>רחב יותר</button>
+          <button id="shape-height-smaller" class="secondary-button shape-control" type="button" hidden disabled>קצר יותר</button>
+          <button id="shape-height-larger" class="secondary-button shape-control" type="button" hidden disabled>ארוך יותר</button>
           <button id="rotate-right" class="secondary-button" type="button" disabled>סיבוב ↷</button>
           <button id="rotate-left" class="secondary-button" type="button" disabled aria-label="סיבוב נגד כיוון השעון">↶ נגד השעון</button>
           <button id="mirror-button" class="secondary-button mirror-button" type="button" disabled aria-pressed="false">⇋ מראה</button>
@@ -129,6 +133,7 @@
         <button type="button" data-course-start="primitives">פרימיטיבים</button>
         <button type="button" data-course-start="equal">זוויות שוות</button>
         <button type="button" data-course-start="180">180°</button>
+        <button type="button" data-course-start="quadrilaterals">שלב מרובעים</button>
         <button type="button" data-course-start="master">MASTER — מעורבב</button>
       </div>
     </section>
@@ -158,6 +163,6 @@
     </section>
   </div>
 
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=21"></script>
 </body>
 </html>

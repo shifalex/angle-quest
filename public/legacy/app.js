@@ -5,6 +5,14 @@ const families = {
   "180°": ["צמודות", "משולש"]
 };
 const primitiveTools = ["חדה", "ישרה", "שטוחה", "קהה"];
+const quadrilateralTools = ["ריבוע", "מעוין", "מלבן", "מקבילית", "טרפז", "דלתון"];
+
+function validQuadrilateralNames(shape) {
+  if (shape === "ריבוע") return ["ריבוע", "מלבן", "מעוין", "מקבילית", "דלתון"];
+  if (shape === "מלבן") return ["מלבן", "מקבילית"];
+  if (shape === "מעוין") return ["מעוין", "מקבילית", "דלתון"];
+  return [shape];
+}
 
 // כל שלב הוא נתונים בלבד. כך אפשר להוסיף בעתיד מצולעים, פיתגורס ועוד
 // בלי לשנות את מנוע הבחירה, ההנחה והבדיקה.
@@ -193,8 +201,28 @@ levels.splice(0, levels.length,
   ...masterPractice
 );
 
+const quadrilateralLevels = Array.from({ length: 12 }, (_, index) => {
+  const shapes = ["ריבוע", "מעוין", "מלבן"];
+  const shape = shapes[index % shapes.length];
+  const dimensions = shape === "ריבוע"
+    ? { width: 118 + (index % 3) * 18, height: 118 + (index % 3) * 18 }
+    : shape === "מלבן"
+      ? { width: 170 - (index % 3) * 12, height: 92 + (index % 3) * 10 }
+      : { width: 150 - (index % 3) * 10, height: 112 + (index % 3) * 14 };
+  return {
+    id: `quadrilateral-${index + 1}`, phase: "quadrilateral", family: "מרובעים",
+    mode: "quadrilateral", stageName: "שלב מרובעים", exerciseNumber: index + 1,
+    exerciseCount: 12, correctCategory: shape, categories: quadrilateralTools,
+    choices: [{ id: "quad-target", degrees: 0, type: "right" }], correctChoice: "quad-target",
+    target: { x: 390, y: 218, rotation: (index % 3) * 15 - 15, tolerance: 42, rotationTolerance: 20 },
+    start: { x: 145, y: 315, rotation: 0 }, targetDimensions: dimensions,
+    scaffold: index < 3, askWhatElse: false, scene: "quadrilateral", xpBase: 120
+  };
+});
+levels.push(...quadrilateralLevels);
+
 const supportedLanguages = ["he", "en", "ru"];
-const supportedCourseSections = ["primitives", "equal", "180", "master"];
+const supportedCourseSections = ["primitives", "equal", "180", "quadrilaterals", "master"];
 const initialLinkSettings = (() => {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -243,6 +271,8 @@ const state = {
   degrees: 0,
   equipped: false,
   solved: false,
+  followUp: false,
+  followUpFound: [],
   piece: { x: 0, y: 0, rotation: 0, mirrored: false },
   dimensions: { arm: 112, cross: 112, gap: 92, spine: 132 },
   dragging: null,
@@ -252,6 +282,8 @@ const state = {
   lastPieceTap: 0,
   pointDragStart: null,
   triangleVertices: null,
+  quadDimensions: { width: 120, height: 120 },
+  quadVertices: null,
   dragOffset: { x: 0, y: 0 }
 };
 
@@ -274,6 +306,10 @@ const categoryLabels = {
   en: { "חדה": "Acute", "ישרה": "Right", "שטוחה": "Straight", "קהה": "Obtuse", "מתאימות": "Corresponding", "מתחלפות": "Alternate", "קודקודיות": "Vertical", "צמודות": "Adjacent", "משולש": "Triangle" },
   ru: { "חדה": "Острый", "ישרה": "Прямой", "שטוחה": "Развёрнутый", "קהה": "Тупой", "מתאימות": "Соответственные", "מתחלפות": "Накрест лежащие", "קודקודיות": "Вертикальные", "צמודות": "Смежные", "משולש": "Треугольник" }
 };
+Object.assign(categoryLabels.he, { "ריבוע": "ריבוע", "מעוין": "מעוין", "מלבן": "מלבן" });
+Object.assign(categoryLabels.he, { "מקבילית": "מקבילית", "טרפז": "טרפז", "דלתון": "דלתון" });
+Object.assign(categoryLabels.en, { "ריבוע": "Square", "מעוין": "Rhombus", "מלבן": "Rectangle", "מקבילית": "Parallelogram", "טרפז": "Trapezoid", "דלתון": "Kite" });
+Object.assign(categoryLabels.ru, { "ריבוע": "Квадрат", "מעוין": "Ромб", "מלבן": "Прямоугольник", "מקבילית": "Параллелограмм", "טרפז": "Трапеция", "דלתון": "Дельтоид" });
 
 const uiText = {
   he: {
@@ -347,6 +383,7 @@ function localizedStageName(name) {
 }
 
 function courseSectionForLevel(level) {
+  if (level.phase === "quadrilateral") return "quadrilaterals";
   if (level.mode === "master") return "master";
   if (level.family === "שוות") return "equal";
   if (level.family === "180°") return "180";
@@ -354,6 +391,7 @@ function courseSectionForLevel(level) {
 }
 
 function courseSectionLabel(section) {
+  if (section === "quadrilaterals") return "שלב מרובעים";
   if (section === "equal") return t("startEqual");
   if (section === "180") return "180°";
   if (section === "master") return t("startMaster");
@@ -391,6 +429,7 @@ function mostRecentPlayerId() {
 }
 
 function sectionStartIndex(section) {
+  if (section === "quadrilaterals") return levels.findIndex(level => level.phase === "quadrilateral");
   if (section === "equal") return levels.findIndex(level => level.family === "שוות");
   if (section === "180") return levels.findIndex(level => level.family === "180°");
   if (section === "master") return levels.findIndex(level => level.mode === "master");
@@ -712,6 +751,13 @@ function renderScene(level) {
   sceneLayer.removeAttribute("transform");
   targetLayer.removeAttribute("transform");
 
+  if (level.scene === "quadrilateral") {
+    const { width, height } = level.targetDimensions;
+    const target = svgEl("g", { transform: `translate(${level.target.x} ${level.target.y}) rotate(${level.target.rotation})` });
+    target.append(svgEl("polygon", { points: quadrilateralPoints(level.correctCategory, width, height), class: "quad-target" }));
+    sceneLayer.append(target);
+    return;
+  }
   if (level.scene === "primitive") {
     const center = { x: 365, y: 220 };
     const first = polar(130, -level.primitiveDegrees / 2);
@@ -804,6 +850,18 @@ function currentTarget(level) {
 }
 
 function renderChoices(level) {
+  if (level.phase === "quadrilateral") {
+    $("category-list").innerHTML = `<legend>בחרו צורה</legend><section class="tool-family"><h3 class="tool-family-title">מרובעים</h3><div class="choice-grid">${shuffle([...quadrilateralTools]).map(value => `<button type="button" class="choice-button" data-category="${value}" aria-pressed="false" ${(level.scaffold && value !== level.correctCategory) || level.disabledCategories?.includes(value) ? "disabled" : ""}>${categoryLabel(value)}</button>`).join("")}</div></section>`;
+    document.querySelectorAll("[data-category]").forEach(button => button.addEventListener("click", () => {
+      if (state.followUp) { handleWhatElseChoice(level, button); return; }
+      if (button.disabled || state.solved) return;
+      if (!state.firstChoiceMade) { state.firstChoiceMade = true; state.firstChoiceCorrect = button.dataset.category === level.correctCategory; }
+      state.category = button.dataset.category;
+      document.querySelectorAll("[data-category]").forEach(b => b.setAttribute("aria-pressed", String(b === button)));
+      placeSelected(level.start);
+    }));
+    return;
+  }
   const isBeginner = level.phase === "beginner";
   const isMaster = level.mode === "master";
   const primitivesEnabled = isBeginner || isMaster;
@@ -974,11 +1032,22 @@ function placeSelected(point) {
     mirrored: false
   };
   state.dimensions = { arm: 112, cross: 112, gap: 92, spine: 132 };
+  if (level.phase === "quadrilateral") {
+    const actualShape = state.category;
+    state.quadDimensions = actualShape === "ריבוע" ? { width: 110, height: 110 }
+      : actualShape === "מלבן" ? { width: 150, height: 86 }
+        : actualShape === "מעוין" ? { width: 112, height: 140 }
+          : { width: 140, height: 105 };
+    state.quadVertices = ["מקבילית", "טרפז", "דלתון"].includes(actualShape)
+      ? quadrilateralVertices(actualShape, state.quadDimensions.width, state.quadDimensions.height)
+      : null;
+  }
   state.triangleVertices = state.category === "משולש"
     ? { a: polar(112, -state.degrees / 2), b: polar(112, state.degrees / 2) }
     : null;
   updateAngleReadout();
   ["rotate-left", "rotate-right", "check-button", "angle-smaller", "angle-larger", "mirror-button", "discard-button"].forEach(id => $(id).disabled = false);
+  updateShapeControls(level);
   $("mirror-button").setAttribute("aria-pressed", String(state.piece.mirrored));
   feedback(t("augmented", { tool: categoryLabel(state.category) }), true);
   renderPiece();
@@ -994,6 +1063,7 @@ function defaultDegreesForTool(category, targetDegrees) {
 }
 
 function defaultPlacementRotation(category, targetRotation, degrees) {
+  if (quadrilateralTools.includes(category)) return 0;
   if (primitiveTools.includes(category)) return 0;
   if (category === "מתאימות") return 0;
   return normalizeAngle(targetRotation - toolMarkerRotation(category, degrees));
@@ -1003,6 +1073,7 @@ function renderPiece() {
   pieceLayer.replaceChildren();
   if (!state.equipped) return;
   const level = levels[state.levelIndex];
+  if (level.phase === "quadrilateral") { renderQuadrilateralPiece(level); return; }
   const choice = level.choices.find(c => c.id === state.choice);
   const shape = augmentedShape(level);
   const mirrorCenterX = shapeMirrorCenterX(shape);
@@ -1078,6 +1149,89 @@ function renderPiece() {
   group.append(content);
   pieceLayer.append(group);
   addPieceDragArea(content);
+}
+
+function quadrilateralVertices(shape, width, height) {
+  if (shape === "מעוין") return [{ x: 0, y: -height / 2 }, { x: width / 2, y: 0 }, { x: 0, y: height / 2 }, { x: -width / 2, y: 0 }];
+  if (shape === "מקבילית") {
+    const shift = width * .18;
+    return [{ x: -width / 2 + shift, y: -height / 2 }, { x: width / 2 + shift, y: -height / 2 }, { x: width / 2 - shift, y: height / 2 }, { x: -width / 2 - shift, y: height / 2 }];
+  }
+  if (shape === "טרפז") return [{ x: -width * .4, y: -height / 2 }, { x: width * .2, y: -height / 2 }, { x: width / 2, y: height / 2 }, { x: -width / 2, y: height / 2 }];
+  if (shape === "דלתון") return [{ x: 0, y: -height * .62 }, { x: width / 2, y: 0 }, { x: 0, y: height * .38 }, { x: -width / 2, y: 0 }];
+  return [{ x: -width / 2, y: -height / 2 }, { x: width / 2, y: -height / 2 }, { x: width / 2, y: height / 2 }, { x: -width / 2, y: height / 2 }];
+}
+
+function quadrilateralPoints(shape, width, height, vertices = null) {
+  return (vertices || quadrilateralVertices(shape, width, height)).map(point => `${point.x},${point.y}`).join(" ");
+}
+
+function renderQuadrilateralPiece(level) {
+  const { width, height } = state.quadDimensions;
+  const actualShape = state.category;
+  const group = svgEl("g", { class: "piece", transform: `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})` });
+  const content = svgEl("g", { class: "piece-content" });
+  content.append(svgEl("polygon", { points: quadrilateralPoints(actualShape, width, height, state.quadVertices), class: "quad-piece piece-rays" }));
+  if (actualShape === "מעוין") {
+    content.append(svgEl("line", { x1: -width / 2, y1: 0, x2: width / 2, y2: 0, class: "quad-diagonal" }));
+    content.append(svgEl("line", { x1: 0, y1: -height / 2, x2: 0, y2: height / 2, class: "quad-diagonal" }));
+  }
+  if (actualShape === "מקבילית") {
+    [0, 1, 2].forEach(index => addPointHandle(content, state.quadVertices[index], `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
+  } else if (actualShape === "טרפז") {
+    state.quadVertices.forEach((point, index) => addPointHandle(content, point, `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
+  } else if (actualShape === "דלתון") {
+    state.quadVertices.forEach((point, index) => addPointHandle(content, point, `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
+  } else if (actualShape === "ריבוע") {
+    addPointHandle(content, { x: width / 2, y: height / 2 }, "quadUniform", "הגדלה או הקטנה אחידה של הריבוע", "גודל");
+  } else {
+    addPointHandle(content, { x: width / 2, y: 0 }, "quadWidth", "שינוי רוחב הצורה", "רוחב");
+    addPointHandle(content, { x: 0, y: height / 2 }, "quadHeight", "שינוי גובה הצורה", "גובה");
+  }
+  group.addEventListener("pointerdown", startMove);
+  const handleGroup = svgEl("g", { transform: `translate(0 ${-height / 2 - 48})` });
+  handleGroup.append(svgEl("line", { x1: 0, y1: 12, x2: 0, y2: 38, class: "rotate-handle-line" }));
+  const handle = svgEl("circle", { cx: 0, cy: 0, r: 13, class: "rotate-handle" });
+  handle.addEventListener("pointerdown", startRotate); handleGroup.append(handle); content.append(handleGroup);
+  group.append(content); pieceLayer.append(group); addPieceDragArea(content);
+}
+
+function resizeQuadrilateral(axis, delta) {
+  if (!state.equipped || state.solved) return;
+  if (state.category === "ריבוע") {
+    const next = Math.max(60, Math.min(210, state.quadDimensions.width + delta));
+    state.quadDimensions = { width: next, height: next };
+  } else {
+    state.quadDimensions[axis] = Math.max(55, Math.min(220, state.quadDimensions[axis] + delta));
+  }
+  renderPiece();
+}
+
+function updateShapeControls(level) {
+  const isQuad = level.phase === "quadrilateral";
+  document.querySelectorAll(".shape-control").forEach(button => {
+    button.hidden = !isQuad;
+    button.toggleAttribute("hidden", !isQuad);
+  });
+  document.querySelectorAll(".angle-size-button").forEach(button => button.hidden = isQuad);
+  if (!isQuad) return;
+  const square = state.category === "ריבוע";
+  const parallelogram = state.category === "מקבילית";
+  const vertexTrapezoid = state.category === "טרפז";
+  $("shape-width-smaller").textContent = square ? "קטן יותר" : "צר יותר";
+  $("shape-width-larger").textContent = square ? "גדול יותר" : "רחב יותר";
+  $("shape-height-smaller").disabled = !state.equipped || square || state.solved;
+  $("shape-height-larger").disabled = !state.equipped || square || state.solved;
+  $("shape-height-smaller").textContent = "נמוך יותר";
+  $("shape-height-larger").textContent = "גבוה יותר";
+  $("shape-width-smaller").disabled = !state.equipped || state.solved;
+  $("shape-width-larger").disabled = !state.equipped || state.solved;
+  $("shape-width-smaller").hidden = parallelogram || vertexTrapezoid;
+  $("shape-width-larger").hidden = parallelogram || vertexTrapezoid;
+  $("shape-height-smaller").hidden = parallelogram || vertexTrapezoid;
+  $("shape-height-larger").hidden = parallelogram || vertexTrapezoid;
+  if (state.equipped && square) $("angle-readout").textContent = "ריבוע • גודל אחיד • אפשר לסובב";
+  $("mirror-button").disabled = true;
 }
 
 function addPieceDragArea(content) {
@@ -1347,7 +1501,10 @@ function startPointResize(event, kind) {
   const local = toPieceLocal(svgPoint(event));
   state.pointDragStart = {
     local,
+    piece: { ...state.piece },
     dimensions: { ...state.dimensions },
+    quadDimensions: { ...state.quadDimensions },
+    quadVertices: state.quadVertices?.map(point => ({ ...point })) || null,
     triangleVertices: state.triangleVertices ? {
       a: { ...state.triangleVertices.a },
       b: { ...state.triangleVertices.b }
@@ -1386,6 +1543,8 @@ function beginTouchGesture() {
     rotation: state.piece.rotation,
     degrees: state.degrees,
     dimensions: { ...state.dimensions },
+    quadDimensions: { ...state.quadDimensions },
+    quadVertices: state.quadVertices?.map(point => ({ ...point })) || null,
     fingerOpening: Math.abs(normalizeSignedAngle(angles[1] - angles[0]))
   };
   state.dragging = "multitouch";
@@ -1415,16 +1574,31 @@ svg.addEventListener("pointermove", event => {
     state.piece.x = Math.max(25, Math.min(695, touchGesture.center.x + metrics.midpoint.x - touchGesture.midpoint.x));
     state.piece.y = Math.max(25, Math.min(405, touchGesture.center.y + metrics.midpoint.y - touchGesture.midpoint.y));
     state.piece.rotation = normalizeAngle(touchGesture.rotation + normalizeSignedAngle(metrics.direction - touchGesture.direction));
-    Object.keys(state.dimensions).forEach(key => {
+    const activeLevel = levels[state.levelIndex];
+    if (activeLevel.phase === "quadrilateral") {
+      if (state.category === "ריבוע") {
+        const next = Math.max(60, Math.min(210, touchGesture.quadDimensions.width * scale));
+        state.quadDimensions = { width: next, height: next };
+      } else {
+        state.quadDimensions = {
+          width: Math.max(55, Math.min(220, touchGesture.quadDimensions.width * scale)),
+          height: Math.max(55, Math.min(220, touchGesture.quadDimensions.height * scale))
+        };
+      }
+      if (touchGesture.quadVertices) {
+        state.quadVertices = touchGesture.quadVertices.map(point => ({ x: point.x * scale, y: point.y * scale }));
+      }
+    } else Object.keys(state.dimensions).forEach(key => {
       state.dimensions[key] = Math.max(55, Math.min(260, touchGesture.dimensions[key] * scale));
     });
     const currentAngles = points.map(point => Math.atan2(point.y - state.piece.y, point.x - state.piece.x) * 180 / Math.PI);
     const opening = Math.abs(normalizeSignedAngle(currentAngles[1] - currentAngles[0]));
-    const level = levels[state.levelIndex];
-    const choice = level.choices.find(c => c.id === state.choice);
-    const bounds = angleBounds(activeChoiceType(level, choice), level.lockAngleType === true);
-    state.degrees = Math.max(bounds.min, Math.min(bounds.max, touchGesture.degrees + opening - touchGesture.fingerOpening));
-    updateAngleReadout();
+    if (activeLevel.phase !== "quadrilateral") {
+      const choice = activeLevel.choices.find(c => c.id === state.choice);
+      const bounds = angleBounds(activeChoiceType(activeLevel, choice), activeLevel.lockAngleType === true);
+      state.degrees = Math.max(bounds.min, Math.min(bounds.max, touchGesture.degrees + opening - touchGesture.fingerOpening));
+      updateAngleReadout();
+    }
   } else if (state.dragging === "move") {
     if (state.dragStartPointer && Math.hypot(event.clientX - state.dragStartPointer.x, event.clientY - state.dragStartPointer.y) > 8) state.dragMoved = true;
     state.piece.x = Math.max(25, Math.min(695, p.x - state.dragOffset.x));
@@ -1488,12 +1662,61 @@ function angleDistance(a, b) { const d = Math.abs(normalizeAngle(a) - normalizeA
 function resizeShapePoint(kind, svgPosition) {
   const local = toPieceLocal(svgPosition);
   const start = state.pointDragStart || { local, dimensions: { ...state.dimensions } };
+  const startLocal = start.piece ? toLocalAroundPiece(svgPosition, start.piece) : local;
   const delta = { x: local.x - start.local.x, y: local.y - start.local.y };
   const shape = augmentedShape(levels[state.levelIndex]);
   const parallelDirection = shape === "f" ? unit(0) : unit(state.degrees / 2);
   const diagonalDirection = unit(-state.degrees / 2);
   const projection = (point, direction) => point.x * direction.x + point.y * direction.y;
-  if (kind === "arm") {
+  if (kind === "quadUniform") {
+    const startSize = start.quadDimensions?.width || state.quadDimensions.width;
+    const rawDelta = ((startLocal.x - start.local.x) + (startLocal.y - start.local.y)) / 2;
+    const next = Math.max(60, Math.min(210, startSize + rawDelta));
+    movePieceFromPointResize(start, (next - startSize) / 2, (next - startSize) / 2);
+    state.quadDimensions = { width: next, height: next };
+  } else if (kind === "quadWidth") {
+    const startWidth = start.quadDimensions?.width || state.quadDimensions.width;
+    const next = Math.max(55, Math.min(220, startWidth + startLocal.x - start.local.x));
+    if (start.quadVertices) {
+      const scaleX = next / Math.max(1, startWidth);
+      state.quadVertices = start.quadVertices.map(point => ({ x: point.x * scaleX, y: point.y }));
+    } else movePieceFromPointResize(start, (next - startWidth) / 2, 0);
+    state.quadDimensions.width = next;
+  } else if (kind === "quadHeight") {
+    const startHeight = start.quadDimensions?.height || state.quadDimensions.height;
+    const next = Math.max(55, Math.min(220, startHeight + startLocal.y - start.local.y));
+    if (start.quadVertices) {
+      const scaleY = next / Math.max(1, startHeight);
+      state.quadVertices = start.quadVertices.map(point => ({ x: point.x, y: point.y * scaleY }));
+    } else movePieceFromPointResize(start, 0, (next - startHeight) / 2);
+    state.quadDimensions.height = next;
+  } else if (kind.startsWith("quadVertex") && start.quadVertices) {
+    const index = Number(kind.slice("quadVertex".length));
+    const actualShape = state.category;
+    const candidate = { x: Math.max(-180, Math.min(180, startLocal.x)), y: Math.max(-160, Math.min(160, startLocal.y)) };
+    if (actualShape === "מקבילית") {
+      state.quadVertices[index] = candidate;
+      const [a, b, c] = state.quadVertices;
+      state.quadVertices[3] = { x: a.x + c.x - b.x, y: a.y + c.y - b.y };
+    } else if (actualShape === "טרפז") {
+      const oppositeBaseY = index < 2 ? Math.min(state.quadVertices[2].y, state.quadVertices[3].y) : Math.max(state.quadVertices[0].y, state.quadVertices[1].y);
+      const safeCandidate = index < 2
+        ? { ...candidate, y: Math.min(candidate.y, oppositeBaseY - 30) }
+        : { ...candidate, y: Math.max(candidate.y, oppositeBaseY + 30) };
+      state.quadVertices[index] = safeCandidate;
+      const partner = index % 2 === 0 ? index + 1 : index - 1;
+      state.quadVertices[partner] = { ...state.quadVertices[partner], y: safeCandidate.y };
+    } else {
+      if (index === 0) state.quadVertices[index] = { x: 0, y: Math.min(-25, candidate.y) };
+      if (index === 1) state.quadVertices[index] = { x: Math.max(25, candidate.x), y: 0 };
+      if (index === 2) state.quadVertices[index] = { x: 0, y: Math.max(25, candidate.y) };
+      if (index === 3) state.quadVertices[index] = { x: Math.min(-25, candidate.x), y: 0 };
+    }
+    const xs = state.quadVertices.map(point => point.x);
+    const ys = state.quadVertices.map(point => point.y);
+    state.quadDimensions.width = Math.max(...xs) - Math.min(...xs);
+    state.quadDimensions.height = Math.max(...ys) - Math.min(...ys);
+  } else if (kind === "arm") {
     state.dimensions.arm = Math.max(65, Math.min(220, start.dimensions.arm + projection(delta, parallelDirection)));
   } else if (kind === "cross") {
     state.dimensions.cross = Math.max(70, Math.min(620, start.dimensions.cross + projection(delta, diagonalDirection)));
@@ -1523,6 +1746,23 @@ function resizeShapePoint(kind, svgPosition) {
     state.degrees = geometry.degrees;
     updateAngleReadout();
   }
+}
+
+function toLocalAroundPiece(svgPosition, piece) {
+  const dx = svgPosition.x - piece.x;
+  const dy = svgPosition.y - piece.y;
+  const rotation = -piece.rotation * Math.PI / 180;
+  return {
+    x: dx * Math.cos(rotation) - dy * Math.sin(rotation),
+    y: dx * Math.sin(rotation) + dy * Math.cos(rotation)
+  };
+}
+
+function movePieceFromPointResize(start, localX, localY) {
+  if (!start.piece) return;
+  const rotation = start.piece.rotation * Math.PI / 180;
+  state.piece.x = start.piece.x + localX * Math.cos(rotation) - localY * Math.sin(rotation);
+  state.piece.y = start.piece.y + localX * Math.sin(rotation) + localY * Math.cos(rotation);
 }
 
 function toPieceLocal(svgPosition) {
@@ -1643,6 +1883,7 @@ function check() {
   if (!state.equipped) return;
   const level = levels[state.levelIndex];
   const target = currentTarget(level);
+  if (level.phase === "quadrilateral") { checkQuadrilateral(level); return; }
   if (state.category !== level.correctCategory) {
     feedback(t("wrongTool"), false);
     pulse(100);
@@ -1686,6 +1927,83 @@ function check() {
   } else {
     feedback(t("angleNeeded", { target: Math.round(targetDegrees), current: Math.round(state.degrees) }), false);
     pulse(80);
+  }
+}
+
+function transformedQuadrilateralVertices(vertices, piece) {
+  const rotation = piece.rotation * Math.PI / 180;
+  return vertices.map(point => ({
+    x: piece.x + point.x * Math.cos(rotation) - point.y * Math.sin(rotation),
+    y: piece.y + point.x * Math.sin(rotation) + point.y * Math.cos(rotation)
+  }));
+}
+
+function quadrilateralMatchError(level) {
+  const pieceVertices = transformedQuadrilateralVertices(
+    state.quadVertices || quadrilateralVertices(state.category, state.quadDimensions.width, state.quadDimensions.height),
+    state.piece
+  );
+  const targetVertices = transformedQuadrilateralVertices(
+    quadrilateralVertices(level.correctCategory, level.targetDimensions.width, level.targetDimensions.height),
+    level.target
+  );
+  const orders = [];
+  for (let shift = 0; shift < 4; shift += 1) {
+    orders.push(targetVertices.map((_, index) => targetVertices[(index + shift) % 4]));
+    orders.push(targetVertices.map((_, index) => targetVertices[(shift - index + 4) % 4]));
+  }
+  return Math.min(...orders.map(order => Math.max(...pieceVertices.map((point, index) =>
+    Math.hypot(point.x - order[index].x, point.y - order[index].y)
+  ))));
+}
+
+function checkQuadrilateral(level) {
+  if (!level.offeredValidNames?.includes(state.category)) {
+    feedback("הבחירה אינה מתארת את הצורה הזו. נסו שם אחר.", false);
+    pulse(100);
+    return;
+  }
+  const distance = Math.hypot(state.piece.x - level.target.x, state.piece.y - level.target.y);
+  const shapeError = quadrilateralMatchError(level);
+  if (distance > level.target.tolerance) feedback("קרבו את מרכז הצורה למסגרת הכחולה.", false);
+  else if (shapeError > 20) feedback("כוונו את הסיבוב והקודקודים עד שהצורה תשב על המסגרת.", false);
+  else {
+    state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
+    feedback(`מצוין! זיהיתם וכיוונתם ${categoryLabel(state.category)}. +${level.xpBase} XP`, true);
+    updateShapeControls(level);
+    if (level.askWhatElse) setTimeout(() => beginWhatElse(level), 700);
+    else setTimeout(nextLevel, 1100);
+  }
+}
+
+function beginWhatElse(level) {
+  state.followUp = true;
+  state.followUpFound = [state.category];
+  $("mission-title").textContent = "מה עוד?";
+  $("mission-hint").textContent = "הצורה התקבעה. בחרו את השם החוקי הנוסף שנשאר.";
+  $("angle-readout").textContent = "מה עוד מתאר את הצורה?";
+  const selected = document.querySelector(`[data-category="${state.category}"]`);
+  if (selected) { selected.disabled = true; selected.setAttribute("aria-pressed", "true"); }
+}
+
+function handleWhatElseChoice(level, button) {
+  if (button.disabled) return;
+  const value = button.dataset.category;
+  if (!level.offeredValidNames.includes(value)) {
+    feedback("השם הזה אינו מתאר את הצורה. נסו שוב.", false);
+    return;
+  }
+  state.followUpFound.push(value);
+  button.disabled = true;
+  button.setAttribute("aria-pressed", "true");
+  const remaining = level.offeredValidNames.filter(name => !state.followUpFound.includes(name));
+  if (remaining.length) {
+    feedback(`נכון! גם ${value}. יש עוד ${remaining.length === 1 ? "אחד" : remaining.length}.`, true);
+    $("mission-title").textContent = "מה עוד?";
+  } else {
+    feedback("מצוין — מצאתם את כל השמות החוקיים לצורה.", true);
+    state.followUp = false;
+    setTimeout(nextLevel, 1000);
   }
 }
 
@@ -1744,6 +2062,7 @@ function startCourseAt(section) {
     primitives: 0,
     equal: levels.findIndex(level => level.family === "שוות"),
     "180": levels.findIndex(level => level.family === "180°"),
+    quadrilaterals: levels.findIndex(level => level.phase === "quadrilateral"),
     master: levels.findIndex(level => level.mode === "master")
   };
   const selectedIndex = indexBySection[section];
@@ -1769,9 +2088,10 @@ function pulse(pattern) {
 
 function loadLevel() {
   const level = levels[state.levelIndex];
+  prepareQuadrilateralLevel(level);
   prepareDynamicLevel(level);
   prepareProLevel(level);
-  Object.assign(state, { category: null, firstChoiceMade: false, firstChoiceCorrect: false, choice: null, degrees: 0, equipped: false, solved: false, dragging: null });
+  Object.assign(state, { category: null, firstChoiceMade: false, firstChoiceCorrect: false, choice: null, degrees: 0, equipped: false, solved: false, followUp: false, followUpFound: [], quadVertices: null, dragging: null });
   $("level-number").textContent = level.exerciseNumber;
   $("level-count").textContent = level.exerciseCount;
   updateCourseMenuButton(level);
@@ -1782,16 +2102,56 @@ function loadLevel() {
     ? t("beginnerHint")
     : level.mode === "master"
       ? t("masterHint")
-      : t("advancedHint");
+      : level.phase === "quadrilateral"
+        ? "בחרו את המרובע המתאים, גררו למסגרת וכוונו רק בעזרת הפעולות שמתאימות לצורה."
+        : t("advancedHint");
   $("arena-title").textContent = level.phase === "beginner" ? t("beginnerArena") : t("advancedArena");
   $("angle-readout").textContent = level.mode === "tutorial" ? t("tutorialMode") : level.mode === "master" ? t("masterMode") : t("practiceMode");
   $("feedback").textContent = "";
   $("feedback").className = "feedback";
   ["rotate-left", "rotate-right", "check-button", "angle-smaller", "angle-larger", "mirror-button", "discard-button"].forEach(id => $(id).disabled = true);
+  updateShapeControls(level);
   $("mirror-button").setAttribute("aria-pressed", "false");
   renderChoices(level);
   renderScene(level);
   renderPiece();
+}
+
+function prepareQuadrilateralLevel(level) {
+  if (level.phase !== "quadrilateral") return;
+  level.scaffold = false;
+  let shape = level.correctCategory;
+  if (level.exerciseNumber > 3) {
+    shape = quadrilateralTools[Math.floor(Math.random() * quadrilateralTools.length)];
+    level.correctCategory = shape;
+    level.target.x = 320 + Math.floor(Math.random() * 181);
+    level.target.y = 145 + Math.floor(Math.random() * 121);
+    level.target.rotation = -40 + Math.floor(Math.random() * 17) * 5;
+    level.start.x = 105 + Math.floor(Math.random() * 81);
+    level.start.y = 285 + Math.floor(Math.random() * 76);
+  }
+  if (shape === "ריבוע") {
+    const side = 100 + Math.floor(Math.random() * 6) * 10;
+    level.targetDimensions = { width: side, height: side };
+  } else if (shape === "מלבן") {
+    level.targetDimensions = {
+      width: 140 + Math.floor(Math.random() * 5) * 10,
+      height: 70 + Math.floor(Math.random() * 5) * 10
+    };
+  } else {
+    level.targetDimensions = {
+      width: 100 + Math.floor(Math.random() * 7) * 10,
+      height: 90 + Math.floor(Math.random() * 7) * 10
+    };
+  }
+  const validNames = validQuadrilateralNames(shape);
+  const useTwoValidChoices = validNames.length > 1 && Math.random() < .5;
+  const offeredValidNames = shuffle([...validNames]).slice(0, useTwoValidChoices ? validNames.length : 1);
+  level.offeredValidNames = offeredValidNames;
+  level.askWhatElse = useTwoValidChoices;
+  level.disabledCategories = useTwoValidChoices
+    ? validNames.filter(value => !offeredValidNames.includes(value))
+    : quadrilateralTools.filter(value => !offeredValidNames.includes(value));
 }
 
 function prepareDynamicLevel(level) {
@@ -1848,6 +2208,10 @@ $("rotate-left").addEventListener("click", () => rotate(-5));
 $("rotate-right").addEventListener("click", () => rotate(5));
 $("angle-smaller").addEventListener("click", () => resizeAngle(-5));
 $("angle-larger").addEventListener("click", () => resizeAngle(5));
+$("shape-width-smaller").addEventListener("click", () => resizeQuadrilateral("width", -10));
+$("shape-width-larger").addEventListener("click", () => resizeQuadrilateral("width", 10));
+$("shape-height-smaller").addEventListener("click", () => resizeQuadrilateral("height", -10));
+$("shape-height-larger").addEventListener("click", () => resizeQuadrilateral("height", 10));
 $("mirror-button").addEventListener("click", toggleMirror);
 $("discard-button").addEventListener("click", discardPiece);
 $("check-button").addEventListener("click", check);
