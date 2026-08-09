@@ -957,7 +957,7 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallbac
     speechState.audio.currentTime = 0;
   }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  const audio = new Audio(`audio/${state.language}/${filename}`);
+  const audio = new Audio(`audio/${state.language}/${filename}?v=2`);
   let usedFallback = false;
   const fallback = () => {
     if (usedFallback) return;
@@ -970,6 +970,7 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallbac
     if (speechState.audio === audio) speechState.audio = null;
   };
   speechState.audio = audio;
+  audio.load();
   audio.play().catch(fallback);
 }
 
