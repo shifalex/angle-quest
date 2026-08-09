@@ -219,7 +219,7 @@ const quadrilateralLevels = Array.from({ length: 12 }, (_, index) => {
     scaffold: index < 3, askWhatElse: false, scene: "quadrilateral", xpBase: 120
   };
 });
-levels.push(...quadrilateralLevels);
+levels.splice(0, 0, ...quadrilateralLevels);
 
 const supportedLanguages = ["he", "en", "ru"];
 const supportedCourseSections = ["primitives", "equal", "180", "quadrilaterals", "master"];
@@ -282,6 +282,7 @@ const state = {
   lastPieceTap: 0,
   pointDragStart: null,
   triangleVertices: null,
+  adjacentRays: null,
   quadDimensions: { width: 120, height: 120 },
   quadVertices: null,
   dragOffset: { x: 0, y: 0 }
@@ -298,6 +299,12 @@ const recordedSpeechFiles = {
   "קודקודיות": "vertical.mp3",
   "צמודות": "adjacent.mp3",
   "משולש": "triangle.mp3",
+  "ריבוע": "square.mp3",
+  "מלבן": "rectangle.mp3",
+  "מעוין": "rhombus.mp3",
+  "מקבילית": "parallelogram.mp3",
+  "טרפז": "trapezoid.mp3",
+  "דלתון": "kite.mp3",
   "sound-on": "sound-on.mp3"
 };
 
@@ -332,7 +339,7 @@ const uiText = {
 
 Object.assign(uiText.he, {
   tutorialPrimitives: "פרימיטיבים", practicePrimitives: "פרימיטיבים", tutorialEqual: "זוויות שוות", practiceEqual: "זוויות שוות", tutorial180: "180°", practice180: "180°", tutorialMode: "בחרו כלי", practiceMode: "בחרו כלי",
-  levelComplete: "הרמה הושלמה", levelCompleteBody: "סיימתם 10 שאלות. אפשר לעבור לרמה הבאה.", nextLevel: "לרמה הבאה", chooseLevel: "בחירת רמה", chooseStart: "מאיפה מתחילים?", chooseStartBody: "אפשר להתחיל מכל משפחה או לעבור ישר לשלב המעורבב.", startEqual: "זוויות שוות", startMaster: "MASTER — מעורבב", complete: "כל הכבוד! צברתם {score} XP.", completeHint: "סיימתם את כל הרמות.", player: "שחקן", whoPlays: "מי משחק?", localPlayerNote: "השם וההיסטוריה נשמרים רק בדפדפן הזה — בלי סיסמה ובלי חשבון.", playerName: "שם השחקן", addPlayer: "הוספה", recordsTitle: "השיאים וההתקדמות", recentGames: "משחקים אחרונים", notDone: "לא בוצע", inProgress: "בתהליך — {done}/10", completedStatus: "הושלם — שיא {xp} XP", noGames: "עדיין אין משחקים שמורים", close: "סגירה", firstTry: "ניחוש ראשון: {count}"
+  levelComplete: "הרמה הושלמה", levelCompleteBody: "סיימתם 10 שאלות. אפשר לעבור לרמה הבאה.", nextLevel: "לרמה הבאה", chooseLevel: "בחירת רמה", chooseStart: "מאיפה מתחילים?", chooseStartBody: "אפשר להתחיל מכל משפחה או לעבור ישר לשלב המעורבב.", startEqual: "זוויות שוות", startMaster: "MASTER — זוויות מעורבבות", complete: "כל הכבוד! צברתם {score} XP.", completeHint: "סיימתם את כל הרמות.", player: "שחקן", whoPlays: "מי משחק?", localPlayerNote: "השם וההיסטוריה נשמרים רק בדפדפן הזה — בלי סיסמה ובלי חשבון.", playerName: "שם השחקן", addPlayer: "הוספה", recordsTitle: "השיאים וההתקדמות", recentGames: "משחקים אחרונים", notDone: "לא בוצע", inProgress: "בתהליך — {done}/10", completedStatus: "הושלם — שיא {xp} XP", noGames: "עדיין אין משחקים שמורים", close: "סגירה", firstTry: "ניחוש ראשון: {count}"
 });
 Object.assign(uiText.en, {
   tutorialPrimitives: "Primitives", practicePrimitives: "Primitives", tutorialEqual: "Equal angles", practiceEqual: "Equal angles", tutorial180: "180°", practice180: "180°", tutorialMode: "Choose a tool", practiceMode: "Choose a tool",
@@ -433,7 +440,7 @@ function sectionStartIndex(section) {
   if (section === "equal") return levels.findIndex(level => level.family === "שוות");
   if (section === "180") return levels.findIndex(level => level.family === "180°");
   if (section === "master") return levels.findIndex(level => level.mode === "master");
-  return 0;
+  return levels.findIndex(level => level.phase === "beginner");
 }
 
 function syncShareUrl(section = courseSectionForLevel(levels[state.levelIndex])) {
@@ -918,19 +925,31 @@ function speakSelection(category) {
     "מתחלפות": "Alternate angles.",
     "קודקודיות": "Vertical angles.",
     "צמודות": "Supplementary adjacent angles.",
-    "משולש": "Triangle."
+    "משולש": "Triangle.",
+    "ריבוע": "Square selected.",
+    "מלבן": "Rectangle selected.",
+    "מעוין": "Rhombus selected.",
+    "מקבילית": "Parallelogram selected.",
+    "טרפז": "Trapezoid selected.",
+    "דלתון": "Kite selected."
   };
-  const spokenText = category === "משולש"
+  const russianNames = {
+    "ריבוע": "Выбран квадрат.", "מלבן": "Выбран прямоугольник.", "מעוין": "Выбран ромб.",
+    "מקבילית": "Выбран параллелограмм.", "טרפז": "Выбрана трапеция.", "דלתון": "Выбран дельтоид."
+  };
+  const spokenText = quadrilateralTools.includes(category)
+    ? `נבחר ${category}`
+    : category === "משולש"
     ? "נבחר משולש"
     : primitiveTools.includes(category) ? `נבחרה זווית ${category}` : `נבחרו זוויות ${category}`;
-  playRecordedSpeech(category, spokenText, englishNames[category]);
+  playRecordedSpeech(category, spokenText, englishNames[category], russianNames[category]);
 }
 
-function playRecordedSpeech(key, hebrewFallback, englishFallback) {
+function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallback) {
   if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return;
   const filename = recordedSpeechFiles[key];
   if (!filename) {
-    speakText(hebrewFallback, englishFallback);
+    speakText(hebrewFallback, englishFallback, russianFallback);
     return;
   }
   if (speechState.audio) {
@@ -943,7 +962,7 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback) {
   const fallback = () => {
     if (usedFallback) return;
     usedFallback = true;
-    speakText(hebrewFallback, englishFallback);
+    speakText(hebrewFallback, englishFallback, russianFallback);
   };
   audio.volume = 1;
   audio.onerror = fallback;
@@ -959,7 +978,7 @@ function refreshVoices() {
   speechState.voices = window.speechSynthesis.getVoices();
 }
 
-function speakText(text, englishFallback = text) {
+function speakText(text, englishFallback = text, russianFallback = englishFallback) {
   if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return;
   if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
     feedback("הדפדפן הזה אינו תומך בהקראה קולית.", false);
@@ -973,13 +992,18 @@ function speakText(text, englishFallback = text) {
   if (window.speechSynthesis.speaking || window.speechSynthesis.pending) window.speechSynthesis.cancel();
   if (window.speechSynthesis.paused) window.speechSynthesis.resume();
   const hebrewVoice = speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("he") && voice.localService);
+  const russianVoice = speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("ru") && voice.localService)
+    || speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("ru"));
   const englishVoice = speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("en-us") && voice.localService)
     || speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("en") && voice.localService)
     || speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("en"));
-  const selectedVoice = hebrewVoice || englishVoice;
-  const message = new SpeechSynthesisUtterance(hebrewVoice ? text : englishFallback);
+  const requestedVoice = state.language === "ru" ? russianVoice : state.language === "en" ? englishVoice : hebrewVoice;
+  const selectedVoice = requestedVoice || englishVoice || hebrewVoice || russianVoice;
+  const requestedText = state.language === "ru" ? (russianFallback || englishFallback || text)
+    : state.language === "en" ? (englishFallback || text) : text;
+  const message = new SpeechSynthesisUtterance(requestedText);
   let started = false;
-  message.lang = selectedVoice?.lang || (hebrewVoice ? "he-IL" : "en-US");
+  message.lang = selectedVoice?.lang || (state.language === "ru" ? "ru-RU" : state.language === "he" ? "he-IL" : "en-US");
   message.rate = .92;
   message.pitch = 1.05;
   message.volume = 1;
@@ -1032,6 +1056,9 @@ function placeSelected(point) {
     mirrored: false
   };
   state.dimensions = { arm: 112, cross: 112, gap: 92, spine: 132 };
+  state.adjacentRays = state.category === "צמודות"
+    ? { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 }
+    : null;
   if (level.phase === "quadrilateral") {
     const actualShape = state.category;
     state.quadDimensions = actualShape === "ריבוע" ? { width: 110, height: 110 }
@@ -1088,8 +1115,11 @@ function renderPiece() {
     transform: mirrorScaleTransform(mirrorCenterX, state.piece.mirrored ? -1 : 1)
   });
   const rayLength = 88;
-  const aAngle = shape === "f" || shape === "primitive" ? 0 : -state.degrees / 2;
-  const bAngle = shape === "f" ? state.degrees : shape === "primitive" ? -state.degrees : state.degrees / 2;
+  const adjacentRays = shape === "adjacent2"
+    ? (state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 })
+    : null;
+  const aAngle = adjacentRays?.a ?? (shape === "f" || shape === "primitive" ? 0 : -state.degrees / 2);
+  const bAngle = adjacentRays?.b ?? (shape === "f" ? state.degrees : shape === "primitive" ? -state.degrees : state.degrees / 2);
   const a = polar(rayLength, aAngle);
   const b = polar(rayLength, bAngle);
   let equalMarker = null;
@@ -1102,7 +1132,8 @@ function renderPiece() {
     primaryMarkerRotation = markers.primaryRotation;
     equalMarker = markers.equalMarker;
   } else if (shape === "adjacent2") {
-    renderAdjacentTwoShape(content, a, b);
+    renderAdjacentTwoShape(content, a, b, polar(rayLength, adjacentRays.opposite));
+    primaryMarkerRotation = normalizeAngle((aAngle + normalizeSignedAngle(bAngle - aAngle) / 2));
   } else if (shape === "triangle") {
     primaryMarkerRotation = triangleGeometry().rotation;
     renderTriangleShape(content, a, b);
@@ -1341,6 +1372,9 @@ function triangleGeometry() {
 function toolMarkerRotation(category, degrees) {
   if (primitiveTools.includes(category)) return -degrees / 2;
   if (category === "משולש") return triangleGeometry().rotation;
+  if (category === "צמודות" && state.adjacentRays) {
+    return normalizeAngle(state.adjacentRays.a + normalizeSignedAngle(state.adjacentRays.b - state.adjacentRays.a) / 2);
+  }
   return category === "מתאימות" ? degrees / 2 : 0;
 }
 
@@ -1363,8 +1397,9 @@ function renderAngleMarker(group, marker) {
   group.append(markerGroup);
 }
 
-function renderAdjacentTwoShape(group, a, b) {
-  group.append(svgEl("line", { x1: -b.x, y1: -b.y, x2: b.x, y2: b.y, class: "piece-rays" }));
+function renderAdjacentTwoShape(group, a, b, opposite) {
+  group.append(svgEl("line", { x1: 0, y1: 0, x2: opposite.x, y2: opposite.y, class: "piece-rays" }));
+  group.append(svgEl("line", { x1: 0, y1: 0, x2: b.x, y2: b.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: a.x, y2: a.y, class: "piece-opposite" }));
 }
 
@@ -1612,9 +1647,21 @@ svg.addEventListener("pointermove", event => {
     const bounds = angleBounds(activeChoiceType(level, choice), level.lockAngleType === true);
     const local = toPieceLocal(p);
     const relativeAngle = Math.atan2(local.y, local.x) * 180 / Math.PI;
-    const hasFixedHorizontalBase = state.category === "מתאימות" || primitiveTools.includes(state.category);
-    const requestedDegrees = hasFixedHorizontalBase ? Math.abs(normalizeSignedAngle(relativeAngle)) : Math.abs(relativeAngle) * 2;
-    state.degrees = Math.max(bounds.min, Math.min(bounds.max, requestedDegrees));
+    if (state.category === "צמודות") {
+      const side = Number(state.dragging.slice(7));
+      const rays = state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 };
+      const fixedAngle = side === -1 ? rays.b : rays.a;
+      const delta = normalizeSignedAngle(relativeAngle - fixedAngle);
+      const requestedDegrees = Math.max(bounds.min, Math.min(bounds.max, Math.abs(delta)));
+      const direction = delta < 0 ? -1 : 1;
+      if (side === -1) rays.a = normalizeAngle(fixedAngle + direction * requestedDegrees);
+      else rays.b = normalizeAngle(fixedAngle + direction * requestedDegrees);
+      state.degrees = requestedDegrees;
+    } else {
+      const hasFixedHorizontalBase = state.category === "מתאימות" || primitiveTools.includes(state.category);
+      const requestedDegrees = hasFixedHorizontalBase ? Math.abs(normalizeSignedAngle(relativeAngle)) : Math.abs(relativeAngle) * 2;
+      state.degrees = Math.max(bounds.min, Math.min(bounds.max, requestedDegrees));
+    }
     updateAngleReadout();
   } else if (state.dragging.startsWith("point:")) {
     resizeShapePoint(state.dragging.slice(6), p);
@@ -1836,6 +1883,11 @@ function resizeAngle(delta) {
   const choice = level.choices.find(c => c.id === state.choice);
   const bounds = angleBounds(activeChoiceType(level, choice), level.lockAngleType === true);
   const nextDegrees = Math.max(bounds.min, Math.min(bounds.max, state.degrees + delta));
+  if (state.category === "צמודות") {
+    const rays = state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 };
+    const middle = rays.a + normalizeSignedAngle(rays.b - rays.a) / 2;
+    state.adjacentRays = { ...rays, a: middle - nextDegrees / 2, b: middle + nextDegrees / 2 };
+  }
   if (state.category === "משולש" && state.triangleVertices) {
     const geometry = triangleGeometry();
     const lengthA = Math.hypot(geometry.a.x, geometry.a.y);
@@ -1994,6 +2046,7 @@ function handleWhatElseChoice(level, button) {
     return;
   }
   state.followUpFound.push(value);
+  speakSelection(value);
   button.disabled = true;
   button.setAttribute("aria-pressed", "true");
   const remaining = level.offeredValidNames.filter(name => !state.followUpFound.includes(name));
@@ -2049,7 +2102,7 @@ function showCourseMenu() {
   const currentSection = courseSectionForLevel(levels[state.levelIndex]);
   document.querySelectorAll("[data-course-start]").forEach(button => button.setAttribute("aria-current", String(button.dataset.courseStart === currentSection)));
   $("course-menu").hidden = false;
-  document.querySelector('[data-course-start="primitives"]').focus();
+  document.querySelector('[data-course-start="quadrilaterals"]').focus();
 }
 
 function startCourseAt(section) {
@@ -2059,7 +2112,7 @@ function startCourseAt(section) {
     return;
   }
   const indexBySection = {
-    primitives: 0,
+    primitives: levels.findIndex(level => level.phase === "beginner"),
     equal: levels.findIndex(level => level.family === "שוות"),
     "180": levels.findIndex(level => level.family === "180°"),
     quadrilaterals: levels.findIndex(level => level.phase === "quadrilateral"),
