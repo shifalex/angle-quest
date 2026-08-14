@@ -204,7 +204,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 
 .touch-ui .mirror-help { display: grid; place-items: center; }
 .touch-ui .angle-size-button, .touch-ui #rotate-left, .touch-ui #rotate-right { display: none; }
-.touch-ui .game-layout { grid-template-columns: 1fr; grid-template-areas: "play" "tools"; }
+.touch-ui .game-layout { grid-template-columns: 1fr; grid-template-areas: "tools" "play"; }
 .touch-ui .play-panel { grid-area: play; padding: 12px; }
 .touch-ui .loadout { grid-area: tools; padding: 12px; }
 .touch-ui .choice-grid { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 10px; scroll-snap-type: x proximity; }
@@ -226,6 +226,26 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .touch-ui .mission { min-height: 88px; }
 .touch-ui .panel-heading .step-chip { display: none; }
 .touch-ui .arena-heading { padding-inline: 4px; }
+
+@media (orientation: landscape) and (min-width: 720px) {
+  .touch-ui .game-layout {
+    grid-template-columns: minmax(0, 1.7fr) minmax(270px, .68fr);
+    grid-template-areas: "play tools";
+    align-items: start;
+    direction: ltr;
+  }
+  html[dir="rtl"].touch-ui .game-layout > * { direction: rtl; }
+  html[dir="ltr"].touch-ui .game-layout > * { direction: ltr; }
+  .touch-ui .loadout .choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+    padding-bottom: 2px;
+  }
+  .touch-ui .loadout .choice-button { min-width: 0; }
+  .touch-ui .arena { min-height: min(57vh, 540px); }
+  .touch-ui #geometry { min-height: min(57vh, 540px); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .mirror-demo-shape, .tap-ring { animation: none; }
