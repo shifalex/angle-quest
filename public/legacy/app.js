@@ -325,12 +325,12 @@ const uiText = {
     appTitle: "משימת הזוויות", level: "שלב", currentMission: "משימה נוכחית", chooseToolEyebrow: "בחרו כלי", chooseTool: "בחרו כלי", placeAngle: "הניחו את הזווית", selectAngle: "בחרו זווית", toolbox: "ארגז הזוויות", primitives: "פרימיטיבים", equalFamily: "שוות", diagramTitle: "תרגיל זוויות", diagramDesc: "שרטוט גאומטרי עם זווית נתונה ומקום לזווית חסרה.", arenaTip: "גררו כדי להזיז • דאבל־קליק/טאפ בכל השרטוט: פליפ • ● זווית • ■ גובה/אורך", anglePlus: "+ זווית", angleMinus: "− זווית", check: "בדיקה", counterClockwise: "↶ נגד השעון", clockwise: "סיבוב ↷", mirror: "⇋ מראה", discard: "⌫ זריקה", footer: "נבנה ללמידה בתנועה: בוחרים, אוספים, מניחים ומגלים.", soundOff: "כיבוי הקראה", soundOn: "הפעלת הקראה",
     tutorialPrimitives: "טוטוריאל פרימיטיבים", tutorialEqual: "טוטוריאל זוויות שוות", tutorial180: "טוטוריאל 180°", practicePrimitives: "תרגול פרימיטיבים", practiceEqual: "תרגול זוויות שוות", practice180: "תרגול 180°", masterStage: "MASTER — הכול מעורבב",
     beginnerHint: "בחרו חדה, ישרה, שטוחה או קהה; אחר כך גררו את הזווית הנבחרת והניחו אותה על השרטוט.", advancedHint: "בחרו לפי שם את הכלי שמתאר את הקשר בשרטוט. הכלי יופיע מיד, ואז כוונו אותו למקום החסר.", masterHint: "הכול פתוח ומעורבב. התעלמו מקווי ההסחה — גם כשקו בצבע השאלה עובר דרך הקודקוד.", beginnerArena: "בחרו והניחו על הזווית", advancedArena: "גררו אל הזווית החסרה", tutorialMode: "TUTORIAL • בחרו כלי", practiceMode: "PRACTICE • בחרו כלי", masterMode: "MASTER • הכול פתוח",
-    toolHidden: "הכלי הוסתר. לחצו על שם כדי להציג כלי.", augmented: "AUGMENTED: {tool}. אפשר לגרור, לכוון או לזרוק.", speechActive: "הקראה בעברית פועלת.", placeAgain: "{tool} • לחצו בשרטוט כדי להניח מחדש", discarded: "הכלי נזרק. לחצו בשרטוט כדי להניח כלי חדש.", chooseFirst: "בחרו קודם כלי מארגז הזוויות.", mirrorOn: "מצב מראה הופעל.", mirrorOff: "מצב מראה בוטל.", wrongTool: "הצורה שהנחתם אינה מתארת את הקשר שבשרטוט. זרקו אותה ובחרו כלי אחר.", correct: "פגיעה מדויקת! +{xp} XP", correctBonus: "פגיעה מדויקת! +{xp} XP ועוד +{bonus} בונוס לבחירה נכונה בניסיון הראשון!", moveCloser: "כמעט! מרכז הזווית צריך לשבת על הנקודה הכחולה.", rotateMore: "המיקום נכון. עכשיו סובבו עד שהשוקיים יישבו על השרטוט.", mirrorNeeded: "המיקום והסיבוב נכונים, אבל הצורה פונה לצד השני. לחצו לחיצה ארוכה על הכלי.", angleNeeded: "המיקום והכיוון נכונים. היעד הוא {target}° וכרגע הכלי על {current}°.", complete: "המסלול הושלם! צברתם {score} XP ב־{count} משימות.", completeHint: "סיימתם שלוש רמות של 10 שאלות ועוד 10 משימות מאסטר מעורבבות.", touchTip: "אצבע אחת מזיזה • שתי אצבעות מסובבות • לחיצה ארוכה: מראה", mirrorTutorialTitle: "שליטה טבעית במגע", mirrorTutorialBody: "גררו באצבע אחת כדי להזיז. הניחו שתי אצבעות וסובבו אותן כדי לסובב את הכלי. לחיצה ארוכה על הכלי מפעילה מראה; דאבל־טאפ נשאר פנוי לפעולות אחרות.", replayTutorial: "הציגו שוב", understood: "הבנתי", mirrorHelp: "הדרכת מגע"
+    toolHidden: "הכלי הוסתר. לחצו על שם כדי להציג כלי.", augmented: "AUGMENTED: {tool}. אפשר לגרור, לכוון או לזרוק.", speechActive: "הקראה בעברית פועלת.", placeAgain: "{tool} • לחצו בשרטוט כדי להניח מחדש", discarded: "הכלי נזרק. לחצו בשרטוט כדי להניח כלי חדש.", chooseFirst: "בחרו קודם כלי מארגז הזוויות.", mirrorOn: "מצב מראה הופעל.", mirrorOff: "מצב מראה בוטל.", wrongTool: "הצורה שהנחתם אינה מתארת את הקשר שבשרטוט. זרקו אותה ובחרו כלי אחר.", correct: "פגיעה מדויקת! +{xp} XP", correctBonus: "פגיעה מדויקת! +{xp} XP ועוד +{bonus} בונוס לבחירה נכונה בניסיון הראשון!", moveCloser: "כמעט! מרכז הזווית צריך לשבת על הנקודה הכחולה.", rotateMore: "המיקום נכון. עכשיו סובבו עד שהשוקיים יישבו על השרטוט.", mirrorNeeded: "המיקום והסיבוב נכונים, אבל הצורה פונה לצד השני. לחצו לחיצה ארוכה על הכלי.", angleNeeded: "המיקום והכיוון נכונים. היעד הוא {target}° וכרגע הכלי על {current}°.", complete: "המסלול הושלם! צברתם {score} XP ב־{count} משימות.", completeHint: "סיימתם שלוש רמות של 10 שאלות ועוד 10 משימות מאסטר מעורבבות.", touchTip: "אצבע אחת מזיזה • שתי אצבעות מסובבות וצובטות לגודל • לחיצה ארוכה: מראה", mirrorTutorialTitle: "שליטה טבעית במגע", mirrorTutorialBody: "גררו באצבע אחת כדי להזיז. בשתי אצבעות: סובבו כדי לסובב, והרחיקו או קרבו כדי לשנות גודל. לחיצה ארוכה מפעילה מראה; דאבל־טאפ נשאר פנוי.", replayTutorial: "הציגו שוב", understood: "הבנתי", mirrorHelp: "הדרכת מגע"
   },
   en: {
     appTitle: "Angle Quest", level: "Level", currentMission: "Current mission", chooseToolEyebrow: "Choose your tool", chooseTool: "Choose a tool", placeAngle: "Place the angle", selectAngle: "Choose an angle", toolbox: "Angle toolbox", primitives: "Primitives", equalFamily: "Equal angles", diagramTitle: "Angle exercise", diagramDesc: "A geometric diagram with a given angle and a missing angle.", arenaTip: "Drag to move • Double-click/tap anywhere: flip • ● angle • ■ height/length", anglePlus: "+ Angle", angleMinus: "− Angle", check: "Check", counterClockwise: "↶ Counterclockwise", clockwise: "Rotate ↷", mirror: "⇋ Mirror", discard: "⌫ Discard", footer: "Built for learning in motion: choose, collect, place, discover.", soundOff: "Turn narration off", soundOn: "Turn narration on",
     tutorialPrimitives: "Primitives tutorial", tutorialEqual: "Equal angles tutorial", tutorial180: "180° tutorial", practicePrimitives: "Primitives practice", practiceEqual: "Equal angles practice", practice180: "180° practice", masterStage: "MASTER — everything mixed", beginnerHint: "Choose acute, right, straight, or obtuse; then drag the selected angle onto the diagram.", advancedHint: "Choose the named tool that describes the relationship, then align it with the missing angle.", masterHint: "Everything is open and mixed. Ignore distractor lines, including lines through the vertex in the diagram color.", beginnerArena: "Choose and place on the angle", advancedArena: "Drag to the missing angle", tutorialMode: "TUTORIAL • Choose a tool", practiceMode: "PRACTICE • Choose a tool", masterMode: "MASTER • Everything open",
-    toolHidden: "Tool hidden. Press its name to show it again.", augmented: "AUGMENTED: {tool}. Drag, adjust, or discard it.", speechActive: "English narration is on.", placeAgain: "{tool} • Click the diagram to place again", discarded: "Tool discarded. Click the diagram to place a new tool.", chooseFirst: "Choose a tool from the angle toolbox first.", mirrorOn: "Mirror mode on.", mirrorOff: "Mirror mode off.", wrongTool: "This shape does not describe the relationship. Discard it and choose another tool.", correct: "Direct hit! +{xp} XP", correctBonus: "Direct hit! +{xp} XP and +{bonus} first-guess bonus!", moveCloser: "Almost! Place the angle center on the blue point.", rotateMore: "Position is correct. Rotate until the rays align with the diagram.", mirrorNeeded: "Position and rotation are correct, but the shape faces the other way. Long-press the tool.", angleNeeded: "Position and direction are correct. Target: {target}°; tool: {current}°.", complete: "Course complete! You earned {score} XP in {count} missions.", completeHint: "You completed three 10-question levels and 10 mixed Master missions.", touchTip: "One finger moves • Two fingers rotate • Long press: mirror", mirrorTutorialTitle: "Natural touch controls", mirrorTutorialBody: "Drag with one finger to move. Place two fingers and twist to rotate the tool. Long-press the tool to mirror it; double-tap stays available for other actions.", replayTutorial: "Replay", understood: "Got it", mirrorHelp: "Touch tutorial"
+    toolHidden: "Tool hidden. Press its name to show it again.", augmented: "AUGMENTED: {tool}. Drag, adjust, or discard it.", speechActive: "English narration is on.", placeAgain: "{tool} • Click the diagram to place again", discarded: "Tool discarded. Click the diagram to place a new tool.", chooseFirst: "Choose a tool from the angle toolbox first.", mirrorOn: "Mirror mode on.", mirrorOff: "Mirror mode off.", wrongTool: "This shape does not describe the relationship. Discard it and choose another tool.", correct: "Direct hit! +{xp} XP", correctBonus: "Direct hit! +{xp} XP and +{bonus} first-guess bonus!", moveCloser: "Almost! Place the angle center on the blue point.", rotateMore: "Position is correct. Rotate until the rays align with the diagram.", mirrorNeeded: "Position and rotation are correct, but the shape faces the other way. Long-press the tool.", angleNeeded: "Position and direction are correct. Target: {target}°; tool: {current}°.", complete: "Course complete! You earned {score} XP in {count} missions.", completeHint: "You completed three 10-question levels and 10 mixed Master missions.", touchTip: "One finger moves • Two fingers rotate and pinch to resize • Long press: mirror", mirrorTutorialTitle: "Natural touch controls", mirrorTutorialBody: "Drag with one finger to move. With two fingers, twist to rotate and pinch to resize. Long-press to mirror; double-tap stays available.", replayTutorial: "Replay", understood: "Got it", mirrorHelp: "Touch tutorial"
   },
   ru: {
     appTitle: "Квест углов", level: "Уровень", currentMission: "Текущее задание", chooseToolEyebrow: "Выберите инструмент", chooseTool: "Выберите инструмент", placeAngle: "Разместите угол", selectAngle: "Выберите угол", toolbox: "Набор углов", primitives: "Примитивы", equalFamily: "Равные углы", diagramTitle: "Задание с углами", diagramDesc: "Геометрический чертёж с данным и недостающим углом.", arenaTip: "Тяните для перемещения • Двойной щелчок/тап: отражение • ● угол • ■ высота/длина", anglePlus: "+ Угол", angleMinus: "− Угол", check: "Проверить", counterClockwise: "↶ Против часовой", clockwise: "Поворот ↷", mirror: "⇋ Отразить", discard: "⌫ Удалить", footer: "Обучение в движении: выбирай, собирай, размещай, открывай.", soundOff: "Выключить озвучивание", soundOn: "Включить озвучивание",
@@ -1565,6 +1565,10 @@ function startPointResize(event, kind) {
     triangleVertices: state.triangleVertices ? {
       a: { ...state.triangleVertices.a },
       b: { ...state.triangleVertices.b }
+    } : null,
+    triangleVertices: state.triangleVertices ? {
+      a: { ...state.triangleVertices.a },
+      b: { ...state.triangleVertices.b }
     } : null
   };
   state.dragging = `point:${kind}`;
@@ -1649,9 +1653,43 @@ svg.addEventListener("pointermove", event => {
     event.preventDefault();
     const points = touchPair();
     const metrics = pairMetrics(points);
+    const rawScale = metrics.distance / touchGesture.distance;
+    const requestedScale = Math.abs(rawScale - 1) < .035 ? 1 : 1 + (rawScale - 1) * .82;
     const rawRotationDelta = normalizeSignedAngle(metrics.direction - touchGesture.direction);
     const rotationDelta = Math.abs(rawRotationDelta) < 2 ? 0 : (rawRotationDelta - Math.sign(rawRotationDelta) * 2) * .8;
     state.piece.rotation = normalizeAngle(Math.round(touchGesture.rotation + rotationDelta));
+    const activeLevel = levels[state.levelIndex];
+    if (activeLevel.phase === "quadrilateral") {
+      const minSize = state.category === "ריבוע" ? 60 : 55;
+      const maxSize = state.category === "ריבוע" ? 210 : 220;
+      const { width, height } = touchGesture.quadDimensions;
+      const effectiveScale = Math.max(
+        Math.max(minSize / width, minSize / height),
+        Math.min(Math.min(maxSize / width, maxSize / height), requestedScale)
+      );
+      state.quadDimensions = { width: width * effectiveScale, height: height * effectiveScale };
+      if (touchGesture.quadVertices) {
+        state.quadVertices = touchGesture.quadVertices.map(point => ({
+          x: point.x * effectiveScale,
+          y: point.y * effectiveScale
+        }));
+      }
+    } else {
+      const sizes = Object.values(touchGesture.dimensions);
+      const effectiveScale = Math.max(
+        Math.max(...sizes.map(value => 55 / value)),
+        Math.min(Math.min(...sizes.map(value => 260 / value)), requestedScale)
+      );
+      Object.keys(state.dimensions).forEach(key => {
+        state.dimensions[key] = touchGesture.dimensions[key] * effectiveScale;
+      });
+      if (touchGesture.triangleVertices) {
+        state.triangleVertices = {
+          a: { x: touchGesture.triangleVertices.a.x * effectiveScale, y: touchGesture.triangleVertices.a.y * effectiveScale },
+          b: { x: touchGesture.triangleVertices.b.x * effectiveScale, y: touchGesture.triangleVertices.b.y * effectiveScale }
+        };
+      }
+    }
   } else if (state.dragging === "move") {
     if (state.dragStartPointer && Math.hypot(event.clientX - state.dragStartPointer.x, event.clientY - state.dragStartPointer.y) > 8) {
       state.dragMoved = true;
