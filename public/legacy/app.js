@@ -288,7 +288,7 @@ const state = {
   dragOffset: { x: 0, y: 0 }
 };
 
-const speechState = { voices: [], utterance: null, timer: null, audio: null };
+const speechState = { voices: [], utterance: null, timer: null, audio: null, preloaded: [] };
 const recordedSpeechFiles = {
   "חדה": "acute.mp3",
   "ישרה": "right.mp3",
@@ -957,7 +957,7 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallbac
     speechState.audio.currentTime = 0;
   }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  const audio = new Audio(`audio/${state.language}/${filename}?v=2`);
+  const audio = new Audio(`audio/${state.language}/${filename}?v=3`);
   let usedFallback = false;
   const fallback = () => {
     if (usedFallback) return;
@@ -970,8 +970,17 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallbac
     if (speechState.audio === audio) speechState.audio = null;
   };
   speechState.audio = audio;
-  audio.load();
   audio.play().catch(fallback);
+}
+
+function preloadQuadrilateralSpeech() {
+  speechState.preloaded = quadrilateralTools.map(category => {
+    const filename = recordedSpeechFiles[category];
+    const audio = new Audio(`audio/${state.language}/${filename}?v=3`);
+    audio.preload = "auto";
+    audio.load();
+    return audio;
+  });
 }
 
 function refreshVoices() {
@@ -1755,10 +1764,18 @@ function resizeShapePoint(kind, svgPosition) {
       const partner = index % 2 === 0 ? index + 1 : index - 1;
       state.quadVertices[partner] = { ...state.quadVertices[partner], y: safeCandidate.y };
     } else {
-      if (index === 0) state.quadVertices[index] = { x: 0, y: Math.min(-25, candidate.y) };
-      if (index === 1) state.quadVertices[index] = { x: Math.max(25, candidate.x), y: 0 };
-      if (index === 2) state.quadVertices[index] = { x: 0, y: Math.max(25, candidate.y) };
-      if (index === 3) state.quadVertices[index] = { x: Math.min(-25, candidate.x), y: 0 };
+      const opposite = (index + 2) % 4;
+      if (index === 0 || index === 2) {
+        const oppositeY = state.quadVertices[opposite].y;
+        const safeY = index === 0 ? Math.min(candidate.y, oppositeY - 30) : Math.max(candidate.y, oppositeY + 30);
+        state.quadVertices[index] = { x: candidate.x, y: safeY };
+        state.quadVertices[opposite] = { ...state.quadVertices[opposite], x: candidate.x };
+      } else {
+        const oppositeX = state.quadVertices[opposite].x;
+        const safeX = index === 1 ? Math.max(candidate.x, oppositeX + 30) : Math.min(candidate.x, oppositeX - 30);
+        state.quadVertices[index] = { x: safeX, y: candidate.y };
+        state.quadVertices[opposite] = { ...state.quadVertices[opposite], y: candidate.y };
+      }
     }
     const xs = state.quadVertices.map(point => point.x);
     const ys = state.quadVertices.map(point => point.y);
@@ -2023,6 +2040,7 @@ function checkQuadrilateral(level) {
   else {
     state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
     feedback(`מצוין! זיהיתם וכיוונתם ${categoryLabel(state.category)}. +${level.xpBase} XP`, true);
+    speakSelection(level.correctCategory);
     updateShapeControls(level);
     if (level.askWhatElse) setTimeout(() => beginWhatElse(level), 700);
     else setTimeout(nextLevel, 1100);
@@ -2142,6 +2160,7 @@ function pulse(pattern) {
 
 function loadLevel() {
   const level = levels[state.levelIndex];
+  if (level.phase === "quadrilateral") preloadQuadrilateralSpeech();
   prepareQuadrilateralLevel(level);
   prepareDynamicLevel(level);
   prepareProLevel(level);
