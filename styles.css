@@ -81,7 +81,7 @@ legend { width: 100%; margin-bottom: 9px; color: var(--muted); font-size: .85rem
 .secondary-button { min-width: 104px; border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); padding: 0 14px; }
 button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 
-.arena { position: relative; overflow: hidden; border-radius: 16px; background-color: #0a1120; background-image: linear-gradient(rgba(120,140,170,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(120,140,170,.08) 1px, transparent 1px); background-size: 28px 28px; border: 1px solid var(--line); touch-action: none; }
+.arena { position: relative; overflow: hidden; overscroll-behavior: contain; border-radius: 16px; background-color: #0a1120; background-image: linear-gradient(rgba(120,140,170,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(120,140,170,.08) 1px, transparent 1px); background-size: 28px 28px; border: 1px solid var(--line); touch-action: none; }
 .mirror-help { display: none; position: absolute; z-index: 4; inset-block-start: 10px; inset-inline-end: 10px; width: 38px; height: 38px; border: 1px solid var(--cyan-dark); border-radius: 50%; background: rgba(10,17,32,.9); color: var(--cyan); font-weight: 900; cursor: pointer; }
 #geometry { display: block; width: 100%; height: auto; aspect-ratio: 720 / 430; user-select: none; }
 .geo-line { stroke: #bdc9da; stroke-width: 5; stroke-linecap: round; fill: none; }
@@ -104,6 +104,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .piece-180 .piece-core { fill: var(--orange); }
 .rotate-handle-line { stroke: var(--cyan); stroke-width: 2.5; stroke-dasharray: 5 4; }
 .rotate-handle { fill: var(--cyan); stroke: #071019; stroke-width: 4; cursor: alias; }
+.rotate-handle-hit { fill: transparent; cursor: grab; }
 .size-handle { fill: var(--cyan); stroke: #071019; stroke-width: 4; cursor: nwse-resize; }
 .size-handle-hit { fill: transparent; cursor: nwse-resize; }
 .point-handle { fill: var(--orange); stroke: #071019; stroke-width: 4; cursor: move; }
@@ -213,9 +214,12 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .touch-ui .arena-actions { position: sticky; z-index: 8; bottom: max(10px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; margin: -4px 10px 8px; padding: 8px; border: 1px solid var(--line); border-radius: 18px; background: rgba(10,17,32,.92); box-shadow: 0 12px 34px rgba(0,0,0,.4); backdrop-filter: blur(14px); }
 .touch-ui .arena-actions button { min-height: 62px; min-width: 0; padding: 8px; border-radius: 14px; }
 .touch-ui .arena-tip { inset-inline: 12px; bottom: 14px; max-width: none; padding: 9px 12px; border: 1px solid rgba(68,215,240,.22); border-radius: 999px; font-size: .8rem; text-align: center; }
-.touch-ui .rotate-handle-line, .touch-ui .rotate-handle, .touch-ui .size-handle, .touch-ui .size-handle-hit { display: none; }
+.touch-ui .size-handle, .touch-ui .size-handle-hit { display: none; }
+.touch-ui .rotate-handle-line { stroke-width: 4; stroke-dasharray: 7 6; }
+.touch-ui .rotate-handle { filter: drop-shadow(0 0 10px rgba(49,215,245,.9)); }
+.touch-ui .rotate-handle-hit { cursor: grab; }
 .touch-ui .point-handle-hit { r: 34px; }
-.touch-ui .point-handle { r: 13px; filter: drop-shadow(0 0 8px rgba(68,215,240,.75)); }
+.touch-ui .point-handle { filter: drop-shadow(0 0 9px rgba(255,159,67,.8)); }
 .touch-ui .handle-label { display: none; }
 .touch-ui .footer-note { display: none; }
 .touch-ui .choice-button:hover { transform: none; }
