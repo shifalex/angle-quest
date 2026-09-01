@@ -1245,7 +1245,7 @@ function renderPiece() {
         ]
       : [
           { point: triangle?.a || a, side: -1, label: "כיוון הזרוע הראשונה", priority: "secondary" },
-          { point: triangle?.b || b, side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
+          { point: state.category === "קודקודיות" ? polar(rayLength, bAngle + 180) : (triangle?.b || b), side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
         ];
   angleHandles = angleHandles.filter(handle => handle.priority === "primary");
   if (isTouchInterface()) angleHandles = angleHandles.filter(handle => handle.priority === "primary");
@@ -1909,7 +1909,9 @@ svg.addEventListener("pointermove", event => {
       const previousDegrees = state.degrees;
       const hasFixedHorizontalBase = state.category === "מתאימות" || primitiveTools.includes(state.category);
       const triangle = state.category === "משולש" ? triangleGeometry() : null;
-      const requestedDegrees = hasFixedHorizontalBase
+      const requestedDegrees = state.category === "קודקודיות"
+        ? Math.abs(normalizeSignedAngle(relativeAngle - 180)) * 2
+        : hasFixedHorizontalBase
         ? Math.abs(normalizeSignedAngle(relativeAngle))
         : triangle
           ? Math.abs(normalizeSignedAngle(relativeAngle - triangle.rotation)) * 2
