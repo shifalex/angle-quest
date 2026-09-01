@@ -1202,7 +1202,7 @@ function renderPiece() {
     : null;
   const aAngle = adjacentRays?.a ?? (shape === "f" || shape === "primitive" ? 0 : -state.degrees / 2);
   const bAngle = adjacentRays?.b ?? (shape === "f" ? state.degrees : shape === "primitive" ? -state.degrees : state.degrees / 2);
-  const a = polar(rayLength, aAngle);
+  const a = polar(shape === "adjacent2" ? rayLength + 24 : rayLength, aAngle);
   const b = polar(rayLength, bAngle);
   let equalMarker = null;
   let primaryMarkerRotation = 0;
@@ -1272,16 +1272,15 @@ function renderPiece() {
   });
 
   const rotateHandleDistance = Math.max(92, Math.min(170, rayLength + 18));
-  const rotateBelow = primitiveTools.includes(state.category);
-  const handleGroup = svgEl("g", { transform: `translate(0 ${rotateBelow ? rotateHandleDistance : -rotateHandleDistance})` });
-  handleGroup.append(svgEl("line", { x1: 0, y1: rotateBelow ? -12 : 12, x2: 0, y2: rotateBelow ? -77 : 77, class: "rotate-handle-line" }));
+  const handleGroup = svgEl("g", { transform: `rotate(${-state.piece.rotation}) translate(0 ${-rotateHandleDistance})` });
+  handleGroup.append(svgEl("line", { x1: 0, y1: 12, x2: 0, y2: 77, class: "rotate-handle-line" }));
   const rotateHit = svgEl("circle", { cx: 0, cy: 0, r: 34, class: "rotate-handle-hit", "aria-label": "סיבוב הכלי" });
   const handle = svgEl("circle", { cx: 0, cy: 0, r: isTouchInterface() ? 18 : 13, class: "rotate-handle" });
   const rotateIcon = svgEl("text", { x: 0, y: 1, class: "rotate-handle-icon", "text-anchor": "middle", "dominant-baseline": "middle", "aria-hidden": "true" }, "↻");
   [rotateHit, handle, rotateIcon].forEach(element => element.addEventListener("pointerdown", startRotate));
   handleGroup.append(rotateHit, handle, rotateIcon);
-  content.append(handleGroup);
   group.append(content);
+  group.append(handleGroup);
   pieceLayer.append(group);
   addPieceDragArea(content);
 }
