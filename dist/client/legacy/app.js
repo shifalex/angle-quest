@@ -1166,9 +1166,8 @@ function placeSelected(point) {
 function defaultDegreesForTool(category, targetDegrees, targetType) {
   const primitiveDegrees = { "חדה": 45, "ישרה": 90, "שטוחה": 180, "קהה": 120 };
   if (primitiveDegrees[category]) return primitiveDegrees[category];
-  if (families["שוות"].includes(category)) {
-    return { acute: 60, right: 90, flat: 180, obtuse: 120 }[targetType] || 60;
-  }
+  if (category === "מתחלפות") return 60;
+  if (category === "מתאימות" || category === "קודקודיות") return 90;
   if (category === "צמודות" || category === "משולש") return 60;
   return targetDegrees;
 }
@@ -1176,6 +1175,7 @@ function defaultDegreesForTool(category, targetDegrees, targetType) {
 function defaultPlacementRotation(category, targetRotation, degrees) {
   // Every tool enters in its recognizable neutral silhouette (Z, X, F, etc.).
   // Rotation toward the answer belongs to the player, never to initial placement.
+  if (category === "מתחלפות") return normalizeAngle(-degrees / 2);
   return 0;
 }
 
@@ -1519,6 +1519,15 @@ function placementRotationForTarget(category, degrees, targetRotation, mirrored)
   const markerRotation = toolMarkerRotation(category, degrees);
   const mirroredMarkerRotation = mirrored ? 180 - markerRotation : markerRotation;
   return normalizeAngle(targetRotation - mirroredMarkerRotation);
+}
+
+function toolRotationDistance(category, actual, target) {
+  const direct = angleDistance(actual, target);
+  // An X and a Z describe the same marked relationship after a half-turn.
+  if (category === "קודקודיות" || category === "מתחלפות") {
+    return Math.min(direct, angleDistance(normalizeAngle(actual + 180), target));
+  }
+  return direct;
 }
 
 function renderAngleMarker(group, marker) {
@@ -2020,7 +2029,7 @@ function applyTouchDetents() {
       resizeAngle(targetDegrees - state.degrees);
       snapped = true;
     }
-    if (angleDistance(effectiveToolRotation(state.category, state.degrees), target.rotation) <= 7) {
+    if (toolRotationDistance(state.category, effectiveToolRotation(state.category, state.degrees), target.rotation) <= 7) {
       state.piece.rotation = placementRotationForTarget(state.category, state.degrees, target.rotation, state.piece.mirrored);
       snapped = true;
     }
@@ -2260,7 +2269,7 @@ function angleBounds(type) {
 }
 
 function activeChoiceType(level, choice) {
-  if (state.category === "מתאימות") return "flexible";
+  if (families["שוות"].includes(state.category)) return "flexible";
   if (level.phase !== "beginner") return choice.type;
   return state.category === "חדה" ? "acute" : state.category === "ישרה" ? "right" : state.category === "שטוחה" ? "flat" : "obtuse";
 }
@@ -2344,7 +2353,7 @@ function check() {
   const anchor = pieceAnchorPosition();
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
   const effectiveRotation = effectiveToolRotation(state.category, state.degrees);
-  const turn = angleDistance(effectiveRotation, target.rotation);
+  const turn = toolRotationDistance(state.category, effectiveRotation, target.rotation);
   const sizeDifference = Math.abs(state.degrees - targetDegrees);
   const angleTolerance = isTouchInterface() ? 7 : 5;
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
