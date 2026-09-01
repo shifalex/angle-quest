@@ -1247,7 +1247,7 @@ function renderPiece() {
           { point: triangle?.a || a, side: -1, label: "כיוון הזרוע הראשונה", priority: "secondary" },
           { point: triangle?.b || b, side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
         ];
-  if (families["שוות"].includes(state.category)) {
+  if (families["שוות"].includes(state.category) || primitiveTools.includes(state.category)) {
     angleHandles = angleHandles.filter(handle => handle.priority === "primary");
   }
   if (isTouchInterface()) angleHandles = angleHandles.filter(handle => handle.priority === "primary");
@@ -1274,8 +1274,9 @@ function renderPiece() {
   });
 
   const rotateHandleDistance = Math.max(92, Math.min(170, rayLength + 18));
-  const handleGroup = svgEl("g", { transform: `translate(0 ${-rotateHandleDistance})` });
-  handleGroup.append(svgEl("line", { x1: 0, y1: 12, x2: 0, y2: 77, class: "rotate-handle-line" }));
+  const rotateBelow = primitiveTools.includes(state.category);
+  const handleGroup = svgEl("g", { transform: `translate(0 ${rotateBelow ? rotateHandleDistance : -rotateHandleDistance})` });
+  handleGroup.append(svgEl("line", { x1: 0, y1: rotateBelow ? -12 : 12, x2: 0, y2: rotateBelow ? -77 : 77, class: "rotate-handle-line" }));
   const rotateHit = svgEl("circle", { cx: 0, cy: 0, r: 34, class: "rotate-handle-hit", "aria-label": "סיבוב הכלי" });
   const handle = svgEl("circle", { cx: 0, cy: 0, r: isTouchInterface() ? 18 : 13, class: "rotate-handle" });
   const rotateIcon = svgEl("text", { x: 0, y: 1, class: "rotate-handle-icon", "text-anchor": "middle", "dominant-baseline": "middle", "aria-hidden": "true" }, "↻");
