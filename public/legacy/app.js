@@ -1227,6 +1227,8 @@ function renderPiece() {
   if (families["שוות"].includes(state.category)) {
     angleHandles = angleHandles.filter(handle => handle.priority === "primary");
   }
+  keepAngleHandlesInArena(angleHandles.map(handle => handle.point), mirrorCenterX);
+  group.setAttribute("transform", `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})`);
   angleHandles.forEach(({ point, side, label: handleLabel, priority }) => {
     const hit = svgEl("circle", {
       cx: point.x,
@@ -1259,6 +1261,28 @@ function renderPiece() {
   group.append(content);
   pieceLayer.append(group);
   addPieceDragArea(content);
+}
+
+function keepAngleHandlesInArena(points, mirrorCenterX = 0) {
+  if (!points.length) return;
+  const margin = isTouchInterface() ? 38 : 30;
+  const rotation = state.piece.rotation * Math.PI / 180;
+  const scaleX = state.piece.mirrored ? -1 : 1;
+  const transformed = points.map(point => {
+    const mirroredX = mirrorCenterX + (point.x - mirrorCenterX) * scaleX;
+    return {
+      x: state.piece.x + mirroredX * Math.cos(rotation) - point.y * Math.sin(rotation),
+      y: state.piece.y + mirroredX * Math.sin(rotation) + point.y * Math.cos(rotation)
+    };
+  });
+  const minX = Math.min(...transformed.map(point => point.x));
+  const maxX = Math.max(...transformed.map(point => point.x));
+  const minY = Math.min(...transformed.map(point => point.y));
+  const maxY = Math.max(...transformed.map(point => point.y));
+  const shiftX = minX < margin ? margin - minX : maxX > 720 - margin ? 720 - margin - maxX : 0;
+  const shiftY = minY < margin ? margin - minY : maxY > 430 - margin ? 430 - margin - maxY : 0;
+  state.piece.x += shiftX;
+  state.piece.y += shiftY;
 }
 
 function quadrilateralVertices(shape, width, height) {
