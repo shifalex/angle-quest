@@ -1157,6 +1157,10 @@ function placeSelected(point) {
   feedback(t("augmented", { tool: categoryLabel(state.category) }), true);
   renderPiece();
   pulse(45);
+  const equippedCategory = state.category;
+  window.setTimeout(() => {
+    if (state.equipped && state.category === equippedCategory) speakSelection(equippedCategory);
+  }, 180);
 }
 
 function defaultDegreesForTool(category, targetDegrees, targetType) {
@@ -1233,7 +1237,7 @@ function renderPiece() {
 
   const bounds = angleBounds(activeChoiceType(level, choice));
   const triangle = shape === "triangle" ? triangleGeometry() : null;
-  let angleHandles = bounds.min === bounds.max || (shape === "triangle" && !isTouchInterface())
+  let angleHandles = bounds.min === bounds.max || shape === "triangle"
     ? []
     : shape === "adjacent2"
       ? [
@@ -1541,10 +1545,8 @@ function renderTriangleShape(group) {
   group.append(svgEl("line", { x1: 0, y1: 0, x2: a.x, y2: a.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: b.x, y2: b.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: "triangle-guide" }));
-  if (!isTouchInterface()) {
-    addPointHandle(group, a, "triangleVertexA", "שינוי הקודקוד הראשון של המשולש", "קודקוד");
-    addPointHandle(group, b, "triangleVertexB", "שינוי הקודקוד השני של המשולש", "קודקוד");
-  }
+  addPointHandle(group, a, "triangleVertexA", "שינוי הקודקוד הראשון של המשולש", "קודקוד");
+  addPointHandle(group, b, "triangleVertexB", "שינוי הקודקוד השני של המשולש", "קודקוד");
 }
 
 function unit(degrees) {
@@ -2258,7 +2260,7 @@ function angleBounds(type) {
 }
 
 function activeChoiceType(level, choice) {
-  if (families["שוות"].includes(state.category)) return "flexible";
+  if (state.category === "מתאימות") return "flexible";
   if (level.phase !== "beginner") return choice.type;
   return state.category === "חדה" ? "acute" : state.category === "ישרה" ? "right" : state.category === "שטוחה" ? "flat" : "obtuse";
 }
