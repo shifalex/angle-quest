@@ -1603,6 +1603,16 @@ function renderZShape(group) {
   return { x: joint.x, y: joint.y, rotation: 180 };
 }
 
+function zVisualCenter(mirrored = state.piece.mirrored) {
+  const diagonalAngle = mirrored ? 180 + state.degrees * 1.5 : -state.degrees / 2;
+  const local = polar(state.dimensions.cross / 2, diagonalAngle);
+  const rotation = state.piece.rotation * Math.PI / 180;
+  return {
+    x: state.piece.x + local.x * Math.cos(rotation) - local.y * Math.sin(rotation),
+    y: state.piece.y + local.x * Math.sin(rotation) + local.y * Math.cos(rotation)
+  };
+}
+
 function renderFShape(group) {
   const spineDirection = unit(state.degrees);
   const armDirection = unit(0);
@@ -2267,9 +2277,16 @@ function rotate(delta) {
 function toggleMirror() {
   if (!state.equipped || state.solved) return;
   const fixedAnchor = pieceAnchorPosition();
+  const fixedZCenter = state.category === "מתחלפות" ? zVisualCenter() : null;
   const wasMirrored = state.piece.mirrored;
   state.piece.mirrored = !state.piece.mirrored;
-  keepPieceAnchorAt(fixedAnchor);
+  if (fixedZCenter) {
+    const movedCenter = zVisualCenter();
+    state.piece.x += fixedZCenter.x - movedCenter.x;
+    state.piece.y += fixedZCenter.y - movedCenter.y;
+  } else {
+    keepPieceAnchorAt(fixedAnchor);
+  }
   $("mirror-button").setAttribute("aria-pressed", String(state.piece.mirrored));
   feedback(t(state.piece.mirrored ? "mirrorOn" : "mirrorOff"), true);
   renderPiece();
