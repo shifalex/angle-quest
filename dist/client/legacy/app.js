@@ -1140,7 +1140,7 @@ function placeSelected(point) {
   };
   state.dimensions = { arm: 112, cross: 112, gap: 92, spine: 132 };
   state.adjacentRays = state.category === "צמודות"
-    ? { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 }
+    ? { a: -state.degrees, b: 0, opposite: 180 }
     : null;
   if (level.phase === "quadrilateral") {
     const actualShape = state.category;
@@ -1200,7 +1200,7 @@ function renderPiece() {
   });
   const rayLength = Math.max(68, Math.min(165, state.dimensions.arm * .8));
   const adjacentRays = shape === "adjacent2"
-    ? (state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 })
+    ? (state.adjacentRays ||= { a: -state.degrees, b: 0, opposite: 180 })
     : null;
   const aAngle = adjacentRays?.a ?? (shape === "f" || shape === "primitive" ? 0 : -state.degrees / 2);
   const bAngle = adjacentRays?.b ?? (shape === "f" ? state.degrees : shape === "primitive" ? -state.degrees : state.degrees / 2);
@@ -1250,7 +1250,7 @@ function renderPiece() {
           { point: state.category === "קודקודיות"
             ? polar(rayLength, bAngle + 180)
             : state.category === "מתחלפות"
-              ? polar(52, (state.piece.mirrored ? state.degrees * 1.5 : -state.degrees / 2) + 180)
+              ? polar(52, state.piece.mirrored ? 180 + state.degrees * 1.5 : 180 - state.degrees / 2)
               : (triangle?.b || b), side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
         ];
   angleHandles = angleHandles.filter(handle => handle.priority === "primary");
@@ -1581,7 +1581,7 @@ function renderZShape(group) {
   const parallelDirection = unit(state.degrees / 2);
   // Flip only the transversal across the parallel direction. The two rails
   // keep their direction and location instead of mirroring the whole Z.
-  const diagonalDirection = unit(state.piece.mirrored ? state.degrees * 1.5 : -state.degrees / 2);
+  const diagonalDirection = unit(state.piece.mirrored ? 180 + state.degrees * 1.5 : -state.degrees / 2);
   const joint = {
     x: diagonalDirection.x * state.dimensions.cross,
     y: diagonalDirection.y * state.dimensions.cross
@@ -1907,7 +1907,7 @@ svg.addEventListener("pointermove", event => {
     const relativeAngle = Math.atan2(local.y, local.x) * 180 / Math.PI;
     if (state.category === "צמודות") {
       const side = Number(state.dragging.slice(7));
-      const rays = state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 };
+      const rays = state.adjacentRays ||= { a: -state.degrees, b: 0, opposite: 180 };
       const fixedAngle = side === -1 ? rays.b : rays.a;
       const delta = normalizeSignedAngle(relativeAngle - fixedAngle);
       const direction = state.angleDragStart?.adjacentDirection || (delta < 0 ? -1 : 1);
@@ -2305,12 +2305,10 @@ function resizeAngle(delta) {
     : null;
   const nextDegrees = Math.max(bounds.min, Math.min(bounds.max, state.degrees + delta));
   if (state.category === "צמודות") {
-    const rays = state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 };
+    const rays = state.adjacentRays ||= { a: -state.degrees, b: 0, opposite: 180 };
     const sweep = normalizeSignedAngle(rays.b - rays.a);
     const direction = sweep < 0 ? -1 : 1;
-    const middle = rays.a + sweep / 2;
-    const b = middle + direction * nextDegrees / 2;
-    state.adjacentRays = { ...rays, a: middle - direction * nextDegrees / 2, b, opposite: normalizeAngle(b + 180) };
+    state.adjacentRays = { ...rays, a: normalizeAngle(rays.b - direction * nextDegrees), opposite: normalizeAngle(rays.b + 180) };
   }
   if (state.category === "משולש" && state.triangleVertices) {
     const geometry = triangleGeometry();
