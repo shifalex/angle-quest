@@ -127,6 +127,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .rotate-handle-line { stroke: var(--cyan); stroke-width: 2.5; stroke-dasharray: 5 4; }
 .rotate-handle { fill: var(--cyan); stroke: #071019; stroke-width: 4; cursor: alias; }
 .rotate-handle-hit { fill: transparent; cursor: grab; }
+.rotate-handle-icon { fill: #071019; stroke: none; cursor: grab; font: 900 18px/1 Inter, sans-serif; pointer-events: all; user-select: none; }
 .size-handle { fill: var(--cyan); stroke: #071019; stroke-width: 4; cursor: nwse-resize; transition: transform .12s ease, filter .12s ease; }
 .size-handle-hit { fill: transparent; cursor: nwse-resize; }
 #geometry.gesture-angle .angle-handle-primary.size-handle { transform-box: fill-box; transform-origin: center; transform: scale(1.18); filter: drop-shadow(0 0 13px rgba(49,215,245,.95)); }
@@ -243,6 +244,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .touch-ui .angle-handle-primary.size-handle { stroke-width: 5; filter: drop-shadow(0 0 11px rgba(49,215,245,.95)); }
 .touch-ui .rotate-handle-line { stroke-width: 4; stroke-dasharray: 7 6; }
 .touch-ui .rotate-handle { filter: drop-shadow(0 0 10px rgba(49,215,245,.9)); }
+.touch-ui .rotate-handle-icon { font-size: 24px; }
 .touch-ui .rotate-handle-hit { cursor: grab; }
 .touch-ui .point-handle-hit { r: 34px; }
 .touch-ui .point-handle { filter: drop-shadow(0 0 9px rgba(255,159,67,.8)); }

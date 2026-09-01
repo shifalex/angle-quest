@@ -1249,8 +1249,9 @@ function renderPiece() {
   handleGroup.append(svgEl("line", { x1: 0, y1: 12, x2: 0, y2: 77, class: "rotate-handle-line" }));
   const rotateHit = svgEl("circle", { cx: 0, cy: 0, r: 34, class: "rotate-handle-hit", "aria-label": "סיבוב הכלי" });
   const handle = svgEl("circle", { cx: 0, cy: 0, r: isTouchInterface() ? 18 : 13, class: "rotate-handle" });
-  [rotateHit, handle].forEach(element => element.addEventListener("pointerdown", startRotate));
-  handleGroup.append(rotateHit, handle);
+  const rotateIcon = svgEl("text", { x: 0, y: 1, class: "rotate-handle-icon", "text-anchor": "middle", "dominant-baseline": "middle", "aria-hidden": "true" }, "↻");
+  [rotateHit, handle, rotateIcon].forEach(element => element.addEventListener("pointerdown", startRotate));
+  handleGroup.append(rotateHit, handle, rotateIcon);
   content.append(handleGroup);
   group.append(content);
   pieceLayer.append(group);
@@ -1299,8 +1300,9 @@ function renderQuadrilateralPiece(level) {
   handleGroup.append(svgEl("line", { x1: 0, y1: 12, x2: 0, y2: 38, class: "rotate-handle-line" }));
   const rotateHit = svgEl("circle", { cx: 0, cy: 0, r: 34, class: "rotate-handle-hit", "aria-label": "סיבוב הצורה" });
   const handle = svgEl("circle", { cx: 0, cy: 0, r: isTouchInterface() ? 18 : 13, class: "rotate-handle" });
-  [rotateHit, handle].forEach(element => element.addEventListener("pointerdown", startRotate));
-  handleGroup.append(rotateHit, handle); content.append(handleGroup);
+  const rotateIcon = svgEl("text", { x: 0, y: 1, class: "rotate-handle-icon", "text-anchor": "middle", "dominant-baseline": "middle", "aria-hidden": "true" }, "↻");
+  [rotateHit, handle, rotateIcon].forEach(element => element.addEventListener("pointerdown", startRotate));
+  handleGroup.append(rotateHit, handle, rotateIcon); content.append(handleGroup);
   group.append(content); pieceLayer.append(group); addPieceDragArea(content);
 }
 
