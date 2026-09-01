@@ -1130,10 +1130,12 @@ function placeSelected(point) {
     ? { a: polar(112, -state.degrees / 2), b: polar(112, state.degrees / 2) }
     : null;
   state.equipped = true;
+  const initialRotation = defaultPlacementRotation(state.category, target.rotation, state.degrees);
   state.piece = {
     x: point.x,
     y: point.y,
-    rotation: defaultPlacementRotation(state.category, target.rotation, state.degrees),
+    rotation: initialRotation,
+    handleRotation: -initialRotation,
     mirrored: false
   };
   state.dimensions = { arm: 112, cross: 112, gap: 92, spine: 132 };
@@ -1245,7 +1247,11 @@ function renderPiece() {
         ]
       : [
           { point: triangle?.a || a, side: -1, label: "כיוון הזרוע הראשונה", priority: "secondary" },
-          { point: state.category === "קודקודיות" ? polar(rayLength, bAngle + 180) : (triangle?.b || b), side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
+          { point: state.category === "קודקודיות"
+            ? polar(rayLength, bAngle + 180)
+            : state.category === "מתחלפות"
+              ? polar(rayLength, (state.piece.mirrored ? state.degrees * 1.5 : -state.degrees / 2) + 180)
+              : (triangle?.b || b), side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
         ];
   angleHandles = angleHandles.filter(handle => handle.priority === "primary");
   if (isTouchInterface()) angleHandles = angleHandles.filter(handle => handle.priority === "primary");
@@ -1272,7 +1278,7 @@ function renderPiece() {
   });
 
   const rotateHandleDistance = Math.max(92, Math.min(170, rayLength + 18));
-  const handleGroup = svgEl("g", { transform: `rotate(${-state.piece.rotation}) translate(0 ${-rotateHandleDistance})` });
+  const handleGroup = svgEl("g", { transform: `rotate(${state.piece.handleRotation || 0}) translate(0 ${-rotateHandleDistance})` });
   handleGroup.append(svgEl("line", { x1: 0, y1: 12, x2: 0, y2: 77, class: "rotate-handle-line" }));
   const rotateHit = svgEl("circle", { cx: 0, cy: 0, r: 34, class: "rotate-handle-hit", "aria-label": "סיבוב הכלי" });
   const handle = svgEl("circle", { cx: 0, cy: 0, r: isTouchInterface() ? 18 : 13, class: "rotate-handle" });
@@ -1911,6 +1917,8 @@ svg.addEventListener("pointermove", event => {
       const triangle = state.category === "משולש" ? triangleGeometry() : null;
       const requestedDegrees = state.category === "קודקודיות"
         ? Math.abs(normalizeSignedAngle(relativeAngle - 180)) * 2
+        : state.category === "מתחלפות"
+          ? Math.abs(normalizeSignedAngle(relativeAngle - 180)) / (state.piece.mirrored ? 1.5 : .5)
         : hasFixedHorizontalBase
         ? Math.abs(normalizeSignedAngle(relativeAngle))
         : triangle
