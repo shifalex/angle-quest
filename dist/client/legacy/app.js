@@ -1160,7 +1160,7 @@ function placeSelected(point) {
   const equippedCategory = state.category;
   window.setTimeout(() => {
     if (state.equipped && state.category === equippedCategory) speakSelection(equippedCategory);
-  }, 180);
+  }, 520);
 }
 
 function defaultDegreesForTool(category, targetDegrees, targetType) {
@@ -2580,18 +2580,23 @@ function playEquipSound() {
   const context = activeEffectsContext();
   if (!context) return;
   const now = context.currentTime;
-  noiseBurst(context, now, .045, .11, 1800);
+  // Magazine seat, slide rack, then a crisp chamber click.
+  noiseBurst(context, now, .075, .1, 720);
+  noiseBurst(context, now + .15, .16, .075, 1450);
+  noiseBurst(context, now + .36, .035, .12, 2800);
   [
-    { delay: 0, from: 330, to: 190, duration: .055 },
-    { delay: .075, from: 520, to: 260, duration: .07 }
-  ].forEach(({ delay, from, to, duration }) => {
+    { delay: 0, from: 210, to: 135, duration: .075, volume: .09, type: "square" },
+    { delay: .105, from: 440, to: 240, duration: .055, volume: .07, type: "triangle" },
+    { delay: .17, from: 980, to: 310, duration: .16, volume: .075, type: "sawtooth" },
+    { delay: .365, from: 1650, to: 920, duration: .045, volume: .105, type: "square" }
+  ].forEach(({ delay, from, to, duration, volume, type }) => {
     const start = now + delay;
     const oscillator = context.createOscillator();
     const gain = context.createGain();
-    oscillator.type = "square";
+    oscillator.type = type;
     oscillator.frequency.setValueAtTime(from, start);
     oscillator.frequency.exponentialRampToValueAtTime(to, start + duration);
-    gain.gain.setValueAtTime(.065, start);
+    gain.gain.setValueAtTime(volume, start);
     gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
     oscillator.connect(gain).connect(context.destination);
     oscillator.start(start);
