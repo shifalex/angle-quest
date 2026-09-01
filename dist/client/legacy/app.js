@@ -2270,8 +2270,11 @@ function angleBounds(type) {
 
 function activeChoiceType(level, choice) {
   if (families["שוות"].includes(state.category)) return "flexible";
+  if (primitiveTools.includes(state.category)) {
+    return state.category === "חדה" ? "acute" : state.category === "ישרה" ? "right" : state.category === "שטוחה" ? "flat" : "obtuse";
+  }
   if (level.phase !== "beginner") return choice.type;
-  return state.category === "חדה" ? "acute" : state.category === "ישרה" ? "right" : state.category === "שטוחה" ? "flat" : "obtuse";
+  return choice.type;
 }
 
 function resizeAngle(delta) {
