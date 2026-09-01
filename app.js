@@ -1164,11 +1164,12 @@ function placeSelected(point) {
 }
 
 function defaultDegreesForTool(category, targetDegrees, targetType) {
-  const primitiveDegrees = { "חדה": 45, "ישרה": 90, "שטוחה": 180, "קהה": 125 };
+  const primitiveDegrees = { "חדה": 45, "ישרה": 90, "שטוחה": 180, "קהה": 120 };
   if (primitiveDegrees[category]) return primitiveDegrees[category];
-  if (category === "מתחלפות" || category === "מתאימות") {
-    return { acute: 65, right: 90, flat: 180, obtuse: 115 }[targetType] || targetDegrees;
+  if (families["שוות"].includes(category)) {
+    return { acute: 60, right: 90, flat: 180, obtuse: 120 }[targetType] || 60;
   }
+  if (category === "צמודות" || category === "משולש") return 60;
   return targetDegrees;
 }
 
