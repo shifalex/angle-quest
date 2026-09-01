@@ -1213,7 +1213,7 @@ function renderPiece() {
 
   const bounds = angleBounds(activeChoiceType(level, choice));
   const triangle = shape === "triangle" ? triangleGeometry() : null;
-  const angleHandles = bounds.min === bounds.max || (shape === "triangle" && !isTouchInterface())
+  let angleHandles = bounds.min === bounds.max || (shape === "triangle" && !isTouchInterface())
     ? []
     : shape === "adjacent2"
       ? [
@@ -1224,6 +1224,9 @@ function renderPiece() {
           { point: triangle?.a || a, side: -1, label: "כיוון הזרוע הראשונה", priority: "secondary" },
           { point: triangle?.b || b, side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
         ];
+  if (families["שוות"].includes(state.category)) {
+    angleHandles = angleHandles.filter(handle => handle.priority === "primary");
+  }
   angleHandles.forEach(({ point, side, label: handleLabel, priority }) => {
     const hit = svgEl("circle", {
       cx: point.x,
@@ -1535,14 +1538,9 @@ function renderZShape(group) {
     x: joint.x - parallelDirection.x * state.dimensions.arm,
     y: joint.y - parallelDirection.y * state.dimensions.arm
   };
-  const upperMid = { x: (upperEnd.x + joint.x) / 2, y: (upperEnd.y + joint.y) / 2 };
   group.append(svgEl("line", { x1: upperEnd.x, y1: upperEnd.y, x2: joint.x, y2: joint.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: joint.x, y1: joint.y, x2: 0, y2: 0, class: "piece-opposite" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: lowerEnd.x, y2: lowerEnd.y, class: "piece-rays" }));
-  if (!isTouchInterface()) {
-    addPointHandle(group, lowerEnd, "arm", "שינוי אורך הישרים המקבילים", "אורך");
-    addPointHandle(group, upperMid, "height", "שינוי הגובה של צורת Z", "גובה");
-  }
   return { x: joint.x, y: joint.y, rotation: 180 };
 }
 
@@ -1572,10 +1570,6 @@ function renderFShape(group) {
   group.append(svgEl("line", { x1: spineStart.x, y1: spineStart.y, x2: spineEnd.x, y2: spineEnd.y, class: "piece-opposite" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: middleEnd.x, y2: middleEnd.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: topJoint.x, y1: topJoint.y, x2: topEnd.x, y2: topEnd.y, class: "piece-rays" }));
-  if (!isTouchInterface()) {
-    addPointHandle(group, middleEnd, "arm", "שינוי אורך הזרועות המקבילות", "אורך");
-    addPointHandle(group, topEnd, "gap", "הגבהה או הנמכה של הזרוע העליונה", "גובה");
-  }
   return {
     primaryRotation: state.degrees / 2,
     equalMarker: { x: topJoint.x, y: topJoint.y, rotation: state.degrees / 2 }
