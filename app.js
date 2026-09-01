@@ -136,7 +136,7 @@ const levels = [
     ],
     correctChoice: "acute70",
     target: { x: 342, y: 153, rotation: 85, tolerance: 42, rotationTolerance: 16 },
-    start: { x: 120, y: 350, rotation: 0 },
+    start: { x: 120, y: 292, rotation: 0 },
     scene: "triangle"
   }
 ];
@@ -325,7 +325,7 @@ const uiText = {
     appTitle: "משימת הזוויות", level: "שלב", currentMission: "משימה נוכחית", chooseToolEyebrow: "בחרו כלי", chooseTool: "בחרו כלי", placeAngle: "הניחו את הזווית", selectAngle: "בחרו זווית", toolbox: "ארגז הזוויות", primitives: "פרימיטיבים", equalFamily: "שוות", diagramTitle: "תרגיל זוויות", diagramDesc: "שרטוט גאומטרי עם זווית נתונה ומקום לזווית חסרה.", arenaTip: "גררו כדי להזיז • דאבל־קליק/טאפ בכל השרטוט: פליפ • ● זווית • ■ גובה/אורך", anglePlus: "+ זווית", angleMinus: "− זווית", check: "בדיקה", counterClockwise: "↶ נגד השעון", clockwise: "סיבוב ↷", mirror: "⇋ מראה", discard: "⌫ זריקה", footer: "נבנה ללמידה בתנועה: בוחרים, אוספים, מניחים ומגלים.", soundOff: "כיבוי הקראה", soundOn: "הפעלת הקראה",
     tutorialPrimitives: "טוטוריאל פרימיטיבים", tutorialEqual: "טוטוריאל זוויות שוות", tutorial180: "טוטוריאל 180°", practicePrimitives: "תרגול פרימיטיבים", practiceEqual: "תרגול זוויות שוות", practice180: "תרגול 180°", masterStage: "MASTER — הכול מעורבב",
     beginnerHint: "בחרו חדה, ישרה, שטוחה או קהה; אחר כך גררו את הזווית הנבחרת והניחו אותה על השרטוט.", advancedHint: "בחרו לפי שם את הכלי שמתאר את הקשר בשרטוט. הכלי יופיע מיד, ואז כוונו אותו למקום החסר.", masterHint: "הכול פתוח ומעורבב. התעלמו מקווי ההסחה — גם כשקו בצבע השאלה עובר דרך הקודקוד.", beginnerArena: "בחרו והניחו על הזווית", advancedArena: "גררו אל הזווית החסרה", tutorialMode: "TUTORIAL • בחרו כלי", practiceMode: "PRACTICE • בחרו כלי", masterMode: "MASTER • הכול פתוח",
-    toolHidden: "הכלי הוסתר. לחצו על שם כדי להציג כלי.", augmented: "AUGMENTED: {tool}. אפשר לגרור, לכוון או לזרוק.", speechActive: "הקראה בעברית פועלת.", placeAgain: "{tool} • לחצו בשרטוט כדי להניח מחדש", discarded: "הכלי נזרק. לחצו בשרטוט כדי להניח כלי חדש.", chooseFirst: "בחרו קודם כלי מארגז הזוויות.", mirrorOn: "מצב מראה הופעל.", mirrorOff: "מצב מראה בוטל.", wrongTool: "הצורה שהנחתם אינה מתארת את הקשר שבשרטוט. זרקו אותה ובחרו כלי אחר.", correct: "פגיעה מדויקת! +{xp} XP", correctBonus: "פגיעה מדויקת! +{xp} XP ועוד +{bonus} בונוס לבחירה נכונה בניסיון הראשון!", moveCloser: "כמעט! מרכז הזווית צריך לשבת על הנקודה הכחולה.", rotateMore: "המיקום נכון. עכשיו סובבו עד שהשוקיים יישבו על השרטוט.", mirrorNeeded: "המיקום והסיבוב נכונים, אבל הצורה פונה לצד השני. לחצו לחיצה ארוכה על הכלי.", angleNeeded: "המיקום והכיוון נכונים. היעד הוא {target}° וכרגע הכלי על {current}°.", complete: "המסלול הושלם! צברתם {score} XP ב־{count} משימות.", completeHint: "סיימתם שלוש רמות של 10 שאלות ועוד 10 משימות מאסטר מעורבבות.", touchTip: "אצבע אחת מזיזה • שתי אצבעות מסובבות וצובטות לגודל • לחיצה ארוכה: מראה", mirrorTutorialTitle: "שליטה טבעית במגע", mirrorTutorialBody: "גררו באצבע אחת כדי להזיז. בשתי אצבעות: סובבו כדי לסובב, והרחיקו או קרבו כדי לשנות גודל. לחיצה ארוכה מפעילה מראה; דאבל־טאפ נשאר פנוי.", replayTutorial: "הציגו שוב", understood: "הבנתי", mirrorHelp: "הדרכת מגע"
+    toolHidden: "הכלי הוסתר. לחצו על שם כדי להציג כלי.", augmented: "AUGMENTED: {tool}. אפשר לגרור, לכוון או לזרוק.", speechActive: "הקראה בעברית פועלת.", placeAgain: "{tool} • לחצו בשרטוט כדי להניח מחדש", discarded: "הכלי נזרק. לחצו בשרטוט כדי להניח כלי חדש.", chooseFirst: "בחרו קודם כלי מארגז הזוויות.", mirrorOn: "מצב מראה הופעל.", mirrorOff: "מצב מראה בוטל.", wrongTool: "הצורה שהנחתם אינה מתארת את הקשר שבשרטוט. זרקו אותה ובחרו כלי אחר.", correct: "פגיעה מדויקת! +{xp} XP", correctBonus: "פגיעה מדויקת! +{xp} XP ועוד +{bonus} בונוס לבחירה נכונה בניסיון הראשון!", moveCloser: "כמעט! שחררו קרוב לעיגול הכחול והכלי ייצמד אליו.", rotateMore: "המיקום נכון. עכשיו סובבו עד שהשוקיים יישבו על השרטוט.", mirrorNeeded: "המיקום והסיבוב נכונים, אבל הצורה פונה לצד השני. עשו דאבל־טאפ בשרטוט.", angleNeeded: "המיקום והכיוון נכונים. היעד הוא {target}° וכרגע הכלי על {current}°.", complete: "המסלול הושלם! צברתם {score} XP ב־{count} משימות.", completeHint: "סיימתם שלוש רמות של 10 שאלות ועוד 10 משימות מאסטר מעורבבות.", touchTip: "גרירה: הזזה • צביטה: גודל הזווית • שחרור ליד העיגול: הצמדה • דאבל־טאפ: פליפ", mirrorTutorialTitle: "שליטה טבעית במגע", mirrorTutorialBody: "גררו באצבע אחת. שחררו קרוב לעיגול הכחול להצמדה. צבטו בשתי אצבעות כדי לשנות את גודל הזווית, וסובבו אותן כדי לסובב. אפשר גם לדייק בכפתורי +/−. דאבל־טאפ מבצע פליפ.", replayTutorial: "הציגו שוב", understood: "הבנתי", mirrorHelp: "הדרכת מגע"
   },
   en: {
     appTitle: "Angle Quest", level: "Level", currentMission: "Current mission", chooseToolEyebrow: "Choose your tool", chooseTool: "Choose a tool", placeAngle: "Place the angle", selectAngle: "Choose an angle", toolbox: "Angle toolbox", primitives: "Primitives", equalFamily: "Equal angles", diagramTitle: "Angle exercise", diagramDesc: "A geometric diagram with a given angle and a missing angle.", arenaTip: "Drag to move • Double-click/tap anywhere: flip • ● angle • ■ height/length", anglePlus: "+ Angle", angleMinus: "− Angle", check: "Check", counterClockwise: "↶ Counterclockwise", clockwise: "Rotate ↷", mirror: "⇋ Mirror", discard: "⌫ Discard", footer: "Built for learning in motion: choose, collect, place, discover.", soundOff: "Turn narration off", soundOn: "Turn narration on",
@@ -770,6 +770,7 @@ function renderScene(level) {
   if (level.scene === "quadrilateral") {
     const { width, height } = level.targetDimensions;
     const target = svgEl("g", { transform: `translate(${level.target.x} ${level.target.y}) rotate(${level.target.rotation})` });
+    target.append(svgEl("circle", { cx: 0, cy: 0, r: 27, class: "target-halo" }));
     target.append(svgEl("polygon", { points: quadrilateralPoints(level.correctCategory, width, height), class: "quad-target" }));
     sceneLayer.append(target);
     return;
@@ -786,6 +787,7 @@ function renderScene(level) {
       transform: `translate(${center.x} ${center.y})`
     });
     sceneLayer.append(primitiveArc);
+    sceneLayer.append(svgEl("circle", { cx: center.x, cy: center.y, r: 27, class: "target-halo" }));
     sceneLayer.append(svgEl("circle", { cx: center.x, cy: center.y, r: 6, class: "target-dot" }));
     renderDistractorLines(level);
     applyProSceneTransform(level);
@@ -834,6 +836,7 @@ function renderScene(level) {
   renderDistractorLines(level);
   const target = svgEl("g", { transform: `translate(${level.target.x} ${level.target.y}) rotate(${level.target.rotation})` });
   const degrees = level.choices.find(c => c.id === level.correctChoice).degrees;
+  target.append(svgEl("circle", { cx: 0, cy: 0, r: 27, class: "target-halo" }));
   target.append(svgEl("path", { d: sectorPath(degrees, 60), class: "target-arc" }));
   target.append(svgEl("circle", { cx: 0, cy: 0, r: 5, class: "target-dot" }));
   targetLayer.append(target);
@@ -1067,6 +1070,9 @@ function placeSelected(point) {
   state.choice = level.correctChoice;
   const selectedAngle = level.choices.find(c => c.id === state.choice);
   state.degrees = defaultDegreesForTool(state.category, selectedAngle.degrees);
+  state.triangleVertices = state.category === "משולש"
+    ? { a: polar(112, -state.degrees / 2), b: polar(112, state.degrees / 2) }
+    : null;
   state.equipped = true;
   state.piece = {
     x: point.x,
@@ -1088,9 +1094,6 @@ function placeSelected(point) {
       ? quadrilateralVertices(actualShape, state.quadDimensions.width, state.quadDimensions.height)
       : null;
   }
-  state.triangleVertices = state.category === "משולש"
-    ? { a: polar(112, -state.degrees / 2), b: polar(112, state.degrees / 2) }
-    : null;
   updateAngleReadout();
   ["rotate-left", "rotate-right", "check-button", "angle-smaller", "angle-larger", "mirror-button", "discard-button"].forEach(id => $(id).disabled = false);
   updateShapeControls(level);
@@ -1434,7 +1437,7 @@ function renderTriangleShape(group) {
   const { a, b } = triangleGeometry();
   group.append(svgEl("line", { x1: 0, y1: 0, x2: a.x, y2: a.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: b.x, y2: b.y, class: "piece-rays" }));
-  group.append(svgEl("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: "piece-opposite" }));
+  group.append(svgEl("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: "triangle-guide" }));
   addPointHandle(group, a, "triangleVertexA", "שינוי הקודקוד הראשון של המשולש", "קודקוד");
   addPointHandle(group, b, "triangleVertexB", "שינוי הקודקוד השני של המשולש", "קודקוד");
 }
@@ -1571,10 +1574,6 @@ function startPointResize(event, kind) {
     triangleVertices: state.triangleVertices ? {
       a: { ...state.triangleVertices.a },
       b: { ...state.triangleVertices.b }
-    } : null,
-    triangleVertices: state.triangleVertices ? {
-      a: { ...state.triangleVertices.a },
-      b: { ...state.triangleVertices.b }
     } : null
   };
   state.dragging = `point:${kind}`;
@@ -1634,6 +1633,10 @@ function beginTouchGesture() {
     dimensions: { ...state.dimensions },
     quadDimensions: { ...state.quadDimensions },
     quadVertices: state.quadVertices?.map(point => ({ ...point })) || null,
+    triangleVertices: state.triangleVertices ? {
+      a: { ...state.triangleVertices.a },
+      b: { ...state.triangleVertices.b }
+    } : null,
     fingerOpening: Math.abs(normalizeSignedAngle(angles[1] - angles[0]))
   };
   state.dragging = "multitouch";
@@ -1763,6 +1766,8 @@ svg.addEventListener("pointerup", event => {
   state.rotationAnchor = null;
   state.rotationDragStart = null;
   state.pointDragStart = null;
+  if (completedGesture === "move") magneticallySnapToTarget();
+  if (completedGesture === "multitouch" || completedGesture === "rotate") applyTouchDetents();
   if (touchPoints.size < 2) touchGesture = null;
   if (touchPoints.size === 0) {
     completedMultiTouch = false;
@@ -1770,10 +1775,73 @@ svg.addEventListener("pointerup", event => {
   }
 });
 
+function flashTargetSnap() {
+  sceneLayer.classList.remove("target-layer-snap");
+  targetLayer.classList.remove("target-layer-snap");
+  window.requestAnimationFrame(() => {
+    sceneLayer.classList.add("target-layer-snap");
+    targetLayer.classList.add("target-layer-snap");
+  });
+  window.setTimeout(() => {
+    sceneLayer.classList.remove("target-layer-snap");
+    targetLayer.classList.remove("target-layer-snap");
+  }, 460);
+}
+
+function magneticallySnapToTarget() {
+  if (!state.equipped || state.solved || !isTouchInterface()) return;
+  const level = levels[state.levelIndex];
+  const target = currentTarget(level);
+  const anchor = level.phase === "quadrilateral" ? state.piece : pieceAnchorPosition();
+  const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
+  const snapRadius = Math.max(74, level.target.tolerance * 1.8);
+  if (distance > snapRadius) return;
+  state.piece.x += target.x - anchor.x;
+  state.piece.y += target.y - anchor.y;
+  renderPiece();
+  flashTargetSnap();
+  pulse(24);
+}
+
+function applyTouchDetents() {
+  if (!state.equipped || state.solved || !isTouchInterface()) return;
+  const level = levels[state.levelIndex];
+  const target = currentTarget(level);
+  let snapped = false;
+  if (level.phase === "quadrilateral") {
+    if (angleDistance(state.piece.rotation, target.rotation) <= 7) {
+      state.piece.rotation = target.rotation;
+      snapped = true;
+    }
+  } else {
+    const targetDegrees = level.choices.find(choice => choice.id === level.correctChoice).degrees;
+    if (Math.abs(state.degrees - targetDegrees) <= 6) {
+      resizeAngle(targetDegrees - state.degrees);
+      snapped = true;
+    }
+    if (angleDistance(effectiveToolRotation(state.category, state.degrees), target.rotation) <= 7) {
+      state.piece.rotation = placementRotationForTarget(state.category, state.degrees, target.rotation, state.piece.mirrored);
+      snapped = true;
+    }
+  }
+  if (!snapped) return;
+  renderPiece();
+  flashTargetSnap();
+  pulse(18);
+}
+
 // Keep double-click/tap for flipping the tool instead of Safari's zoom gesture.
 svg.addEventListener("dblclick", event => event.preventDefault());
 ["gesturestart", "gesturechange", "gestureend"].forEach(type => {
   svg.addEventListener(type, event => event.preventDefault(), { passive: false });
+  document.addEventListener(type, event => event.preventDefault(), { passive: false });
+});
+document.addEventListener("touchmove", event => {
+  if (event.touches.length > 1) event.preventDefault();
+}, { passive: false });
+document.addEventListener("selectstart", event => {
+  const target = event.target;
+  if (isTouchInterface() && !(target instanceof Element && target.closest("input"))) event.preventDefault();
 });
 
 svg.addEventListener("pointercancel", event => {
@@ -2051,8 +2119,10 @@ function check() {
   const effectiveRotation = effectiveToolRotation(state.category, state.degrees);
   const turn = angleDistance(effectiveRotation, target.rotation);
   const sizeDifference = Math.abs(state.degrees - targetDegrees);
-  const angleTolerance = 5;
-  if (distance <= level.target.tolerance && turn <= level.target.rotationTolerance && sizeDifference <= angleTolerance) {
+  const angleTolerance = isTouchInterface() ? 7 : 5;
+  const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
+  const rotationTolerance = level.target.rotationTolerance + (isTouchInterface() ? 5 : 0);
+  if (distance <= positionTolerance && turn <= rotationTolerance && sizeDifference <= angleTolerance) {
     state.piece = {
       x: target.x,
       y: target.y,
@@ -2074,11 +2144,11 @@ function check() {
     speakSelection(level.correctCategory);
     const narrationEnabled = $("sound-toggle").getAttribute("aria-pressed") === "true";
     setTimeout(nextLevel, narrationEnabled ? 1900 : 1100);
-  } else if (distance > level.target.tolerance) {
+  } else if (distance > positionTolerance) {
     feedback(t("moveCloser"), false);
     playMissSound();
     pulse(80);
-  } else if (turn > level.target.rotationTolerance) {
+  } else if (turn > rotationTolerance) {
     feedback(t("rotateMore"), false);
     playMissSound();
     pulse(80);
@@ -2125,10 +2195,12 @@ function checkQuadrilateral(level) {
   }
   const distance = Math.hypot(state.piece.x - level.target.x, state.piece.y - level.target.y);
   const shapeError = quadrilateralMatchError(level);
-  if (distance > level.target.tolerance) {
+  const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
+  const shapeTolerance = isTouchInterface() ? 27 : 20;
+  if (distance > positionTolerance) {
     feedback("קרבו את מרכז הצורה למסגרת הכחולה.", false);
     playMissSound();
-  } else if (shapeError > 20) {
+  } else if (shapeError > shapeTolerance) {
     feedback("כוונו את הסיבוב והקודקודים עד שהצורה תשב על המסגרת.", false);
     playMissSound();
   }
@@ -2261,17 +2333,28 @@ function playMissSound() {
   const context = effectsAudioContext;
   context.resume?.();
   const now = context.currentTime;
-  const oscillator = context.createOscillator();
   const gain = context.createGain();
-  oscillator.type = "sawtooth";
-  oscillator.frequency.setValueAtTime(190, now);
-  oscillator.frequency.exponentialRampToValueAtTime(62, now + .3);
   gain.gain.setValueAtTime(.0001, now);
-  gain.gain.exponentialRampToValueAtTime(.18, now + .015);
-  gain.gain.exponentialRampToValueAtTime(.0001, now + .32);
-  oscillator.connect(gain).connect(context.destination);
-  oscillator.start(now);
-  oscillator.stop(now + .34);
+  gain.gain.exponentialRampToValueAtTime(.105, now + .006);
+  gain.gain.exponentialRampToValueAtTime(.0001, now + .19);
+  gain.connect(context.destination);
+  const high = context.createOscillator();
+  high.type = "triangle";
+  high.frequency.setValueAtTime(1450, now);
+  high.frequency.exponentialRampToValueAtTime(330, now + .18);
+  high.connect(gain);
+  const sparkle = context.createOscillator();
+  const sparkleGain = context.createGain();
+  sparkle.type = "sine";
+  sparkle.frequency.setValueAtTime(2100, now);
+  sparkle.frequency.exponentialRampToValueAtTime(720, now + .1);
+  sparkleGain.gain.setValueAtTime(.045, now);
+  sparkleGain.gain.exponentialRampToValueAtTime(.0001, now + .105);
+  sparkle.connect(sparkleGain).connect(context.destination);
+  high.start(now);
+  sparkle.start(now);
+  high.stop(now + .2);
+  sparkle.stop(now + .11);
 }
 
 pieceLayer.addEventListener("animationend", () => pieceLayer.classList.remove("miss-wiggle"));
@@ -2286,7 +2369,7 @@ function loadLevel() {
   prepareQuadrilateralLevel(level);
   prepareDynamicLevel(level);
   prepareProLevel(level);
-  Object.assign(state, { category: null, firstChoiceMade: false, firstChoiceCorrect: false, choice: null, degrees: 0, equipped: false, solved: false, followUp: false, followUpFound: [], quadVertices: null, dragging: null });
+  Object.assign(state, { category: null, firstChoiceMade: false, firstChoiceCorrect: false, choice: null, degrees: 0, equipped: false, solved: false, followUp: false, followUpFound: [], quadVertices: null, triangleVertices: null, adjacentRays: null, dragging: null });
   $("level-number").textContent = level.exerciseNumber;
   $("level-count").textContent = level.exerciseCount;
   updateCourseMenuButton(level);

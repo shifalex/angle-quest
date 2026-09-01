@@ -15,7 +15,7 @@
   color-scheme: dark;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { scrollbar-gutter: stable; }
 
 body {
@@ -28,6 +28,16 @@ body {
     radial-gradient(circle at 90% 80%, rgba(185, 242, 39, .07), transparent 24rem),
     var(--bg);
 }
+
+.touch-ui,
+.touch-ui body {
+  touch-action: pan-x pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.touch-ui input { user-select: text; -webkit-user-select: text; }
 
 button, input { font: inherit; }
 button { touch-action: manipulation; }
@@ -91,6 +101,9 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .given-arc { stroke: var(--orange); stroke-width: 5; fill: none; }
 .target-arc { stroke: var(--cyan); stroke-width: 4; stroke-dasharray: 9 8; fill: rgba(49,215,245,.06); }
 .target-dot { fill: var(--cyan); }
+.target-halo { fill: rgba(49,215,245,.08); stroke: rgba(49,215,245,.45); stroke-width: 2; transform-box: fill-box; transform-origin: center; }
+.target-layer-snap .target-halo { fill: rgba(185,242,39,.18); stroke: var(--lime); animation: target-snap-pulse .42s ease-out; }
+@keyframes target-snap-pulse { from { opacity: .45; transform: scale(.72); } 65% { opacity: 1; transform: scale(1.18); } to { opacity: 1; transform: scale(1); } }
 .diagram-label { fill: var(--ink); font-size: 18px; font-weight: 800; paint-order: stroke; stroke: #0a1120; stroke-width: 5px; }
 .given-label { fill: var(--orange); font-size: 20px; font-weight: 900; paint-order: stroke; stroke: #0a1120; stroke-width: 6px; }
 .piece { cursor: grab; filter: drop-shadow(0 0 9px rgba(185,242,39,.3)); }
@@ -100,6 +113,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .piece-drag-area { fill: transparent; pointer-events: fill; cursor: grab; }
 .piece-rays { stroke: var(--lime); stroke-width: 7; stroke-linecap: round; fill: none; }
 .piece-opposite { stroke: var(--lime); stroke-width: 7; stroke-linecap: round; opacity: .68; }
+.triangle-guide { stroke: var(--lime); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 8 7; opacity: .28; pointer-events: none; }
 .piece-arc { stroke: var(--lime); stroke-width: 5; fill: rgba(185,242,39,.12); pointer-events: none; }
 .piece-core { fill: var(--lime); }
 .piece-180 .piece-rays, .piece-180 .piece-opposite { stroke: var(--orange); }
@@ -206,7 +220,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 @keyframes tutorial-flip { 0%,30% { transform: scaleX(1); } 46%,80% { transform: scaleX(-1); } 96%,100% { transform: scaleX(1); } }
 
 .touch-ui .mirror-help { display: grid; place-items: center; }
-.touch-ui .angle-size-button, .touch-ui #rotate-left, .touch-ui #rotate-right { display: none; }
+.touch-ui #rotate-left, .touch-ui #rotate-right { display: none; }
 .touch-ui .game-layout { grid-template-columns: 1fr; grid-template-areas: "tools" "play"; }
 .touch-ui .play-panel { grid-area: play; padding: 12px; }
 .touch-ui .loadout { grid-area: tools; padding: 12px; }
@@ -229,6 +243,8 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .touch-ui .mission { min-height: 88px; }
 .touch-ui .panel-heading .step-chip { display: none; }
 .touch-ui .arena-heading { padding-inline: 4px; }
+.touch-ui .target-arc { stroke-width: 6; }
+.touch-ui .target-dot { stroke: rgba(49,215,245,.24); stroke-width: 12; paint-order: stroke; }
 
 @media (orientation: landscape) and (min-width: 720px) {
   .touch-ui .game-layout {
