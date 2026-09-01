@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Angle Quest">
   <title>Angle Quest — משימת הזוויות</title>
-  <link rel="stylesheet" href="styles.css?v=32">
+  <link rel="stylesheet" href="styles.css?v=33">
 </head>
 <body>
   <main class="app-shell">
@@ -22,9 +22,9 @@
       </div>
       <div class="hud" aria-label="מצב המשחק">
         <div class="language-switcher" role="group" aria-label="בחירת שפה">
-          <button type="button" data-language="he" aria-pressed="true">עברית</button>
-          <button type="button" data-language="en" aria-pressed="false">English</button>
           <button type="button" data-language="ru" aria-pressed="false">Русский</button>
+          <button type="button" data-language="en" aria-pressed="false">English</button>
+          <button type="button" data-language="he" aria-pressed="true">עברית</button>
         </div>
         <button id="player-menu-button" class="course-menu-button player-menu-button" type="button">שחקן: — ▾</button>
         <button id="course-menu-button" class="course-menu-button" type="button">בחירת רמה</button>
@@ -99,6 +99,14 @@
     <footer class="footer-note">נבנה ללמידה בתנועה: בוחרים, אוספים, מניחים ומגלים.</footer>
   </main>
 
+  <div class="portrait-blocker" role="alert" aria-live="assertive">
+    <div class="portrait-blocker-card">
+      <span aria-hidden="true">↻</span>
+      <h2 id="portrait-title">סובבו את המכשיר</h2>
+      <p id="portrait-body">המשחק פועל במצב אופקי בלבד.</p>
+    </div>
+  </div>
+
   <div id="touch-tutorial" class="touch-tutorial" hidden>
     <section class="touch-tutorial-card" role="dialog" aria-modal="true" aria-labelledby="touch-tutorial-title">
       <div class="mirror-demo" aria-hidden="true">
@@ -167,6 +175,6 @@
     </section>
   </div>
 
-  <script src="app.js?v=32"></script>
+  <script src="app.js?v=33"></script>
 </body>
 </html>

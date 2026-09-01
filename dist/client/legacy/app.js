@@ -659,6 +659,13 @@ function applyLanguage(reload = true) {
   $("discard-button").textContent = t("discard");
   document.querySelector(".footer-note").textContent = t("footer");
   document.querySelectorAll("[data-language]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.language === state.language)));
+  const portraitCopy = {
+    he: ["סובבו את המכשיר", "המשחק פועל במצב אופקי בלבד."],
+    en: ["Rotate your device", "The game can only be played in landscape mode."],
+    ru: ["Поверните устройство", "Игра работает только в альбомном режиме."]
+  }[state.language];
+  $("portrait-title").textContent = portraitCopy[0];
+  $("portrait-body").textContent = portraitCopy[1];
   $("sound-toggle").setAttribute("aria-label", $("sound-toggle").getAttribute("aria-pressed") === "true" ? t("soundOff") : t("soundOn"));
   $("mirror-help").setAttribute("aria-label", t("mirrorHelp"));
   $("touch-tutorial-title").textContent = t("mirrorTutorialTitle");
@@ -2034,6 +2041,7 @@ function check() {
   if (level.phase === "quadrilateral") { checkQuadrilateral(level); return; }
   if (state.category !== level.correctCategory) {
     feedback(t("wrongTool"), false);
+    playMissSound();
     pulse(100);
     return;
   }
@@ -2068,12 +2076,15 @@ function check() {
     setTimeout(nextLevel, narrationEnabled ? 1900 : 1100);
   } else if (distance > level.target.tolerance) {
     feedback(t("moveCloser"), false);
+    playMissSound();
     pulse(80);
   } else if (turn > level.target.rotationTolerance) {
     feedback(t("rotateMore"), false);
+    playMissSound();
     pulse(80);
   } else {
     feedback(t("angleNeeded", { target: Math.round(targetDegrees), current: Math.round(state.degrees) }), false);
+    playMissSound();
     pulse(80);
   }
 }
@@ -2108,13 +2119,19 @@ function quadrilateralMatchError(level) {
 function checkQuadrilateral(level) {
   if (!level.offeredValidNames?.includes(state.category)) {
     feedback("הבחירה אינה מתארת את הצורה הזו. נסו שם אחר.", false);
+    playMissSound();
     pulse(100);
     return;
   }
   const distance = Math.hypot(state.piece.x - level.target.x, state.piece.y - level.target.y);
   const shapeError = quadrilateralMatchError(level);
-  if (distance > level.target.tolerance) feedback("קרבו את מרכז הצורה למסגרת הכחולה.", false);
-  else if (shapeError > 20) feedback("כוונו את הסיבוב והקודקודים עד שהצורה תשב על המסגרת.", false);
+  if (distance > level.target.tolerance) {
+    feedback("קרבו את מרכז הצורה למסגרת הכחולה.", false);
+    playMissSound();
+  } else if (shapeError > 20) {
+    feedback("כוונו את הסיבוב והקודקודים עד שהצורה תשב על המסגרת.", false);
+    playMissSound();
+  }
   else {
     state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
     feedback(`מצוין! זיהיתם וכיוונתם ${categoryLabel(state.category)}. +${level.xpBase} XP`, true);
@@ -2231,6 +2248,33 @@ function feedback(message, success) {
   $("feedback").textContent = message;
   $("feedback").className = `feedback ${success ? "success" : "error"}`;
 }
+
+let effectsAudioContext = null;
+
+function playMissSound() {
+  pieceLayer.classList.remove("miss-wiggle");
+  window.requestAnimationFrame(() => pieceLayer.classList.add("miss-wiggle"));
+  if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return;
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return;
+  effectsAudioContext ||= new AudioContextClass();
+  const context = effectsAudioContext;
+  context.resume?.();
+  const now = context.currentTime;
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  oscillator.type = "sawtooth";
+  oscillator.frequency.setValueAtTime(190, now);
+  oscillator.frequency.exponentialRampToValueAtTime(62, now + .3);
+  gain.gain.setValueAtTime(.0001, now);
+  gain.gain.exponentialRampToValueAtTime(.18, now + .015);
+  gain.gain.exponentialRampToValueAtTime(.0001, now + .32);
+  oscillator.connect(gain).connect(context.destination);
+  oscillator.start(now);
+  oscillator.stop(now + .34);
+}
+
+pieceLayer.addEventListener("animationend", () => pieceLayer.classList.remove("miss-wiggle"));
 
 function pulse(pattern) {
   if ($("sound-toggle").getAttribute("aria-pressed") === "true" && navigator.vibrate) navigator.vibrate(pattern);
