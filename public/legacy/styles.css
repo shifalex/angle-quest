@@ -130,7 +130,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .arena-tip { position: absolute; left: 12px; bottom: 10px; max-width: calc(100% - 24px); color: var(--muted); background: rgba(7,11,20,.75); padding: 5px 8px; border-radius: 8px; font-size: .76rem; pointer-events: none; }
 .arena-actions {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   direction: inherit;
   gap: 8px;
   margin-top: 14px;
@@ -145,6 +145,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .mirror-button { color: var(--orange); }
 .mirror-button[aria-pressed="true"] { border-color: var(--orange); background: rgba(255,159,67,.12); }
 .discard-button { color: var(--danger); }
+.gesture-control { display: none !important; }
 .feedback { height: 64px; display: grid; place-items: center; overflow: hidden; text-align: center; margin-top: 10px; padding-inline: 8px; font-weight: 750; line-height: 1.35; }
 .feedback.success { color: var(--lime); }
 .feedback.error { color: var(--danger); }
@@ -220,15 +221,14 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 @keyframes tutorial-flip { 0%,30% { transform: scaleX(1); } 46%,80% { transform: scaleX(-1); } 96%,100% { transform: scaleX(1); } }
 
 .touch-ui .mirror-help { display: grid; place-items: center; }
-.touch-ui #rotate-left, .touch-ui #rotate-right { display: none; }
 .touch-ui .game-layout { grid-template-columns: 1fr; grid-template-areas: "tools" "play"; }
 .touch-ui .play-panel { grid-area: play; padding: 12px; }
 .touch-ui .loadout { grid-area: tools; padding: 12px; }
 .touch-ui .choice-grid { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 10px; scroll-snap-type: x proximity; }
 .touch-ui .choice-button { flex: 0 0 min(180px, 42vw); min-height: 66px; scroll-snap-align: center; }
-.touch-ui .arena { min-height: min(64vh, 620px); border-radius: 22px; box-shadow: inset 0 0 0 1px rgba(68,215,240,.12); }
-.touch-ui #geometry { width: 100%; height: 100%; min-height: min(64vh, 620px); }
-.touch-ui .arena-actions { position: sticky; z-index: 8; bottom: max(10px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; margin: -4px 10px 8px; padding: 8px; border: 1px solid var(--line); border-radius: 18px; background: rgba(10,17,32,.92); box-shadow: 0 12px 34px rgba(0,0,0,.4); backdrop-filter: blur(14px); }
+.touch-ui .arena { height: clamp(270px, 48vh, 430px); min-height: 0; border-radius: 22px; box-shadow: inset 0 0 0 1px rgba(68,215,240,.12); }
+.touch-ui #geometry { width: 100%; height: 100%; min-height: 0; }
+.touch-ui .arena-actions { position: static; z-index: auto; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 8px; margin: 10px 0 0; padding: 0; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; }
 .touch-ui .arena-actions button { min-height: 62px; min-width: 0; padding: 8px; border-radius: 14px; }
 .touch-ui .arena-tip { inset-inline: 12px; bottom: 14px; max-width: none; padding: 9px 12px; border: 1px solid rgba(68,215,240,.22); border-radius: 999px; font-size: .8rem; text-align: center; }
 .touch-ui .size-handle, .touch-ui .size-handle-hit { display: none; }
@@ -262,8 +262,8 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
     padding-bottom: 2px;
   }
   .touch-ui .loadout .choice-button { min-width: 0; }
-  .touch-ui .arena { min-height: min(44vh, 410px); }
-  .touch-ui #geometry { min-height: min(44vh, 410px); }
+  .touch-ui .arena { height: clamp(250px, 38vh, 340px); min-height: 0; }
+  .touch-ui #geometry { height: 100%; min-height: 0; }
   .touch-ui .feedback { min-height: 58px; height: auto; margin-top: 6px; }
 }
 
@@ -281,8 +281,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .footer-note { color: var(--muted); font-size: .78rem; text-align: center; padding: 18px 0 4px; }
 
 @media (min-width: 701px) and (max-width: 1050px) {
-  .arena-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .arena-actions #check-button { grid-column: span 2; }
+  .arena-actions { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
 }
 
 @media (max-width: 700px) {
@@ -297,8 +296,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 }
 
 @media (max-width: 640px) {
-  body:not(.touch-ui) .arena-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  body:not(.touch-ui) .arena-actions #check-button { grid-column: 1 / -1; }
+  body:not(.touch-ui) .arena-actions { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
 }
 
 @media (max-width: 430px) {

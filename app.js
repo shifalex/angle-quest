@@ -325,7 +325,7 @@ const uiText = {
     appTitle: "משימת הזוויות", level: "שלב", currentMission: "משימה נוכחית", chooseToolEyebrow: "בחרו כלי", chooseTool: "בחרו כלי", placeAngle: "הניחו את הזווית", selectAngle: "בחרו זווית", toolbox: "ארגז הזוויות", primitives: "פרימיטיבים", equalFamily: "שוות", diagramTitle: "תרגיל זוויות", diagramDesc: "שרטוט גאומטרי עם זווית נתונה ומקום לזווית חסרה.", arenaTip: "גררו כדי להזיז • דאבל־קליק/טאפ בכל השרטוט: פליפ • ● זווית • ■ גובה/אורך", anglePlus: "+ זווית", angleMinus: "− זווית", check: "בדיקה", counterClockwise: "↶ נגד השעון", clockwise: "סיבוב ↷", mirror: "⇋ מראה", discard: "⌫ זריקה", footer: "נבנה ללמידה בתנועה: בוחרים, אוספים, מניחים ומגלים.", soundOff: "כיבוי הקראה", soundOn: "הפעלת הקראה",
     tutorialPrimitives: "טוטוריאל פרימיטיבים", tutorialEqual: "טוטוריאל זוויות שוות", tutorial180: "טוטוריאל 180°", practicePrimitives: "תרגול פרימיטיבים", practiceEqual: "תרגול זוויות שוות", practice180: "תרגול 180°", masterStage: "MASTER — הכול מעורבב",
     beginnerHint: "בחרו חדה, ישרה, שטוחה או קהה; אחר כך גררו את הזווית הנבחרת והניחו אותה על השרטוט.", advancedHint: "בחרו לפי שם את הכלי שמתאר את הקשר בשרטוט. הכלי יופיע מיד, ואז כוונו אותו למקום החסר.", masterHint: "הכול פתוח ומעורבב. התעלמו מקווי ההסחה — גם כשקו בצבע השאלה עובר דרך הקודקוד.", beginnerArena: "בחרו והניחו על הזווית", advancedArena: "גררו אל הזווית החסרה", tutorialMode: "TUTORIAL • בחרו כלי", practiceMode: "PRACTICE • בחרו כלי", masterMode: "MASTER • הכול פתוח",
-    toolHidden: "הכלי הוסתר. לחצו על שם כדי להציג כלי.", augmented: "AUGMENTED: {tool}. אפשר לגרור, לכוון או לזרוק.", speechActive: "הקראה בעברית פועלת.", placeAgain: "{tool} • לחצו בשרטוט כדי להניח מחדש", discarded: "הכלי נזרק. לחצו בשרטוט כדי להניח כלי חדש.", chooseFirst: "בחרו קודם כלי מארגז הזוויות.", mirrorOn: "מצב מראה הופעל.", mirrorOff: "מצב מראה בוטל.", wrongTool: "הצורה שהנחתם אינה מתארת את הקשר שבשרטוט. זרקו אותה ובחרו כלי אחר.", correct: "פגיעה מדויקת! +{xp} XP", correctBonus: "פגיעה מדויקת! +{xp} XP ועוד +{bonus} בונוס לבחירה נכונה בניסיון הראשון!", moveCloser: "כמעט! שחררו קרוב לעיגול הכחול והכלי ייצמד אליו.", rotateMore: "המיקום נכון. עכשיו סובבו עד שהשוקיים יישבו על השרטוט.", mirrorNeeded: "המיקום והסיבוב נכונים, אבל הצורה פונה לצד השני. עשו דאבל־טאפ בשרטוט.", angleNeeded: "המיקום והכיוון נכונים. היעד הוא {target}° וכרגע הכלי על {current}°.", complete: "המסלול הושלם! צברתם {score} XP ב־{count} משימות.", completeHint: "סיימתם שלוש רמות של 10 שאלות ועוד 10 משימות מאסטר מעורבבות.", touchTip: "גרירה: הזזה • צביטה: גודל הזווית • שחרור ליד העיגול: הצמדה • דאבל־טאפ: פליפ", mirrorTutorialTitle: "שליטה טבעית במגע", mirrorTutorialBody: "גררו באצבע אחת. שחררו קרוב לעיגול הכחול להצמדה. צבטו בשתי אצבעות כדי לשנות את גודל הזווית, וסובבו אותן כדי לסובב. אפשר גם לדייק בכפתורי +/−. דאבל־טאפ מבצע פליפ.", replayTutorial: "הציגו שוב", understood: "הבנתי", mirrorHelp: "הדרכת מגע"
+    toolHidden: "הכלי הוסתר. לחצו על שם כדי להציג כלי.", augmented: "AUGMENTED: {tool}. אפשר לגרור, לכוון או לזרוק.", speechActive: "הקראה בעברית פועלת.", placeAgain: "{tool} • לחצו בשרטוט כדי להניח מחדש", discarded: "הכלי נזרק. לחצו בשרטוט כדי להניח כלי חדש.", chooseFirst: "בחרו קודם כלי מארגז הזוויות.", mirrorOn: "מצב מראה הופעל.", mirrorOff: "מצב מראה בוטל.", wrongTool: "הצורה שהנחתם אינה מתארת את הקשר שבשרטוט. זרקו אותה ובחרו כלי אחר.", correct: "פגיעה מדויקת! +{xp} XP", correctBonus: "פגיעה מדויקת! +{xp} XP ועוד +{bonus} בונוס לבחירה נכונה בניסיון הראשון!", moveCloser: "כמעט! שחררו קרוב לעיגול הכחול והכלי ייצמד אליו.", rotateMore: "המיקום נכון. עכשיו סובבו עד שהשוקיים יישבו על השרטוט.", mirrorNeeded: "המיקום והסיבוב נכונים, אבל הצורה פונה לצד השני. עשו דאבל־טאפ בשרטוט.", angleNeeded: "המיקום והכיוון נכונים. היעד הוא {target}° וכרגע הכלי על {current}°.", complete: "המסלול הושלם! צברתם {score} XP ב־{count} משימות.", completeHint: "סיימתם שלוש רמות של 10 שאלות ועוד 10 משימות מאסטר מעורבבות.", touchTip: "גרירה: הזזה • צביטה: גודל הזווית • שחרור ליד העיגול: הצמדה • דאבל־טאפ: פליפ", mirrorTutorialTitle: "שליטה טבעית במגע", mirrorTutorialBody: "גררו באצבע אחת. שחררו קרוב לעיגול הכחול להצמדה. צבטו בשתי אצבעות כדי לשנות את גודל הזווית, וסובבו אותן כדי לסובב. דאבל־טאפ מבצע פליפ. בסרגל נשארו רק בדיקה וזריקה.", replayTutorial: "הציגו שוב", understood: "הבנתי", mirrorHelp: "הדרכת מגע"
   },
   en: {
     appTitle: "Angle Quest", level: "Level", currentMission: "Current mission", chooseToolEyebrow: "Choose your tool", chooseTool: "Choose a tool", placeAngle: "Place the angle", selectAngle: "Choose an angle", toolbox: "Angle toolbox", primitives: "Primitives", equalFamily: "Equal angles", diagramTitle: "Angle exercise", diagramDesc: "A geometric diagram with a given angle and a missing angle.", arenaTip: "Drag to move • Double-click/tap anywhere: flip • ● angle • ■ height/length", anglePlus: "+ Angle", angleMinus: "− Angle", check: "Check", counterClockwise: "↶ Counterclockwise", clockwise: "Rotate ↷", mirror: "⇋ Mirror", discard: "⌫ Discard", footer: "Built for learning in motion: choose, collect, place, discover.", soundOff: "Turn narration off", soundOn: "Turn narration on",
@@ -852,6 +852,11 @@ function applyProSceneTransform(level) {
   const transform = `rotate(${level.proRotation} 360 215)`;
   sceneLayer.setAttribute("transform", transform);
   targetLayer.setAttribute("transform", transform);
+  sceneLayer.querySelectorAll("text").forEach(text => {
+    const x = Number(text.getAttribute("x"));
+    const y = Number(text.getAttribute("y"));
+    text.setAttribute("transform", `rotate(${-level.proRotation} ${x} ${y})`);
+  });
 }
 
 function currentTarget(level) {
@@ -878,6 +883,7 @@ function renderChoices(level) {
       state.category = button.dataset.category;
       document.querySelectorAll("[data-category]").forEach(b => b.setAttribute("aria-pressed", String(b === button)));
       placeSelected(level.start);
+      playEquipSound();
     }));
     return;
   }
@@ -907,11 +913,11 @@ function renderChoices(level) {
     document.querySelectorAll("[data-category]").forEach(b => b.setAttribute("aria-pressed", String(b === button)));
     if (level.phase === "beginner") {
       placeSelected({ x: level.start.x, y: level.start.y });
-      speakSelection(state.category);
+      playEquipSound();
       return;
     }
     placeSelected({ x: level.start.x, y: level.start.y });
-    speakSelection(state.category);
+    playEquipSound();
   }));
 }
 
@@ -1691,7 +1697,7 @@ svg.addEventListener("pointermove", event => {
       ));
       const openingDelta = normalizeSignedAngle(currentOpening - touchGesture.fingerOpening);
       const pinchDelta = (metrics.distance - touchGesture.distance) * .34;
-      const bounds = angleBounds(activeChoiceType(activeLevel, choice), activeLevel.lockAngleType === true);
+      const bounds = angleBounds(activeChoiceType(activeLevel, choice));
       const nextDegrees = Math.max(bounds.min, Math.min(bounds.max, touchGesture.degrees + openingDelta + pinchDelta));
       if (augmentedShape(activeLevel) === "adjacent2") {
         const middle = (state.adjacentRays?.a ?? -touchGesture.degrees / 2) + touchGesture.degrees / 2;
@@ -1728,7 +1734,7 @@ svg.addEventListener("pointermove", event => {
   } else if (state.dragging.startsWith("resize:")) {
     const level = levels[state.levelIndex];
     const choice = level.choices.find(c => c.id === state.choice);
-    const bounds = angleBounds(activeChoiceType(level, choice), level.lockAngleType === true);
+    const bounds = angleBounds(activeChoiceType(level, choice));
     const local = toPieceLocal(p);
     const relativeAngle = Math.atan2(local.y, local.x) * 180 / Math.PI;
     if (state.category === "צמודות") {
@@ -2035,12 +2041,11 @@ function toggleMirror() {
   animateMirrorFlip(wasMirrored, state.piece.mirrored, fixedAnchor);
 }
 
-function angleBounds(type, locked = false) {
-  if (!locked) return { min: 15, max: 165 };
-  if (type === "acute") return { min: 15, max: 80 };
+function angleBounds(type) {
+  if (type === "acute") return { min: 15, max: 89 };
   if (type === "right") return { min: 90, max: 90 };
   if (type === "flat") return { min: 180, max: 180 };
-  return { min: 95, max: 165 };
+  return { min: 91, max: 165 };
 }
 
 function activeChoiceType(level, choice) {
@@ -2052,7 +2057,7 @@ function resizeAngle(delta) {
   if (!state.equipped || state.solved) return;
   const level = levels[state.levelIndex];
   const choice = level.choices.find(c => c.id === state.choice);
-  const bounds = angleBounds(activeChoiceType(level, choice), level.lockAngleType === true);
+  const bounds = angleBounds(activeChoiceType(level, choice));
   const nextDegrees = Math.max(bounds.min, Math.min(bounds.max, state.degrees + delta));
   if (state.category === "צמודות") {
     const rays = state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 };
@@ -2078,7 +2083,7 @@ function updateAngleReadout() {
   const choice = level.choices.find(c => c.id === state.choice);
   if (!choice) return;
   $("angle-readout").textContent = `${categoryLabel(state.category)} • ${Math.round(state.degrees)}° • ${categoryLabel(classifyAngle(state.degrees))}`;
-  const bounds = angleBounds(activeChoiceType(level, choice), level.lockAngleType === true);
+  const bounds = angleBounds(activeChoiceType(level, choice));
   $("angle-smaller").disabled = state.solved || state.degrees <= bounds.min;
   $("angle-larger").disabled = state.solved || state.degrees >= bounds.max;
 }
@@ -2092,6 +2097,7 @@ function classifyAngle(degrees) {
 
 function discardPiece() {
   if (!state.equipped || state.solved) return;
+  playDiscardSound();
   state.equipped = false;
   state.choice = null;
   state.degrees = 0;
@@ -2104,6 +2110,7 @@ function discardPiece() {
 
 function check() {
   if (!state.equipped) return;
+  playCheckShot();
   const level = levels[state.levelIndex];
   const target = currentTarget(level);
   if (level.phase === "quadrilateral") { checkQuadrilateral(level); return; }
@@ -2141,7 +2148,7 @@ function check() {
       ? t("correctBonus", { xp: baseXP, bonus: firstChoiceBonus })
       : t("correct", { xp: baseXP }), true);
     pulse([50, 40, 90]);
-    speakSelection(level.correctCategory);
+    window.setTimeout(() => speakSelection(level.correctCategory), 220);
     const narrationEnabled = $("sound-toggle").getAttribute("aria-pressed") === "true";
     setTimeout(nextLevel, narrationEnabled ? 1900 : 1100);
   } else if (distance > positionTolerance) {
@@ -2207,7 +2214,7 @@ function checkQuadrilateral(level) {
   else {
     state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
     feedback(`מצוין! זיהיתם וכיוונתם ${categoryLabel(state.category)}. +${level.xpBase} XP`, true);
-    speakSelection(level.correctCategory);
+    window.setTimeout(() => speakSelection(level.correctCategory), 220);
     updateShapeControls(level);
     if (level.askWhatElse) setTimeout(() => beginWhatElse(level), 700);
     else setTimeout(nextLevel, 1100);
@@ -2323,16 +2330,103 @@ function feedback(message, success) {
 
 let effectsAudioContext = null;
 
+function activeEffectsContext() {
+  if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return null;
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+  effectsAudioContext ||= new AudioContextClass();
+  effectsAudioContext.resume?.();
+  return effectsAudioContext;
+}
+
+function noiseBurst(context, start, duration, volume, frequency) {
+  const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
+  const samples = buffer.getChannelData(0);
+  for (let index = 0; index < samples.length; index += 1) samples[index] = Math.random() * 2 - 1;
+  const source = context.createBufferSource();
+  const filter = context.createBiquadFilter();
+  const gain = context.createGain();
+  source.buffer = buffer;
+  filter.type = "bandpass";
+  filter.frequency.setValueAtTime(frequency, start);
+  filter.Q.setValueAtTime(.7, start);
+  gain.gain.setValueAtTime(volume, start);
+  gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
+  source.connect(filter).connect(gain).connect(context.destination);
+  source.start(start);
+  source.stop(start + duration);
+}
+
+function playEquipSound() {
+  const context = activeEffectsContext();
+  if (!context) return;
+  const now = context.currentTime;
+  noiseBurst(context, now, .045, .11, 1800);
+  [
+    { delay: 0, from: 330, to: 190, duration: .055 },
+    { delay: .075, from: 520, to: 260, duration: .07 }
+  ].forEach(({ delay, from, to, duration }) => {
+    const start = now + delay;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = "square";
+    oscillator.frequency.setValueAtTime(from, start);
+    oscillator.frequency.exponentialRampToValueAtTime(to, start + duration);
+    gain.gain.setValueAtTime(.065, start);
+    gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
+    oscillator.connect(gain).connect(context.destination);
+    oscillator.start(start);
+    oscillator.stop(start + duration);
+  });
+}
+
+function playDiscardSound() {
+  const context = activeEffectsContext();
+  if (!context) return;
+  const now = context.currentTime;
+  noiseBurst(context, now, .055, .12, 1350);
+  [
+    { delay: 0, frequency: 980, duration: .055, volume: .075 },
+    { delay: .07, frequency: 640, duration: .07, volume: .06 },
+    { delay: .15, frequency: 420, duration: .09, volume: .045 }
+  ].forEach(({ delay, frequency, duration, volume }) => {
+    const start = now + delay;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = "triangle";
+    oscillator.frequency.setValueAtTime(frequency, start);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency * .72, start + duration);
+    gain.gain.setValueAtTime(volume, start);
+    gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
+    oscillator.connect(gain).connect(context.destination);
+    oscillator.start(start);
+    oscillator.stop(start + duration);
+  });
+}
+
+function playCheckShot() {
+  const context = activeEffectsContext();
+  if (!context) return;
+  const now = context.currentTime;
+  noiseBurst(context, now, .11, .2, 720);
+  const thump = context.createOscillator();
+  const gain = context.createGain();
+  thump.type = "triangle";
+  thump.frequency.setValueAtTime(170, now);
+  thump.frequency.exponentialRampToValueAtTime(48, now + .14);
+  gain.gain.setValueAtTime(.16, now);
+  gain.gain.exponentialRampToValueAtTime(.0001, now + .15);
+  thump.connect(gain).connect(context.destination);
+  thump.start(now);
+  thump.stop(now + .16);
+}
+
 function playMissSound() {
   pieceLayer.classList.remove("miss-wiggle");
   window.requestAnimationFrame(() => pieceLayer.classList.add("miss-wiggle"));
-  if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return;
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextClass) return;
-  effectsAudioContext ||= new AudioContextClass();
-  const context = effectsAudioContext;
-  context.resume?.();
-  const now = context.currentTime;
+  const context = activeEffectsContext();
+  if (!context) return;
+  const now = context.currentTime + .09;
   const gain = context.createGain();
   gain.gain.setValueAtTime(.0001, now);
   gain.gain.exponentialRampToValueAtTime(.105, now + .006);

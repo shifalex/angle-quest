@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Angle Quest">
   <title>Angle Quest — משימת הזוויות</title>
-  <link rel="stylesheet" href="styles.css?v=34">
+  <link rel="stylesheet" href="styles.css?v=35">
 </head>
 <body>
   <main class="app-shell">
@@ -81,15 +81,15 @@
 
         <div class="arena-actions">
           <button id="check-button" class="primary-button compact" type="button" disabled>בדיקה</button>
-          <button id="angle-larger" class="secondary-button angle-size-button" type="button" disabled aria-label="הגדלת מפתח הזווית">+ זווית</button>
-          <button id="angle-smaller" class="secondary-button angle-size-button" type="button" disabled aria-label="הקטנת מפתח הזווית">− זווית</button>
-          <button id="shape-width-smaller" class="secondary-button shape-control" type="button" hidden disabled>צר יותר</button>
-          <button id="shape-width-larger" class="secondary-button shape-control" type="button" hidden disabled>רחב יותר</button>
-          <button id="shape-height-smaller" class="secondary-button shape-control" type="button" hidden disabled>קצר יותר</button>
-          <button id="shape-height-larger" class="secondary-button shape-control" type="button" hidden disabled>ארוך יותר</button>
-          <button id="rotate-right" class="secondary-button" type="button" disabled>סיבוב ↷</button>
-          <button id="rotate-left" class="secondary-button" type="button" disabled aria-label="סיבוב נגד כיוון השעון">↶ נגד השעון</button>
-          <button id="mirror-button" class="secondary-button mirror-button" type="button" disabled aria-pressed="false">⇋ מראה</button>
+          <button id="angle-larger" class="secondary-button angle-size-button gesture-control" type="button" disabled aria-label="הגדלת מפתח הזווית">+ זווית</button>
+          <button id="angle-smaller" class="secondary-button angle-size-button gesture-control" type="button" disabled aria-label="הקטנת מפתח הזווית">− זווית</button>
+          <button id="shape-width-smaller" class="secondary-button shape-control gesture-control" type="button" hidden disabled>צר יותר</button>
+          <button id="shape-width-larger" class="secondary-button shape-control gesture-control" type="button" hidden disabled>רחב יותר</button>
+          <button id="shape-height-smaller" class="secondary-button shape-control gesture-control" type="button" hidden disabled>קצר יותר</button>
+          <button id="shape-height-larger" class="secondary-button shape-control gesture-control" type="button" hidden disabled>ארוך יותר</button>
+          <button id="rotate-right" class="secondary-button gesture-control" type="button" disabled>סיבוב ↷</button>
+          <button id="rotate-left" class="secondary-button gesture-control" type="button" disabled aria-label="סיבוב נגד כיוון השעון">↶ נגד השעון</button>
+          <button id="mirror-button" class="secondary-button mirror-button gesture-control" type="button" disabled aria-pressed="false">⇋ מראה</button>
           <button id="discard-button" class="secondary-button discard-button" type="button" disabled>⌫ זריקה</button>
         </div>
         <p id="feedback" class="feedback" aria-live="assertive"></p>
@@ -116,7 +116,7 @@
       </div>
       <p class="eyebrow">TOUCH MOVE</p>
       <h2 id="touch-tutorial-title">שליטה טבעית במגע</h2>
-      <p id="touch-tutorial-body">גררו באצבע אחת ושחררו ליד העיגול הכחול להצמדה. צבטו בשתי אצבעות כדי לשנות את הזווית; דאבל־טאפ מבצע פליפ.</p>
+      <p id="touch-tutorial-body">גררו באצבע אחת ושחררו ליד העיגול הכחול להצמדה. צבטו בשתי אצבעות כדי לשנות את הזווית; דאבל־טאפ מבצע פליפ. בסרגל נשארו רק בדיקה וזריקה.</p>
       <div class="touch-tutorial-actions">
         <button id="touch-tutorial-try" class="secondary-button" type="button">הציגו שוב</button>
         <button id="touch-tutorial-close" class="primary-button compact" type="button">הבנתי</button>
@@ -175,6 +175,6 @@
     </section>
   </div>
 
-  <script src="app.js?v=34"></script>
+  <script src="app.js?v=35"></script>
 </body>
 </html>
