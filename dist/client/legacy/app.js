@@ -1173,10 +1173,9 @@ function defaultDegreesForTool(category, targetDegrees, targetType) {
 }
 
 function defaultPlacementRotation(category, targetRotation, degrees) {
-  if (quadrilateralTools.includes(category)) return 0;
-  if (primitiveTools.includes(category)) return 0;
-  if (category === "מתאימות") return 0;
-  return normalizeAngle(targetRotation - toolMarkerRotation(category, degrees));
+  // Every tool enters in its recognizable neutral silhouette (Z, X, F, etc.).
+  // Rotation toward the answer belongs to the player, never to initial placement.
+  return 0;
 }
 
 function renderPiece() {
