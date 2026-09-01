@@ -1517,10 +1517,13 @@ function addPointHandle(group, point, kind, labelText, visibleLabel) {
     class: "point-handle",
     "aria-label": labelText
   });
-  [hit, visible].forEach(handle => handle.addEventListener("pointerdown", event => startPointResize(event, kind)));
+  const directionIcon = kind === "gap" || kind === "height"
+    ? svgEl("text", { x: point.x, y: point.y + 1, class: "point-handle-icon", "text-anchor": "middle", "dominant-baseline": "middle", "aria-hidden": "true" }, "↕")
+    : null;
+  [hit, visible, directionIcon].filter(Boolean).forEach(handle => handle.addEventListener("pointerdown", event => startPointResize(event, kind)));
   const labelOffset = kind === "gap" || kind === "height" ? -22 : 24;
   const textLabel = svgEl("text", { x: point.x, y: point.y + labelOffset, class: "handle-label" }, handleLabel(visibleLabel));
-  group.append(hit, visible, textLabel);
+  group.append(hit, visible, ...(directionIcon ? [directionIcon] : []), textLabel);
 }
 
 function renderZShape(group) {
@@ -1541,6 +1544,9 @@ function renderZShape(group) {
   group.append(svgEl("line", { x1: upperEnd.x, y1: upperEnd.y, x2: joint.x, y2: joint.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: joint.x, y1: joint.y, x2: 0, y2: 0, class: "piece-opposite" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: lowerEnd.x, y2: lowerEnd.y, class: "piece-rays" }));
+  if (!isTouchInterface()) {
+    addPointHandle(group, { x: joint.x * .72, y: joint.y * .72 }, "height", "שינוי המרחק בין הישרים המקבילים", "גובה");
+  }
   return { x: joint.x, y: joint.y, rotation: 180 };
 }
 
@@ -1570,6 +1576,9 @@ function renderFShape(group) {
   group.append(svgEl("line", { x1: spineStart.x, y1: spineStart.y, x2: spineEnd.x, y2: spineEnd.y, class: "piece-opposite" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: middleEnd.x, y2: middleEnd.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: topJoint.x, y1: topJoint.y, x2: topEnd.x, y2: topEnd.y, class: "piece-rays" }));
+  if (!isTouchInterface()) {
+    addPointHandle(group, { x: topJoint.x * .72, y: topJoint.y * .72 }, "gap", "שינוי המרחק בין הישרים המקבילים", "גובה");
+  }
   return {
     primaryRotation: state.degrees / 2,
     equalMarker: { x: topJoint.x, y: topJoint.y, rotation: state.degrees / 2 }

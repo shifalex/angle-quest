@@ -133,6 +133,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 #geometry.gesture-angle .angle-handle-primary.size-handle { transform-box: fill-box; transform-origin: center; transform: scale(1.18); filter: drop-shadow(0 0 13px rgba(49,215,245,.95)); }
 .point-handle { fill: var(--orange); stroke: #071019; stroke-width: 4; cursor: move; }
 .point-handle-hit { fill: transparent; cursor: move; }
+.point-handle-icon { fill: #071019; stroke: none; cursor: ns-resize; font: 900 14px/1 Inter, sans-serif; pointer-events: all; user-select: none; }
 .handle-label { fill: var(--ink); font-size: 14px; font-weight: 800; text-anchor: middle; paint-order: stroke; stroke: #071019; stroke-width: 5px; pointer-events: none; }
 .arena-tip { position: absolute; left: 12px; bottom: 10px; max-width: calc(100% - 24px); color: var(--muted); background: rgba(7,11,20,.75); padding: 5px 8px; border-radius: 8px; font-size: .76rem; pointer-events: none; }
 .arena-actions {
