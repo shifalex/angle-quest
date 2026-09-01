@@ -1187,9 +1187,8 @@ function renderPiece() {
   const choice = level.choices.find(c => c.id === state.choice);
   const shape = augmentedShape(level);
   const mirrorCenterX = shapeMirrorCenterX(shape);
-  const isSupplementaryTool = families["180°"].includes(state.category);
   const group = svgEl("g", {
-    class: `piece${isSupplementaryTool ? " piece-180" : ""}`,
+    class: "piece",
     transform: `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})`,
     "aria-label": `זווית ${Math.round(state.degrees)} מעלות`
   });
@@ -1545,7 +1544,7 @@ function renderTriangleShape(group) {
   const { a, b } = triangleGeometry();
   group.append(svgEl("line", { x1: 0, y1: 0, x2: a.x, y2: a.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: b.x, y2: b.y, class: "piece-rays" }));
-  group.append(svgEl("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: "triangle-guide" }));
+  group.append(svgEl("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: "piece-rays" }));
   addPointHandle(group, a, "triangleVertexA", "שינוי הקודקוד הראשון של המשולש", "קודקוד");
   addPointHandle(group, b, "triangleVertexB", "שינוי הקודקוד השני של המשולש", "קודקוד");
 }
