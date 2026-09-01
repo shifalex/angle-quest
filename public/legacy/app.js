@@ -1195,7 +1195,7 @@ function renderPiece() {
   });
   const content = svgEl("g", {
     class: "piece-content",
-    transform: mirrorScaleTransform(mirrorCenterX, state.piece.mirrored ? -1 : 1)
+    transform: mirrorScaleTransform(mirrorCenterX, state.piece.mirrored && shape !== "z" ? -1 : 1)
   });
   const rayLength = Math.max(68, Math.min(165, state.dimensions.arm * .8));
   const adjacentRays = shape === "adjacent2"
@@ -1464,15 +1464,7 @@ function augmentedShape(level) {
 }
 
 function shapeMirrorCenterX(shape) {
-  if (shape === "z") {
-    const diagonal = unit(-state.degrees / 2);
-    const parallel = unit(state.degrees / 2);
-    const jointX = diagonal.x * state.dimensions.cross;
-    const lowerEndX = parallel.x * state.dimensions.arm;
-    const upperEndX = jointX - parallel.x * state.dimensions.arm;
-    const values = [0, jointX, lowerEndX, upperEndX];
-    return (Math.min(...values) + Math.max(...values)) / 2;
-  }
+  if (shape === "z") return 0;
   if (shape === "f") {
     const spine = unit(state.degrees);
     const topJointX = -spine.x * state.dimensions.gap;
@@ -1583,8 +1575,10 @@ function addPointHandle(group, point, kind, labelText, visibleLabel) {
 }
 
 function renderZShape(group) {
-  const diagonalDirection = unit(-state.degrees / 2);
   const parallelDirection = unit(state.degrees / 2);
+  // Flip only the transversal across the parallel direction. The two rails
+  // keep their direction and location instead of mirroring the whole Z.
+  const diagonalDirection = unit(state.piece.mirrored ? state.degrees * 1.5 : -state.degrees / 2);
   const joint = {
     x: diagonalDirection.x * state.dimensions.cross,
     y: diagonalDirection.y * state.dimensions.cross
@@ -1915,6 +1909,7 @@ svg.addEventListener("pointermove", event => {
       }
       state.degrees = requestedDegrees;
     } else {
+      const previousDegrees = state.degrees;
       const hasFixedHorizontalBase = state.category === "מתאימות" || primitiveTools.includes(state.category);
       const triangle = state.category === "משולש" ? triangleGeometry() : null;
       const requestedDegrees = hasFixedHorizontalBase
@@ -1932,6 +1927,9 @@ svg.addEventListener("pointermove", event => {
         };
       }
       state.degrees = nextDegrees;
+      if (state.category === "מתחלפות") {
+        state.piece.rotation = normalizeAngle(state.piece.rotation + (previousDegrees - nextDegrees) / 2);
+      }
     }
     if (state.rotationAnchor) keepPieceAnchorAt(state.rotationAnchor);
     updateAngleReadout();
@@ -2257,7 +2255,7 @@ function toggleMirror() {
   $("mirror-button").setAttribute("aria-pressed", String(state.piece.mirrored));
   feedback(t(state.piece.mirrored ? "mirrorOn" : "mirrorOff"), true);
   renderPiece();
-  animateMirrorFlip(wasMirrored, state.piece.mirrored, fixedAnchor);
+  if (state.category !== "מתחלפות") animateMirrorFlip(wasMirrored, state.piece.mirrored, fixedAnchor);
 }
 
 function angleBounds(type) {
@@ -2283,6 +2281,7 @@ function resizeAngle(delta) {
   const level = levels[state.levelIndex];
   const choice = level.choices.find(c => c.id === state.choice);
   const bounds = angleBounds(activeChoiceType(level, choice));
+  const previousDegrees = state.degrees;
   const nextDegrees = Math.max(bounds.min, Math.min(bounds.max, state.degrees + delta));
   if (state.category === "צמודות") {
     const rays = state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 };
@@ -2302,6 +2301,9 @@ function resizeAngle(delta) {
     };
   }
   state.degrees = nextDegrees;
+  if (state.category === "מתחלפות") {
+    state.piece.rotation = normalizeAngle(state.piece.rotation + (previousDegrees - nextDegrees) / 2);
+  }
   keepPieceAnchorAt(fixedAnchor);
   updateAngleReadout();
   renderPiece();
