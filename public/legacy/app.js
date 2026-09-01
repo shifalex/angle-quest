@@ -1247,9 +1247,7 @@ function renderPiece() {
           { point: triangle?.a || a, side: -1, label: "כיוון הזרוע הראשונה", priority: "secondary" },
           { point: triangle?.b || b, side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
         ];
-  if (families["שוות"].includes(state.category) || primitiveTools.includes(state.category)) {
-    angleHandles = angleHandles.filter(handle => handle.priority === "primary");
-  }
+  angleHandles = angleHandles.filter(handle => handle.priority === "primary");
   if (isTouchInterface()) angleHandles = angleHandles.filter(handle => handle.priority === "primary");
   if (!state.dragging) keepAngleHandlesInArena(angleHandles.map(handle => handle.point), mirrorCenterX);
   group.setAttribute("transform", `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})`);
