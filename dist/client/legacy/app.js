@@ -960,35 +960,44 @@ function speakSelection(category) {
     : category === "משולש"
     ? "נבחר משולש"
     : primitiveTools.includes(category) ? `נבחרה זווית ${category}` : `נבחרו זוויות ${category}`;
-  playRecordedSpeech(category, spokenText, englishNames[category], russianNames[category]);
+  return playRecordedSpeech(category, spokenText, englishNames[category], russianNames[category]);
 }
 
 function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallback) {
-  if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return;
+  if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return Promise.resolve();
   const filename = recordedSpeechFiles[key];
   if (!filename) {
-    speakText(hebrewFallback, englishFallback, russianFallback);
-    return;
+    return speakText(hebrewFallback, englishFallback, russianFallback);
   }
   if (speechState.audio) {
     speechState.audio.pause();
     speechState.audio.currentTime = 0;
   }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  const audio = new Audio(`audio/${state.language}/${filename}?v=3`);
-  let usedFallback = false;
-  const fallback = () => {
-    if (usedFallback) return;
-    usedFallback = true;
-    speakText(hebrewFallback, englishFallback, russianFallback);
-  };
-  audio.volume = 1;
-  audio.onerror = fallback;
-  audio.onended = () => {
-    if (speechState.audio === audio) speechState.audio = null;
-  };
-  speechState.audio = audio;
-  audio.play().catch(fallback);
+  return new Promise(resolve => {
+    const audio = new Audio(`audio/${state.language}/${filename}?v=3`);
+    let usedFallback = false;
+    let completed = false;
+    const safetyTimer = window.setTimeout(() => finish(), 7000);
+    function finish() {
+      if (completed) return;
+      completed = true;
+      window.clearTimeout(safetyTimer);
+      if (speechState.audio === audio) speechState.audio = null;
+      resolve();
+    }
+    const fallback = () => {
+      if (usedFallback) return;
+      usedFallback = true;
+      if (speechState.audio === audio) speechState.audio = null;
+      Promise.resolve(speakText(hebrewFallback, englishFallback, russianFallback)).finally(finish);
+    };
+    audio.volume = 1;
+    audio.onerror = fallback;
+    audio.onended = finish;
+    speechState.audio = audio;
+    audio.play().catch(fallback);
+  });
 }
 
 function preloadQuadrilateralSpeech() {
@@ -1007,10 +1016,10 @@ function refreshVoices() {
 }
 
 function speakText(text, englishFallback = text, russianFallback = englishFallback) {
-  if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return;
+  if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return Promise.resolve();
   if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
     feedback("הדפדפן הזה אינו תומך בהקראה קולית.", false);
-    return;
+    return Promise.resolve();
   }
   refreshVoices();
   if (speechState.timer) {
@@ -1029,36 +1038,52 @@ function speakText(text, englishFallback = text, russianFallback = englishFallba
   const selectedVoice = requestedVoice || englishVoice || hebrewVoice || russianVoice;
   const requestedText = state.language === "ru" ? (russianFallback || englishFallback || text)
     : state.language === "en" ? (englishFallback || text) : text;
-  const message = new SpeechSynthesisUtterance(requestedText);
-  let started = false;
-  message.lang = selectedVoice?.lang || (state.language === "ru" ? "ru-RU" : state.language === "he" ? "he-IL" : "en-US");
-  message.rate = .92;
-  message.pitch = 1.05;
-  message.volume = 1;
-  if (selectedVoice) message.voice = selectedVoice;
-  message.onstart = () => {
-    started = true;
-    if (speechState.timer) clearTimeout(speechState.timer);
-    speechState.timer = null;
-    const voiceName = message.voice?.name || "קול ברירת המחדל של הדפדפן";
-    feedback(`מנוע ההקראה התחיל (${voiceName}).`, true);
-  };
-  message.onend = () => {
-    if (speechState.timer) clearTimeout(speechState.timer);
-    speechState.timer = null;
-    speechState.utterance = null;
-  };
-  message.onerror = event => {
-    if (speechState.timer) clearTimeout(speechState.timer);
-    speechState.timer = null;
-    if (event.error !== "canceled" && event.error !== "interrupted") feedback(`שגיאת הקראה: ${event.error || "לא ידועה"}.`, false);
-  };
-  speechState.utterance = message;
-  window.speechSynthesis.speak(message);
-  if (window.speechSynthesis.paused) window.speechSynthesis.resume();
-  speechState.timer = setTimeout(() => {
-    if (!started && speechState.utterance === message) feedback("מנוע ההקראה לא התחיל. הצפצוף יעזור לבדוק אם הבעיה היא רק בקול העברי.", false);
-  }, 1200);
+  return new Promise(resolve => {
+    const message = new SpeechSynthesisUtterance(requestedText);
+    let started = false;
+    let completed = false;
+    const safetyTimer = window.setTimeout(() => finish(), 7000);
+    function finish() {
+      if (completed) return;
+      completed = true;
+      window.clearTimeout(safetyTimer);
+      if (speechState.timer) clearTimeout(speechState.timer);
+      speechState.timer = null;
+      if (speechState.utterance === message) speechState.utterance = null;
+      resolve();
+    }
+    message.lang = selectedVoice?.lang || (state.language === "ru" ? "ru-RU" : state.language === "he" ? "he-IL" : "en-US");
+    message.rate = .92;
+    message.pitch = 1.05;
+    message.volume = 1;
+    if (selectedVoice) message.voice = selectedVoice;
+    message.onstart = () => {
+      started = true;
+      if (speechState.timer) clearTimeout(speechState.timer);
+      speechState.timer = null;
+    };
+    message.onend = finish;
+    message.onerror = event => {
+      if (event.error !== "canceled" && event.error !== "interrupted") feedback(`שגיאת הקראה: ${event.error || "לא ידועה"}.`, false);
+      finish();
+    };
+    speechState.utterance = message;
+    window.speechSynthesis.speak(message);
+    if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+    speechState.timer = setTimeout(() => {
+      if (!started && speechState.utterance === message) feedback("מנוע ההקראה לא התחיל. הצפצוף יעזור לבדוק אם הבעיה היא רק בקול העברי.", false);
+    }, 1200);
+  });
+}
+
+function continueAfterCorrectSpeech(category, continuation) {
+  const startedAt = performance.now();
+  window.setTimeout(() => {
+    Promise.resolve(speakSelection(category)).finally(() => {
+      const remainingSuccessTime = Math.max(180, 900 - (performance.now() - startedAt));
+      window.setTimeout(continuation, remainingSuccessTime);
+    });
+  }, 220);
 }
 
 function shuffle(items) {
@@ -2148,9 +2173,7 @@ function check() {
       ? t("correctBonus", { xp: baseXP, bonus: firstChoiceBonus })
       : t("correct", { xp: baseXP }), true);
     pulse([50, 40, 90]);
-    window.setTimeout(() => speakSelection(level.correctCategory), 220);
-    const narrationEnabled = $("sound-toggle").getAttribute("aria-pressed") === "true";
-    setTimeout(nextLevel, narrationEnabled ? 1900 : 1100);
+    continueAfterCorrectSpeech(level.correctCategory, nextLevel);
   } else if (distance > positionTolerance) {
     feedback(t("moveCloser"), false);
     playMissSound();
@@ -2214,10 +2237,8 @@ function checkQuadrilateral(level) {
   else {
     state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
     feedback(`מצוין! זיהיתם וכיוונתם ${categoryLabel(state.category)}. +${level.xpBase} XP`, true);
-    window.setTimeout(() => speakSelection(level.correctCategory), 220);
     updateShapeControls(level);
-    if (level.askWhatElse) setTimeout(() => beginWhatElse(level), 700);
-    else setTimeout(nextLevel, 1100);
+    continueAfterCorrectSpeech(level.correctCategory, () => level.askWhatElse ? beginWhatElse(level) : nextLevel());
   }
 }
 
