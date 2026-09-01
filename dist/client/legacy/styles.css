@@ -107,6 +107,11 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .diagram-label { fill: var(--ink); font-size: 18px; font-weight: 800; paint-order: stroke; stroke: #0a1120; stroke-width: 5px; }
 .given-label { fill: var(--orange); font-size: 20px; font-weight: 900; paint-order: stroke; stroke: #0a1120; stroke-width: 6px; }
 .piece { cursor: grab; filter: drop-shadow(0 0 9px rgba(185,242,39,.3)); }
+#geometry.gesture-moving .piece { filter: drop-shadow(0 0 13px rgba(185,242,39,.62)); }
+#geometry.gesture-transforming .piece { filter: drop-shadow(0 0 17px rgba(49,215,245,.72)); }
+#geometry.gesture-transforming .piece-rays,
+#geometry.gesture-transforming .piece-opposite { stroke-width: 8.5; }
+#geometry.gesture-angle .piece { filter: drop-shadow(0 0 15px rgba(49,215,245,.72)); }
 .miss-wiggle { transform-box: fill-box; transform-origin: center; animation: miss-wiggle .38s ease-in-out; }
 @keyframes miss-wiggle { 0%,100% { transform: translateX(0); } 18% { transform: translateX(-11px) rotate(-1.5deg); } 38% { transform: translateX(9px) rotate(1.2deg); } 58% { transform: translateX(-6px) rotate(-.8deg); } 78% { transform: translateX(4px) rotate(.5deg); } }
 .piece:active { cursor: grabbing; }
@@ -122,8 +127,9 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .rotate-handle-line { stroke: var(--cyan); stroke-width: 2.5; stroke-dasharray: 5 4; }
 .rotate-handle { fill: var(--cyan); stroke: #071019; stroke-width: 4; cursor: alias; }
 .rotate-handle-hit { fill: transparent; cursor: grab; }
-.size-handle { fill: var(--cyan); stroke: #071019; stroke-width: 4; cursor: nwse-resize; }
+.size-handle { fill: var(--cyan); stroke: #071019; stroke-width: 4; cursor: nwse-resize; transition: transform .12s ease, filter .12s ease; }
 .size-handle-hit { fill: transparent; cursor: nwse-resize; }
+#geometry.gesture-angle .angle-handle-primary.size-handle { transform-box: fill-box; transform-origin: center; transform: scale(1.18); filter: drop-shadow(0 0 13px rgba(49,215,245,.95)); }
 .point-handle { fill: var(--orange); stroke: #071019; stroke-width: 4; cursor: move; }
 .point-handle-hit { fill: transparent; cursor: move; }
 .handle-label { fill: var(--ink); font-size: 14px; font-weight: 800; text-anchor: middle; paint-order: stroke; stroke: #071019; stroke-width: 5px; pointer-events: none; }
@@ -213,12 +219,13 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .touch-tutorial-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
 .touch-tutorial-actions .primary-button, .touch-tutorial-actions .secondary-button { width: 100%; min-width: 0; }
 .mirror-demo { position: relative; display: grid; place-items: center; width: 160px; height: 118px; margin: 0 auto 12px; border-radius: 18px; background: #091220; overflow: hidden; }
-.mirror-demo-shape { color: var(--lime); font: 900 76px/1 Inter, sans-serif; text-shadow: 0 0 20px rgba(185,242,39,.34); animation: tutorial-flip 2.4s ease-in-out infinite; }
-.tap-ring { position: absolute; width: 34px; height: 34px; border: 3px solid var(--cyan); border-radius: 50%; opacity: 0; animation: tutorial-tap 2.4s ease-out infinite; }
-.tap-ring-one { inset-inline-end: 34px; inset-block-end: 22px; }
-.tap-ring-two { inset-inline-end: 34px; inset-block-end: 22px; animation-delay: .24s; }
-@keyframes tutorial-tap { 0%,12% { opacity: 0; transform: scale(.45); } 18% { opacity: 1; } 32%,100% { opacity: 0; transform: scale(1.45); } }
-@keyframes tutorial-flip { 0%,30% { transform: scaleX(1); } 46%,80% { transform: scaleX(-1); } 96%,100% { transform: scaleX(1); } }
+.mirror-demo-shape { color: var(--lime); font: 900 76px/1 Inter, sans-serif; text-shadow: 0 0 20px rgba(185,242,39,.34); animation: tutorial-transform 3s ease-in-out infinite; }
+.tap-ring { position: absolute; width: 32px; height: 32px; border: 3px solid var(--cyan); border-radius: 50%; background: rgba(49,215,245,.12); opacity: .92; }
+.tap-ring-one { inset-inline-end: 42px; inset-block-end: 28px; animation: tutorial-finger-one 3s ease-in-out infinite; }
+.tap-ring-two { inset-inline-start: 42px; inset-block-start: 25px; animation: tutorial-finger-two 3s ease-in-out infinite; }
+@keyframes tutorial-transform { 0%,18%,100% { transform: translate(0) rotate(0) scale(1); } 62% { transform: translate(8px,-3px) rotate(14deg) scale(1.16); } }
+@keyframes tutorial-finger-one { 0%,18%,100% { transform: translate(0); } 62% { transform: translate(15px,10px); } }
+@keyframes tutorial-finger-two { 0%,18%,100% { transform: translate(0); } 62% { transform: translate(-15px,-10px); } }
 
 .touch-ui .mirror-help { display: grid; place-items: center; }
 .touch-ui .game-layout { grid-template-columns: 1fr; grid-template-areas: "tools" "play"; }
@@ -226,12 +233,14 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .touch-ui .loadout { grid-area: tools; padding: 12px; }
 .touch-ui .choice-grid { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 10px; scroll-snap-type: x proximity; }
 .touch-ui .choice-button { flex: 0 0 min(180px, 42vw); min-height: 66px; scroll-snap-align: center; }
-.touch-ui .arena { height: clamp(270px, 48vh, 430px); min-height: 0; border-radius: 22px; box-shadow: inset 0 0 0 1px rgba(68,215,240,.12); }
+.touch-ui .arena { display: grid; grid-template-rows: minmax(0, 1fr) auto; height: clamp(320px, 54vh, 470px); min-height: 0; border-radius: 22px; box-shadow: inset 0 0 0 1px rgba(68,215,240,.12); }
 .touch-ui #geometry { width: 100%; height: 100%; min-height: 0; }
 .touch-ui .arena-actions { position: static; z-index: auto; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 8px; margin: 10px 0 0; padding: 0; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; }
 .touch-ui .arena-actions button { min-height: 62px; min-width: 0; padding: 8px; border-radius: 14px; }
-.touch-ui .arena-tip { inset-inline: 12px; bottom: 14px; max-width: none; padding: 9px 12px; border: 1px solid rgba(68,215,240,.22); border-radius: 999px; font-size: .8rem; text-align: center; }
+.touch-ui .arena-tip { position: static; inset: auto; max-width: none; margin: 5px 10px 8px; padding: 7px 10px; border: 1px solid rgba(68,215,240,.22); border-radius: 999px; font-size: .78rem; line-height: 1.2; text-align: center; }
 .touch-ui .size-handle, .touch-ui .size-handle-hit { display: none; }
+.touch-ui .angle-handle-primary { display: block; }
+.touch-ui .angle-handle-primary.size-handle { stroke-width: 5; filter: drop-shadow(0 0 11px rgba(49,215,245,.95)); }
 .touch-ui .rotate-handle-line { stroke-width: 4; stroke-dasharray: 7 6; }
 .touch-ui .rotate-handle { filter: drop-shadow(0 0 10px rgba(49,215,245,.9)); }
 .touch-ui .rotate-handle-hit { cursor: grab; }
@@ -262,7 +271,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
     padding-bottom: 2px;
   }
   .touch-ui .loadout .choice-button { min-width: 0; }
-  .touch-ui .arena { height: clamp(250px, 38vh, 340px); min-height: 0; }
+  .touch-ui .arena { height: clamp(300px, 44vh, 390px); min-height: 0; }
   .touch-ui #geometry { height: 100%; min-height: 0; }
   .touch-ui .feedback { min-height: 58px; height: auto; margin-top: 6px; }
 }

@@ -325,17 +325,17 @@ const uiText = {
     appTitle: "משימת הזוויות", level: "שלב", currentMission: "משימה נוכחית", chooseToolEyebrow: "בחרו כלי", chooseTool: "בחרו כלי", placeAngle: "הניחו את הזווית", selectAngle: "בחרו זווית", toolbox: "ארגז הזוויות", primitives: "פרימיטיבים", equalFamily: "שוות", diagramTitle: "תרגיל זוויות", diagramDesc: "שרטוט גאומטרי עם זווית נתונה ומקום לזווית חסרה.", arenaTip: "גררו כדי להזיז • דאבל־קליק/טאפ בכל השרטוט: פליפ • ● זווית • ■ גובה/אורך", anglePlus: "+ זווית", angleMinus: "− זווית", check: "בדיקה", counterClockwise: "↶ נגד השעון", clockwise: "סיבוב ↷", mirror: "⇋ מראה", discard: "⌫ זריקה", footer: "נבנה ללמידה בתנועה: בוחרים, אוספים, מניחים ומגלים.", soundOff: "כיבוי הקראה", soundOn: "הפעלת הקראה",
     tutorialPrimitives: "טוטוריאל פרימיטיבים", tutorialEqual: "טוטוריאל זוויות שוות", tutorial180: "טוטוריאל 180°", practicePrimitives: "תרגול פרימיטיבים", practiceEqual: "תרגול זוויות שוות", practice180: "תרגול 180°", masterStage: "MASTER — הכול מעורבב",
     beginnerHint: "בחרו חדה, ישרה, שטוחה או קהה; אחר כך גררו את הזווית הנבחרת והניחו אותה על השרטוט.", advancedHint: "בחרו לפי שם את הכלי שמתאר את הקשר בשרטוט. הכלי יופיע מיד, ואז כוונו אותו למקום החסר.", masterHint: "הכול פתוח ומעורבב. התעלמו מקווי ההסחה — גם כשקו בצבע השאלה עובר דרך הקודקוד.", beginnerArena: "בחרו והניחו על הזווית", advancedArena: "גררו אל הזווית החסרה", tutorialMode: "TUTORIAL • בחרו כלי", practiceMode: "PRACTICE • בחרו כלי", masterMode: "MASTER • הכול פתוח",
-    toolHidden: "הכלי הוסתר. לחצו על שם כדי להציג כלי.", augmented: "AUGMENTED: {tool}. אפשר לגרור, לכוון או לזרוק.", speechActive: "הקראה בעברית פועלת.", placeAgain: "{tool} • לחצו בשרטוט כדי להניח מחדש", discarded: "הכלי נזרק. לחצו בשרטוט כדי להניח כלי חדש.", chooseFirst: "בחרו קודם כלי מארגז הזוויות.", mirrorOn: "מצב מראה הופעל.", mirrorOff: "מצב מראה בוטל.", wrongTool: "הצורה שהנחתם אינה מתארת את הקשר שבשרטוט. זרקו אותה ובחרו כלי אחר.", correct: "פגיעה מדויקת! +{xp} XP", correctBonus: "פגיעה מדויקת! +{xp} XP ועוד +{bonus} בונוס לבחירה נכונה בניסיון הראשון!", moveCloser: "כמעט! שחררו קרוב לעיגול הכחול והכלי ייצמד אליו.", rotateMore: "המיקום נכון. עכשיו סובבו עד שהשוקיים יישבו על השרטוט.", mirrorNeeded: "המיקום והסיבוב נכונים, אבל הצורה פונה לצד השני. עשו דאבל־טאפ בשרטוט.", angleNeeded: "המיקום והכיוון נכונים. היעד הוא {target}° וכרגע הכלי על {current}°.", complete: "המסלול הושלם! צברתם {score} XP ב־{count} משימות.", completeHint: "סיימתם שלוש רמות של 10 שאלות ועוד 10 משימות מאסטר מעורבבות.", touchTip: "גרירה: הזזה • צביטה: גודל הזווית • שחרור ליד העיגול: הצמדה • דאבל־טאפ: פליפ", mirrorTutorialTitle: "שליטה טבעית במגע", mirrorTutorialBody: "גררו באצבע אחת. שחררו קרוב לעיגול הכחול להצמדה. צבטו בשתי אצבעות כדי לשנות את גודל הזווית, וסובבו אותן כדי לסובב. דאבל־טאפ מבצע פליפ. בסרגל נשארו רק בדיקה וזריקה.", replayTutorial: "הציגו שוב", understood: "הבנתי", mirrorHelp: "הדרכת מגע"
+    toolHidden: "הכלי הוסתר. לחצו על שם כדי להציג כלי.", augmented: "AUGMENTED: {tool}. אפשר לגרור, לכוון או לזרוק.", speechActive: "הקראה בעברית פועלת.", placeAgain: "{tool} • לחצו בשרטוט כדי להניח מחדש", discarded: "הכלי נזרק. לחצו בשרטוט כדי להניח כלי חדש.", chooseFirst: "בחרו קודם כלי מארגז הזוויות.", mirrorOn: "מצב מראה הופעל.", mirrorOff: "מצב מראה בוטל.", wrongTool: "הצורה שהנחתם אינה מתארת את הקשר שבשרטוט. זרקו אותה ובחרו כלי אחר.", correct: "פגיעה מדויקת! +{xp} XP", correctBonus: "פגיעה מדויקת! +{xp} XP ועוד +{bonus} בונוס לבחירה נכונה בניסיון הראשון!", moveCloser: "כמעט! שחררו קרוב לעיגול הכחול והכלי ייצמד אליו.", rotateMore: "המיקום נכון. עכשיו סובבו עד שהשוקיים יישבו על השרטוט.", mirrorNeeded: "המיקום והסיבוב נכונים, אבל הצורה פונה לצד השני. עשו דאבל־טאפ בשרטוט.", angleNeeded: "המיקום והכיוון נכונים. היעד הוא {target}° וכרגע הכלי על {current}°.", complete: "המסלול הושלם! צברתם {score} XP ב־{count} משימות.", completeHint: "סיימתם שלוש רמות של 10 שאלות ועוד 10 משימות מאסטר מעורבבות.", touchTip: "אצבע אחת: הזזה • שתי אצבעות: הזזה, סיבוב וגודל • ● כחול: שינוי הזווית • דאבל־טאפ: פליפ", mirrorTutorialTitle: "שליטה טבעית במגע", mirrorTutorialBody: "גררו את הכלי באצבע אחת. הניחו עליו אצבע שנייה: הזיזו יחד, סובבו או צבטו כדי לשנות את גודל הכלי. גררו את הנקודה הכחולה כדי לפתוח ולסגור את הזווית — גם בזוויות צמודות. דאבל־טאפ מבצע פליפ.", replayTutorial: "הציגו שוב", understood: "הבנתי", mirrorHelp: "הדרכת מגע"
   },
   en: {
     appTitle: "Angle Quest", level: "Level", currentMission: "Current mission", chooseToolEyebrow: "Choose your tool", chooseTool: "Choose a tool", placeAngle: "Place the angle", selectAngle: "Choose an angle", toolbox: "Angle toolbox", primitives: "Primitives", equalFamily: "Equal angles", diagramTitle: "Angle exercise", diagramDesc: "A geometric diagram with a given angle and a missing angle.", arenaTip: "Drag to move • Double-click/tap anywhere: flip • ● angle • ■ height/length", anglePlus: "+ Angle", angleMinus: "− Angle", check: "Check", counterClockwise: "↶ Counterclockwise", clockwise: "Rotate ↷", mirror: "⇋ Mirror", discard: "⌫ Discard", footer: "Built for learning in motion: choose, collect, place, discover.", soundOff: "Turn narration off", soundOn: "Turn narration on",
     tutorialPrimitives: "Primitives tutorial", tutorialEqual: "Equal angles tutorial", tutorial180: "180° tutorial", practicePrimitives: "Primitives practice", practiceEqual: "Equal angles practice", practice180: "180° practice", masterStage: "MASTER — everything mixed", beginnerHint: "Choose acute, right, straight, or obtuse; then drag the selected angle onto the diagram.", advancedHint: "Choose the named tool that describes the relationship, then align it with the missing angle.", masterHint: "Everything is open and mixed. Ignore distractor lines, including lines through the vertex in the diagram color.", beginnerArena: "Choose and place on the angle", advancedArena: "Drag to the missing angle", tutorialMode: "TUTORIAL • Choose a tool", practiceMode: "PRACTICE • Choose a tool", masterMode: "MASTER • Everything open",
-    toolHidden: "Tool hidden. Press its name to show it again.", augmented: "AUGMENTED: {tool}. Drag, adjust, or discard it.", speechActive: "English narration is on.", placeAgain: "{tool} • Click the diagram to place again", discarded: "Tool discarded. Click the diagram to place a new tool.", chooseFirst: "Choose a tool from the angle toolbox first.", mirrorOn: "Mirror mode on.", mirrorOff: "Mirror mode off.", wrongTool: "This shape does not describe the relationship. Discard it and choose another tool.", correct: "Direct hit! +{xp} XP", correctBonus: "Direct hit! +{xp} XP and +{bonus} first-guess bonus!", moveCloser: "Almost! Place the angle center on the blue point.", rotateMore: "Position is correct. Rotate until the rays align with the diagram.", mirrorNeeded: "Position and rotation are correct, but the shape faces the other way. Double-tap the diagram.", angleNeeded: "Position and direction are correct. Target: {target}°; tool: {current}°.", complete: "Course complete! You earned {score} XP in {count} missions.", completeHint: "You completed three 10-question levels and 10 mixed Master missions.", touchTip: "One finger moves • Two fingers rotate and pinch to resize • Double-tap: flip", mirrorTutorialTitle: "Natural touch controls", mirrorTutorialBody: "Drag with one finger to move. With two fingers, twist to rotate and pinch to resize the tool or open the angle. Double-tap the diagram to flip without zooming.", replayTutorial: "Replay", understood: "Got it", mirrorHelp: "Touch tutorial"
+    toolHidden: "Tool hidden. Press its name to show it again.", augmented: "AUGMENTED: {tool}. Drag, adjust, or discard it.", speechActive: "English narration is on.", placeAgain: "{tool} • Click the diagram to place again", discarded: "Tool discarded. Click the diagram to place a new tool.", chooseFirst: "Choose a tool from the angle toolbox first.", mirrorOn: "Mirror mode on.", mirrorOff: "Mirror mode off.", wrongTool: "This shape does not describe the relationship. Discard it and choose another tool.", correct: "Direct hit! +{xp} XP", correctBonus: "Direct hit! +{xp} XP and +{bonus} first-guess bonus!", moveCloser: "Almost! Place the angle center on the blue point.", rotateMore: "Position is correct. Rotate until the rays align with the diagram.", mirrorNeeded: "Position and rotation are correct, but the shape faces the other way. Double-tap the diagram.", angleNeeded: "Position and direction are correct. Target: {target}°; tool: {current}°.", complete: "Course complete! You earned {score} XP in {count} missions.", completeHint: "You completed three 10-question levels and 10 mixed Master missions.", touchTip: "One finger moves • Two fingers move, rotate, and resize • Blue dot changes the angle • Double-tap flips", mirrorTutorialTitle: "Natural touch controls", mirrorTutorialBody: "Drag the tool with one finger. Add a second finger to move, twist, or pinch the whole tool. Drag the blue dot to open and close the angle, including supplementary adjacent angles. Double-tap to flip.", replayTutorial: "Replay", understood: "Got it", mirrorHelp: "Touch tutorial"
   },
   ru: {
     appTitle: "Квест углов", level: "Уровень", currentMission: "Текущее задание", chooseToolEyebrow: "Выберите инструмент", chooseTool: "Выберите инструмент", placeAngle: "Разместите угол", selectAngle: "Выберите угол", toolbox: "Набор углов", primitives: "Примитивы", equalFamily: "Равные углы", diagramTitle: "Задание с углами", diagramDesc: "Геометрический чертёж с данным и недостающим углом.", arenaTip: "Тяните для перемещения • Двойной щелчок/тап: отражение • ● угол • ■ высота/длина", anglePlus: "+ Угол", angleMinus: "− Угол", check: "Проверить", counterClockwise: "↶ Против часовой", clockwise: "Поворот ↷", mirror: "⇋ Отразить", discard: "⌫ Удалить", footer: "Обучение в движении: выбирай, собирай, размещай, открывай.", soundOff: "Выключить озвучивание", soundOn: "Включить озвучивание",
     tutorialPrimitives: "Урок: примитивы", tutorialEqual: "Урок: равные углы", tutorial180: "Урок: 180°", practicePrimitives: "Практика: примитивы", practiceEqual: "Практика: равные углы", practice180: "Практика: 180°", masterStage: "МАСТЕР — всё вперемешку", beginnerHint: "Выберите острый, прямой, развёрнутый или тупой угол, затем перетащите его на чертёж.", advancedHint: "Выберите инструмент по названию отношения и совместите его с недостающим углом.", masterHint: "Все семейства перемешаны. Игнорируйте отвлекающие линии, даже проходящие через вершину.", beginnerArena: "Выберите и наложите угол", advancedArena: "Перетащите к недостающему углу", tutorialMode: "УРОК • Выберите инструмент", practiceMode: "ПРАКТИКА • Выберите инструмент", masterMode: "МАСТЕР • Всё открыто",
-    toolHidden: "Инструмент скрыт. Нажмите его название, чтобы показать снова.", augmented: "AUGMENTED: {tool}. Перетаскивайте, настраивайте или удалите.", speechActive: "Русская озвучка включена.", placeAgain: "{tool} • Нажмите на чертёж, чтобы разместить снова", discarded: "Инструмент удалён. Нажмите на чертёж, чтобы разместить новый.", chooseFirst: "Сначала выберите инструмент.", mirrorOn: "Отражение включено.", mirrorOff: "Отражение выключено.", wrongTool: "Эта фигура не описывает отношение на чертеже. Удалите её и выберите другую.", correct: "Точно! +{xp} XP", correctBonus: "Точно! +{xp} XP и +{bonus} за первую верную догадку!", moveCloser: "Почти! Совместите центр угла с синей точкой.", rotateMore: "Позиция верна. Поверните лучи до совпадения с чертежом.", mirrorNeeded: "Позиция и поворот верны, но фигура направлена в другую сторону. Сделайте двойной щелчок или тап.", angleNeeded: "Позиция и направление верны. Цель: {target}°; инструмент: {current}°.", complete: "Маршрут завершён! Вы заработали {score} XP за {count} заданий.", completeHint: "Вы прошли три уровня по 10 вопросов и 10 смешанных заданий Мастера.", touchTip: "Тяните для перемещения • Двойной тап: отражение • Настройка за ручки", mirrorTutorialTitle: "Отражение двойным тапом", mirrorTutorialBody: "Быстро коснитесь чертежа два раза. Инструмент отразится вокруг своего центра.", replayTutorial: "Повторить", understood: "Понятно", mirrorHelp: "Урок отражения"
+    toolHidden: "Инструмент скрыт. Нажмите его название, чтобы показать снова.", augmented: "AUGMENTED: {tool}. Перетаскивайте, настраивайте или удалите.", speechActive: "Русская озвучка включена.", placeAgain: "{tool} • Нажмите на чертёж, чтобы разместить снова", discarded: "Инструмент удалён. Нажмите на чертёж, чтобы разместить новый.", chooseFirst: "Сначала выберите инструмент.", mirrorOn: "Отражение включено.", mirrorOff: "Отражение выключено.", wrongTool: "Эта фигура не описывает отношение на чертеже. Удалите её и выберите другую.", correct: "Точно! +{xp} XP", correctBonus: "Точно! +{xp} XP и +{bonus} за первую верную догадку!", moveCloser: "Почти! Совместите центр угла с синей точкой.", rotateMore: "Позиция верна. Поверните лучи до совпадения с чертежом.", mirrorNeeded: "Позиция и поворот верны, но фигура направлена в другую сторону. Сделайте двойной щелчок или тап.", angleNeeded: "Позиция и направление верны. Цель: {target}°; инструмент: {current}°.", complete: "Маршрут завершён! Вы заработали {score} XP за {count} заданий.", completeHint: "Вы прошли три уровня по 10 вопросов и 10 смешанных заданий Мастера.", touchTip: "Один палец: движение • Два: движение, поворот и размер • Синяя точка: угол • Двойной тап: отражение", mirrorTutorialTitle: "Естественное управление касанием", mirrorTutorialBody: "Перетаскивайте одним пальцем. Добавьте второй палец, чтобы двигать, поворачивать и менять размер всего инструмента. Синяя точка открывает и закрывает угол. Двойной тап отражает инструмент.", replayTutorial: "Повторить", understood: "Понятно", mirrorHelp: "Урок управления"
   }
 };
 
@@ -713,7 +713,7 @@ function showTouchTutorial() {
 
 function closeTouchTutorial() {
   $("touch-tutorial").hidden = true;
-  try { localStorage.setItem("angleQuestMirrorTutorialSeen", "true"); } catch { /* The tutorial can appear again next session. */ }
+  try { localStorage.setItem("angleQuestTouchTutorialV2Seen", "true"); } catch { /* The tutorial can appear again next session. */ }
 }
 
 function updateTouchInterface(showFirstTutorial = false) {
@@ -723,7 +723,7 @@ function updateTouchInterface(showFirstTutorial = false) {
   if (!active) $("touch-tutorial").hidden = true;
   if (active && showFirstTutorial) {
     let seen = false;
-    try { seen = localStorage.getItem("angleQuestMirrorTutorialSeen") === "true"; } catch { /* Show the tutorial. */ }
+    try { seen = localStorage.getItem("angleQuestTouchTutorialV2Seen") === "true"; } catch { /* Show the tutorial. */ }
     if (!seen) showTouchTutorial();
   }
 }
@@ -922,6 +922,9 @@ function renderChoices(level) {
 }
 
 function hideSelectedTool() {
+  touchPoints.clear();
+  touchGesture = null;
+  setGestureVisual();
   state.equipped = false;
   state.category = null;
   state.choice = null;
@@ -1100,7 +1103,7 @@ function placeSelected(point) {
   if (!state.category || state.solved) return;
   state.choice = level.correctChoice;
   const selectedAngle = level.choices.find(c => c.id === state.choice);
-  state.degrees = defaultDegreesForTool(state.category, selectedAngle.degrees);
+  state.degrees = defaultDegreesForTool(state.category, selectedAngle.degrees, selectedAngle.type);
   state.triangleVertices = state.category === "משולש"
     ? { a: polar(112, -state.degrees / 2), b: polar(112, state.degrees / 2) }
     : null;
@@ -1134,11 +1137,12 @@ function placeSelected(point) {
   pulse(45);
 }
 
-function defaultDegreesForTool(category, targetDegrees) {
+function defaultDegreesForTool(category, targetDegrees, targetType) {
   const primitiveDegrees = { "חדה": 45, "ישרה": 90, "שטוחה": 180, "קהה": 125 };
   if (primitiveDegrees[category]) return primitiveDegrees[category];
-  if (category === "מתחלפות") return 65;
-  if (category === "מתאימות") return 90;
+  if (category === "מתחלפות" || category === "מתאימות") {
+    return { acute: 65, right: 90, flat: 180, obtuse: 115 }[targetType] || targetDegrees;
+  }
   return targetDegrees;
 }
 
@@ -1167,7 +1171,7 @@ function renderPiece() {
     class: "piece-content",
     transform: mirrorScaleTransform(mirrorCenterX, state.piece.mirrored ? -1 : 1)
   });
-  const rayLength = 88;
+  const rayLength = Math.max(68, Math.min(165, state.dimensions.arm * .8));
   const adjacentRays = shape === "adjacent2"
     ? (state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 })
     : null;
@@ -1205,26 +1209,41 @@ function renderPiece() {
   content.append(svgEl("circle", { cx: 0, cy: 0, r: 7, class: "piece-core" }));
   group.addEventListener("pointerdown", startMove);
 
-  const angleHandles = shape === "triangle" ? [] : [
-    { point: a, side: -1, label: "כיוון הזרוע הראשונה" },
-    { point: b, side: 1, label: "כיוון הזרוע השנייה" }
-  ];
-  angleHandles.forEach(({ point, side, label: handleLabel }) => {
+  const bounds = angleBounds(activeChoiceType(level, choice));
+  const triangle = shape === "triangle" ? triangleGeometry() : null;
+  const angleHandles = bounds.min === bounds.max || (shape === "triangle" && !isTouchInterface())
+    ? []
+    : shape === "adjacent2"
+      ? [
+          { point: b, side: 1, label: "כיוון הישר", priority: "secondary" },
+          { point: a, side: -1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
+        ]
+      : [
+          { point: triangle?.a || a, side: -1, label: "כיוון הזרוע הראשונה", priority: "secondary" },
+          { point: triangle?.b || b, side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
+        ];
+  angleHandles.forEach(({ point, side, label: handleLabel, priority }) => {
     const hit = svgEl("circle", {
       cx: point.x,
       cy: point.y,
-      r: 24,
-      class: "size-handle-hit",
+      r: isTouchInterface() ? 32 : 24,
+      class: `size-handle-hit angle-handle angle-handle-${priority}`,
       role: "button",
       "aria-label": handleLabel
     });
-    const visible = svgEl("circle", { cx: point.x, cy: point.y, r: 10, class: "size-handle" });
+    const visible = svgEl("circle", {
+      cx: point.x,
+      cy: point.y,
+      r: isTouchInterface() && priority === "primary" ? 13 : 10,
+      class: `size-handle angle-handle angle-handle-${priority}`
+    });
     hit.addEventListener("pointerdown", event => startResize(event, side));
     visible.addEventListener("pointerdown", event => startResize(event, side));
     content.append(hit, visible);
   });
 
-  const handleGroup = svgEl("g", { transform: "translate(0 -92)" });
+  const rotateHandleDistance = Math.max(92, Math.min(170, rayLength + 18));
+  const handleGroup = svgEl("g", { transform: `translate(0 ${-rotateHandleDistance})` });
   handleGroup.append(svgEl("line", { x1: 0, y1: 12, x2: 0, y2: 77, class: "rotate-handle-line" }));
   const rotateHit = svgEl("circle", { cx: 0, cy: 0, r: 34, class: "rotate-handle-hit", "aria-label": "סיבוב הכלי" });
   const handle = svgEl("circle", { cx: 0, cy: 0, r: isTouchInterface() ? 18 : 13, class: "rotate-handle" });
@@ -1330,7 +1349,7 @@ function addPieceDragArea(content) {
     const minY = Math.min(...boxes.map(box => box.y));
     const maxX = Math.max(...boxes.map(box => box.x + box.width));
     const maxY = Math.max(...boxes.map(box => box.y + box.height));
-    const padding = 14;
+    const padding = isTouchInterface() ? 24 : 14;
     const hitArea = svgEl("rect", {
       x: minX - padding,
       y: minY - padding,
@@ -1448,8 +1467,9 @@ function placementRotationForTarget(category, degrees, targetRotation, mirrored)
 
 function renderAngleMarker(group, marker) {
   const markerGroup = svgEl("g", { transform: `translate(${marker.x} ${marker.y}) rotate(${marker.rotation})` });
-  markerGroup.append(svgEl("path", { d: sectorPath(state.degrees, 54), class: "piece-arc" }));
-  markerGroup.append(svgEl("path", { d: arcPath(state.degrees, 40), class: "piece-arc" }));
+  const scale = Math.max(.76, Math.min(1.5, state.dimensions.arm / 112));
+  markerGroup.append(svgEl("path", { d: sectorPath(state.degrees, 54 * scale), class: "piece-arc" }));
+  markerGroup.append(svgEl("path", { d: arcPath(state.degrees, 40 * scale), class: "piece-arc" }));
   group.append(markerGroup);
 }
 
@@ -1469,8 +1489,10 @@ function renderTriangleShape(group) {
   group.append(svgEl("line", { x1: 0, y1: 0, x2: a.x, y2: a.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: b.x, y2: b.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: "triangle-guide" }));
-  addPointHandle(group, a, "triangleVertexA", "שינוי הקודקוד הראשון של המשולש", "קודקוד");
-  addPointHandle(group, b, "triangleVertexB", "שינוי הקודקוד השני של המשולש", "קודקוד");
+  if (!isTouchInterface()) {
+    addPointHandle(group, a, "triangleVertexA", "שינוי הקודקוד הראשון של המשולש", "קודקוד");
+    addPointHandle(group, b, "triangleVertexB", "שינוי הקודקוד השני של המשולש", "קודקוד");
+  }
 }
 
 function unit(degrees) {
@@ -1513,8 +1535,10 @@ function renderZShape(group) {
   group.append(svgEl("line", { x1: upperEnd.x, y1: upperEnd.y, x2: joint.x, y2: joint.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: joint.x, y1: joint.y, x2: 0, y2: 0, class: "piece-opposite" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: lowerEnd.x, y2: lowerEnd.y, class: "piece-rays" }));
-  addPointHandle(group, lowerEnd, "arm", "שינוי אורך הישרים המקבילים", "אורך");
-  addPointHandle(group, upperMid, "height", "שינוי הגובה של צורת Z", "גובה");
+  if (!isTouchInterface()) {
+    addPointHandle(group, lowerEnd, "arm", "שינוי אורך הישרים המקבילים", "אורך");
+    addPointHandle(group, upperMid, "height", "שינוי הגובה של צורת Z", "גובה");
+  }
   return { x: joint.x, y: joint.y, rotation: 180 };
 }
 
@@ -1544,8 +1568,10 @@ function renderFShape(group) {
   group.append(svgEl("line", { x1: spineStart.x, y1: spineStart.y, x2: spineEnd.x, y2: spineEnd.y, class: "piece-opposite" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: middleEnd.x, y2: middleEnd.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: topJoint.x, y1: topJoint.y, x2: topEnd.x, y2: topEnd.y, class: "piece-rays" }));
-  addPointHandle(group, middleEnd, "arm", "שינוי אורך הזרועות המקבילות", "אורך");
-  addPointHandle(group, topEnd, "gap", "הגבהה או הנמכה של הזרוע העליונה", "גובה");
+  if (!isTouchInterface()) {
+    addPointHandle(group, middleEnd, "arm", "שינוי אורך הזרועות המקבילות", "אורך");
+    addPointHandle(group, topEnd, "gap", "הגבהה או הנמכה של הזרוע העליונה", "גובה");
+  }
   return {
     primaryRotation: state.degrees / 2,
     equalMarker: { x: topJoint.x, y: topJoint.y, rotation: state.degrees / 2 }
@@ -1568,6 +1594,7 @@ function startMove(event) {
   state.dragMoved = false;
   state.dragStartPointer = { x: event.clientX, y: event.clientY };
   state.dragOffset = { x: p.x - state.piece.x, y: p.y - state.piece.y };
+  setGestureVisual("moving");
   svg.setPointerCapture(event.pointerId);
 }
 
@@ -1582,13 +1609,16 @@ function startRotate(event) {
     pointerType: event.pointerType
   };
   state.dragging = "rotate";
+  setGestureVisual("transforming");
   svg.setPointerCapture(event.pointerId);
 }
 
 function startResize(event, side) {
   event.stopPropagation();
   event.preventDefault();
+  state.rotationAnchor = pieceAnchorPosition();
   state.dragging = `resize:${side}`;
+  setGestureVisual("angle");
   svg.setPointerCapture(event.pointerId);
 }
 
@@ -1608,6 +1638,7 @@ function startPointResize(event, kind) {
     } : null
   };
   state.dragging = `point:${kind}`;
+  setGestureVisual("transforming");
   svg.setPointerCapture(event.pointerId);
 }
 
@@ -1649,16 +1680,54 @@ function pairMetrics(points) {
   };
 }
 
+function setGestureVisual(mode = null) {
+  svg.classList.toggle("gesture-moving", mode === "moving");
+  svg.classList.toggle("gesture-transforming", mode === "transforming");
+  svg.classList.toggle("gesture-angle", mode === "angle");
+}
+
+function clampArenaAnchor(point) {
+  return {
+    x: Math.max(25, Math.min(695, point.x)),
+    y: Math.max(25, Math.min(405, point.y))
+  };
+}
+
+function constrainedToolScale(baseDimensions, requestedScale) {
+  const constraints = {
+    arm: [76, 200],
+    cross: [76, 230],
+    gap: [60, 175],
+    spine: [90, 250]
+  };
+  let minimumScale = .62;
+  let maximumScale = 1.8;
+  Object.entries(constraints).forEach(([key, [minimum, maximum]]) => {
+    const base = baseDimensions[key];
+    if (!base) return;
+    minimumScale = Math.max(minimumScale, minimum / base);
+    maximumScale = Math.min(maximumScale, maximum / base);
+  });
+  return Math.max(minimumScale, Math.min(maximumScale, requestedScale));
+}
+
+function constrainedQuadrilateralScale(baseDimensions, requestedScale) {
+  const minimum = state.category === "ריבוע" ? 60 : 55;
+  const maximum = state.category === "ריבוע" ? 210 : 220;
+  const minimumScale = Math.max(minimum / baseDimensions.width, minimum / baseDimensions.height);
+  const maximumScale = Math.min(maximum / baseDimensions.width, maximum / baseDimensions.height);
+  return Math.max(minimumScale, Math.min(maximumScale, requestedScale));
+}
+
 function beginTouchGesture() {
   const points = touchPair();
   if (points.length < 2 || !state.equipped) return;
   const metrics = pairMetrics(points);
   clearLongPress();
-  const center = { ...state.piece };
-  const angles = points.map(point => Math.atan2(point.y - center.y, point.x - center.x) * 180 / Math.PI);
   touchGesture = {
     ...metrics,
-    center,
+    piece: { ...state.piece },
+    anchor: pieceAnchorPosition(),
     rotation: state.piece.rotation,
     degrees: state.degrees,
     dimensions: { ...state.dimensions },
@@ -1668,14 +1737,18 @@ function beginTouchGesture() {
       a: { ...state.triangleVertices.a },
       b: { ...state.triangleVertices.b }
     } : null,
-    fingerOpening: Math.abs(normalizeSignedAngle(angles[1] - angles[0]))
+    adjacentRays: state.adjacentRays ? { ...state.adjacentRays } : null
   };
   state.dragging = "multitouch";
+  state.dragMoved = true;
   completedMultiTouch = true;
+  setGestureVisual("transforming");
 }
 
 svg.addEventListener("pointerdown", event => {
   if (!isTouchInterface() || event.pointerType !== "touch" || !state.equipped || state.solved) return;
+  const startedOnPiece = event.target instanceof Element && Boolean(event.target.closest(".piece"));
+  if (touchPoints.size === 0 && !startedOnPiece) return;
   touchPoints.set(event.pointerId, svgPoint(event));
   svg.setPointerCapture(event.pointerId);
   if (touchPoints.size === 2) {
@@ -1694,19 +1767,21 @@ svg.addEventListener("pointermove", event => {
     const points = touchPair();
     const metrics = pairMetrics(points);
     const rawScale = metrics.distance / touchGesture.distance;
-    const requestedScale = Math.abs(rawScale - 1) < .035 ? 1 : 1 + (rawScale - 1) * .82;
+    const requestedScale = Math.abs(rawScale - 1) < .02 ? 1 : rawScale;
     const rawRotationDelta = normalizeSignedAngle(metrics.direction - touchGesture.direction);
-    const rotationDelta = Math.abs(rawRotationDelta) < 2 ? 0 : (rawRotationDelta - Math.sign(rawRotationDelta) * 2) * .8;
-    state.piece.rotation = normalizeAngle(Math.round(touchGesture.rotation + rotationDelta));
+    const rotationDelta = Math.abs(rawRotationDelta) < 1.2 ? 0 : rawRotationDelta;
+    const desiredAnchor = clampArenaAnchor({
+      x: touchGesture.anchor.x + metrics.midpoint.x - touchGesture.midpoint.x,
+      y: touchGesture.anchor.y + metrics.midpoint.y - touchGesture.midpoint.y
+    });
+    state.piece = {
+      ...touchGesture.piece,
+      rotation: normalizeAngle(Math.round((touchGesture.rotation + rotationDelta) * 2) / 2)
+    };
     const activeLevel = levels[state.levelIndex];
     if (activeLevel.phase === "quadrilateral") {
-      const minSize = state.category === "ריבוע" ? 60 : 55;
-      const maxSize = state.category === "ריבוע" ? 210 : 220;
       const { width, height } = touchGesture.quadDimensions;
-      const effectiveScale = Math.max(
-        Math.max(minSize / width, minSize / height),
-        Math.min(Math.min(maxSize / width, maxSize / height), requestedScale)
-      );
+      const effectiveScale = constrainedQuadrilateralScale(touchGesture.quadDimensions, requestedScale);
       state.quadDimensions = { width: width * effectiveScale, height: height * effectiveScale };
       if (touchGesture.quadVertices) {
         state.quadVertices = touchGesture.quadVertices.map(point => ({
@@ -1715,31 +1790,20 @@ svg.addEventListener("pointermove", event => {
         }));
       }
     } else {
-      const choice = activeLevel.choices.find(item => item.id === state.choice);
-      const currentOpening = Math.abs(normalizeSignedAngle(
-        Math.atan2(points[1].y - state.piece.y, points[1].x - state.piece.x) * 180 / Math.PI -
-        Math.atan2(points[0].y - state.piece.y, points[0].x - state.piece.x) * 180 / Math.PI
-      ));
-      const openingDelta = normalizeSignedAngle(currentOpening - touchGesture.fingerOpening);
-      const pinchDelta = (metrics.distance - touchGesture.distance) * .34;
-      const bounds = angleBounds(activeChoiceType(activeLevel, choice));
-      const nextDegrees = Math.max(bounds.min, Math.min(bounds.max, touchGesture.degrees + openingDelta + pinchDelta));
-      if (augmentedShape(activeLevel) === "adjacent2") {
-        const middle = (state.adjacentRays?.a ?? -touchGesture.degrees / 2) + touchGesture.degrees / 2;
-        state.adjacentRays = { a: middle - nextDegrees / 2, b: middle + nextDegrees / 2, opposite: middle + nextDegrees / 2 + 180 };
-      }
-      if (state.category === "משולש" && touchGesture.triangleVertices) {
-        const lengthA = Math.hypot(touchGesture.triangleVertices.a.x, touchGesture.triangleVertices.a.y);
-        const lengthB = Math.hypot(touchGesture.triangleVertices.b.x, touchGesture.triangleVertices.b.y);
-        const centerRotation = (Math.atan2(touchGesture.triangleVertices.a.y, touchGesture.triangleVertices.a.x) + Math.atan2(touchGesture.triangleVertices.b.y, touchGesture.triangleVertices.b.x)) * 90 / Math.PI;
+      const effectiveScale = constrainedToolScale(touchGesture.dimensions, requestedScale);
+      state.dimensions = Object.fromEntries(
+        Object.entries(touchGesture.dimensions).map(([key, value]) => [key, value * effectiveScale])
+      );
+      state.degrees = touchGesture.degrees;
+      state.adjacentRays = touchGesture.adjacentRays ? { ...touchGesture.adjacentRays } : null;
+      if (touchGesture.triangleVertices) {
         state.triangleVertices = {
-          a: polar(lengthA, centerRotation - nextDegrees / 2),
-          b: polar(lengthB, centerRotation + nextDegrees / 2)
+          a: { x: touchGesture.triangleVertices.a.x * effectiveScale, y: touchGesture.triangleVertices.a.y * effectiveScale },
+          b: { x: touchGesture.triangleVertices.b.x * effectiveScale, y: touchGesture.triangleVertices.b.y * effectiveScale }
         };
       }
-      state.degrees = nextDegrees;
-      updateAngleReadout();
     }
+    keepPieceAnchorAt(desiredAnchor);
   } else if (state.dragging === "move") {
     if (state.dragStartPointer && Math.hypot(event.clientX - state.dragStartPointer.x, event.clientY - state.dragStartPointer.y) > 8) {
       state.dragMoved = true;
@@ -1770,13 +1834,31 @@ svg.addEventListener("pointermove", event => {
       const requestedDegrees = Math.max(bounds.min, Math.min(bounds.max, Math.abs(delta)));
       const direction = delta < 0 ? -1 : 1;
       if (side === -1) rays.a = normalizeAngle(fixedAngle + direction * requestedDegrees);
-      else rays.b = normalizeAngle(fixedAngle + direction * requestedDegrees);
+      else {
+        rays.b = normalizeAngle(fixedAngle + direction * requestedDegrees);
+        rays.opposite = normalizeAngle(rays.b + 180);
+      }
       state.degrees = requestedDegrees;
     } else {
       const hasFixedHorizontalBase = state.category === "מתאימות" || primitiveTools.includes(state.category);
-      const requestedDegrees = hasFixedHorizontalBase ? Math.abs(normalizeSignedAngle(relativeAngle)) : Math.abs(relativeAngle) * 2;
-      state.degrees = Math.max(bounds.min, Math.min(bounds.max, requestedDegrees));
+      const triangle = state.category === "משולש" ? triangleGeometry() : null;
+      const requestedDegrees = hasFixedHorizontalBase
+        ? Math.abs(normalizeSignedAngle(relativeAngle))
+        : triangle
+          ? Math.abs(normalizeSignedAngle(relativeAngle - triangle.rotation)) * 2
+          : Math.abs(relativeAngle) * 2;
+      const nextDegrees = Math.max(bounds.min, Math.min(bounds.max, requestedDegrees));
+      if (triangle && state.triangleVertices) {
+        const lengthA = Math.hypot(triangle.a.x, triangle.a.y);
+        const lengthB = Math.hypot(triangle.b.x, triangle.b.y);
+        state.triangleVertices = {
+          a: polar(lengthA, triangle.rotation - nextDegrees / 2),
+          b: polar(lengthB, triangle.rotation + nextDegrees / 2)
+        };
+      }
+      state.degrees = nextDegrees;
     }
+    if (state.rotationAnchor) keepPieceAnchorAt(state.rotationAnchor);
     updateAngleReadout();
   } else if (state.dragging.startsWith("point:")) {
     resizeShapePoint(state.dragging.slice(6), p);
@@ -1792,14 +1874,33 @@ svg.addEventListener("pointerup", event => {
   if (completedGesture === "move" && isTap) registerMirrorTap();
   else if (!completedGesture && state.equipped && isTap) registerMirrorTap();
   if (svg.hasPointerCapture(event.pointerId)) svg.releasePointerCapture(event.pointerId);
+  if (completedGesture === "multitouch" && touchPoints.size >= 2) {
+    beginTouchGesture();
+    return;
+  }
+  if (completedGesture === "multitouch" && touchPoints.size === 1) {
+    applyTouchDetents();
+    touchGesture = null;
+    const remainingPoint = [...touchPoints.values()][0];
+    state.dragging = "move";
+    state.dragMoved = true;
+    state.dragStartPointer = null;
+    state.dragOffset = { x: remainingPoint.x - state.piece.x, y: remainingPoint.y - state.piece.y };
+    state.rotationAnchor = null;
+    state.rotationDragStart = null;
+    state.pointDragStart = null;
+    setGestureVisual("moving");
+    return;
+  }
   state.dragging = null;
   state.dragStartPointer = null;
   state.rotationAnchor = null;
   state.rotationDragStart = null;
   state.pointDragStart = null;
   if (completedGesture === "move") magneticallySnapToTarget();
-  if (completedGesture === "multitouch" || completedGesture === "rotate") applyTouchDetents();
+  if (completedGesture === "multitouch" || completedGesture === "rotate" || completedGesture?.startsWith("resize:")) applyTouchDetents();
   if (touchPoints.size < 2) touchGesture = null;
+  setGestureVisual();
   if (touchPoints.size === 0) {
     completedMultiTouch = false;
     longPressTriggered = false;
@@ -1838,6 +1939,7 @@ function applyTouchDetents() {
   if (!state.equipped || state.solved || !isTouchInterface()) return;
   const level = levels[state.levelIndex];
   const target = currentTarget(level);
+  const fixedAnchor = pieceAnchorPosition();
   let snapped = false;
   if (level.phase === "quadrilateral") {
     if (angleDistance(state.piece.rotation, target.rotation) <= 7) {
@@ -1856,6 +1958,7 @@ function applyTouchDetents() {
     }
   }
   if (!snapped) return;
+  keepPieceAnchorAt(fixedAnchor);
   renderPiece();
   flashTargetSnap();
   pulse(18);
@@ -1878,10 +1981,20 @@ document.addEventListener("selectstart", event => {
 svg.addEventListener("pointercancel", event => {
   clearLongPress();
   touchPoints.delete(event.pointerId);
-  if (touchPoints.size < 2) {
+  if (state.dragging === "multitouch" && touchPoints.size === 1) {
+    const remainingPoint = [...touchPoints.values()][0];
+    touchGesture = null;
+    state.dragging = "move";
+    state.dragMoved = true;
+    state.dragOffset = { x: remainingPoint.x - state.piece.x, y: remainingPoint.y - state.piece.y };
+    setGestureVisual("moving");
+  } else if (touchPoints.size < 2) {
     touchGesture = null;
     state.dragging = null;
     state.rotationDragStart = null;
+    setGestureVisual();
+  } else if (state.dragging === "multitouch") {
+    beginTouchGesture();
   }
   if (touchPoints.size === 0) completedMultiTouch = false;
 });
@@ -1988,7 +2101,10 @@ function resizeShapePoint(kind, svgPosition) {
     const previous = state.triangleVertices[key];
     state.triangleVertices[key] = candidate;
     const geometry = triangleGeometry();
-    if (geometry.degrees < 15 || geometry.degrees > 165) {
+    const level = levels[state.levelIndex];
+    const choice = level.choices.find(item => item.id === state.choice);
+    const bounds = angleBounds(activeChoiceType(level, choice));
+    if (geometry.degrees < bounds.min || geometry.degrees > bounds.max) {
       state.triangleVertices[key] = previous;
       return;
     }
@@ -2080,14 +2196,18 @@ function activeChoiceType(level, choice) {
 
 function resizeAngle(delta) {
   if (!state.equipped || state.solved) return;
+  const fixedAnchor = pieceAnchorPosition();
   const level = levels[state.levelIndex];
   const choice = level.choices.find(c => c.id === state.choice);
   const bounds = angleBounds(activeChoiceType(level, choice));
   const nextDegrees = Math.max(bounds.min, Math.min(bounds.max, state.degrees + delta));
   if (state.category === "צמודות") {
     const rays = state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 };
-    const middle = rays.a + normalizeSignedAngle(rays.b - rays.a) / 2;
-    state.adjacentRays = { ...rays, a: middle - nextDegrees / 2, b: middle + nextDegrees / 2 };
+    const sweep = normalizeSignedAngle(rays.b - rays.a);
+    const direction = sweep < 0 ? -1 : 1;
+    const middle = rays.a + sweep / 2;
+    const b = middle + direction * nextDegrees / 2;
+    state.adjacentRays = { ...rays, a: middle - direction * nextDegrees / 2, b, opposite: normalizeAngle(b + 180) };
   }
   if (state.category === "משולש" && state.triangleVertices) {
     const geometry = triangleGeometry();
@@ -2099,6 +2219,7 @@ function resizeAngle(delta) {
     };
   }
   state.degrees = nextDegrees;
+  keepPieceAnchorAt(fixedAnchor);
   updateAngleReadout();
   renderPiece();
 }
@@ -2123,6 +2244,9 @@ function classifyAngle(degrees) {
 function discardPiece() {
   if (!state.equipped || state.solved) return;
   playDiscardSound();
+  touchPoints.clear();
+  touchGesture = null;
+  setGestureVisual();
   state.equipped = false;
   state.choice = null;
   state.degrees = 0;
@@ -2155,12 +2279,8 @@ function check() {
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
   const rotationTolerance = level.target.rotationTolerance + (isTouchInterface() ? 5 : 0);
   if (distance <= positionTolerance && turn <= rotationTolerance && sizeDifference <= angleTolerance) {
-    state.piece = {
-      x: target.x,
-      y: target.y,
-      rotation: placementRotationForTarget(state.category, state.degrees, target.rotation, state.piece.mirrored),
-      mirrored: state.piece.mirrored
-    };
+    state.piece.rotation = placementRotationForTarget(state.category, state.degrees, target.rotation, state.piece.mirrored);
+    keepPieceAnchorAt(target);
     state.solved = true;
     const baseXP = level.xpBase || 100;
     const firstChoiceBonus = state.firstChoiceCorrect ? Math.round(baseXP * .5) : 0;
@@ -2484,6 +2604,9 @@ function loadLevel() {
   prepareQuadrilateralLevel(level);
   prepareDynamicLevel(level);
   prepareProLevel(level);
+  touchPoints.clear();
+  touchGesture = null;
+  setGestureVisual();
   Object.assign(state, { category: null, firstChoiceMade: false, firstChoiceCorrect: false, choice: null, degrees: 0, equipped: false, solved: false, followUp: false, followUpFound: [], quadVertices: null, triangleVertices: null, adjacentRays: null, dragging: null });
   $("level-number").textContent = level.exerciseNumber;
   $("level-count").textContent = level.exerciseCount;
