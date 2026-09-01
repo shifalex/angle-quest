@@ -1250,7 +1250,7 @@ function renderPiece() {
           { point: state.category === "קודקודיות"
             ? polar(rayLength, bAngle + 180)
             : state.category === "מתחלפות"
-              ? polar(rayLength, (state.piece.mirrored ? state.degrees * 1.5 : -state.degrees / 2) + 180)
+              ? polar(52, (state.piece.mirrored ? state.degrees * 1.5 : -state.degrees / 2) + 180)
               : (triangle?.b || b), side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
         ];
   angleHandles = angleHandles.filter(handle => handle.priority === "primary");
