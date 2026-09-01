@@ -770,7 +770,6 @@ function renderScene(level) {
   if (level.scene === "quadrilateral") {
     const { width, height } = level.targetDimensions;
     const target = svgEl("g", { transform: `translate(${level.target.x} ${level.target.y}) rotate(${level.target.rotation})` });
-    target.append(svgEl("circle", { cx: 0, cy: 0, r: 27, class: "target-halo" }));
     target.append(svgEl("polygon", { points: quadrilateralPoints(level.correctCategory, width, height), class: "quad-target" }));
     sceneLayer.append(target);
     return;
