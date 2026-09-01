@@ -645,7 +645,7 @@ function applyLanguage(reload = true) {
   document.title = `Angle Quest — ${t("appTitle")}`;
   document.querySelector(".brand h1").textContent = t("appTitle");
   document.querySelector(".mission .eyebrow").textContent = t("currentMission").toUpperCase();
-  $("loadout-title").textContent = t("chooseToolEyebrow").toUpperCase();
+  $("loadout-title").textContent = t("chooseTool");
   document.querySelector(".arena-heading .eyebrow").textContent = t("placeAngle").toUpperCase();
   $("diagram-title").textContent = t("diagramTitle");
   $("diagram-desc").textContent = t("diagramDesc");
@@ -1160,7 +1160,7 @@ function placeSelected(point) {
   const equippedCategory = state.category;
   window.setTimeout(() => {
     if (state.equipped && state.category === equippedCategory) speakSelection(equippedCategory);
-  }, 520);
+  }, 220);
 }
 
 function defaultDegreesForTool(category, targetDegrees, targetType) {
@@ -2580,23 +2580,18 @@ function playEquipSound() {
   const context = activeEffectsContext();
   if (!context) return;
   const now = context.currentTime;
-  // Magazine seat, slide rack, then a crisp chamber click.
-  noiseBurst(context, now, .075, .1, 720);
-  noiseBurst(context, now + .15, .16, .075, 1450);
-  noiseBurst(context, now + .36, .035, .12, 2800);
+  noiseBurst(context, now, .045, .11, 1800);
   [
-    { delay: 0, from: 210, to: 135, duration: .075, volume: .09, type: "square" },
-    { delay: .105, from: 440, to: 240, duration: .055, volume: .07, type: "triangle" },
-    { delay: .17, from: 980, to: 310, duration: .16, volume: .075, type: "sawtooth" },
-    { delay: .365, from: 1650, to: 920, duration: .045, volume: .105, type: "square" }
-  ].forEach(({ delay, from, to, duration, volume, type }) => {
+    { delay: 0, from: 330, to: 190, duration: .055 },
+    { delay: .075, from: 520, to: 260, duration: .07 }
+  ].forEach(({ delay, from, to, duration }) => {
     const start = now + delay;
     const oscillator = context.createOscillator();
     const gain = context.createGain();
-    oscillator.type = type;
+    oscillator.type = "square";
     oscillator.frequency.setValueAtTime(from, start);
     oscillator.frequency.exponentialRampToValueAtTime(to, start + duration);
-    gain.gain.setValueAtTime(volume, start);
+    gain.gain.setValueAtTime(.065, start);
     gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
     oscillator.connect(gain).connect(context.destination);
     oscillator.start(start);
@@ -2608,22 +2603,18 @@ function playDiscardSound() {
   const context = activeEffectsContext();
   if (!context) return;
   const now = context.currentTime;
-  // Release click, falling magazine, then two metallic floor impacts.
-  noiseBurst(context, now, .035, .1, 2300);
-  noiseBurst(context, now + .19, .045, .105, 1050);
-  noiseBurst(context, now + .31, .035, .075, 1550);
+  noiseBurst(context, now, .055, .12, 1350);
   [
-    { delay: 0, frequency: 1250, end: 760, duration: .04, volume: .09, type: "square" },
-    { delay: .06, frequency: 430, end: 120, duration: .16, volume: .055, type: "triangle" },
-    { delay: .195, frequency: 820, end: 330, duration: .055, volume: .105, type: "square" },
-    { delay: .315, frequency: 610, end: 260, duration: .045, volume: .07, type: "triangle" }
-  ].forEach(({ delay, frequency, end, duration, volume, type }) => {
+    { delay: 0, frequency: 980, duration: .055, volume: .075 },
+    { delay: .07, frequency: 640, duration: .07, volume: .06 },
+    { delay: .15, frequency: 420, duration: .09, volume: .045 }
+  ].forEach(({ delay, frequency, duration, volume }) => {
     const start = now + delay;
     const oscillator = context.createOscillator();
     const gain = context.createGain();
-    oscillator.type = type;
+    oscillator.type = "triangle";
     oscillator.frequency.setValueAtTime(frequency, start);
-    oscillator.frequency.exponentialRampToValueAtTime(end, start + duration);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency * .72, start + duration);
     gain.gain.setValueAtTime(volume, start);
     gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
     oscillator.connect(gain).connect(context.destination);
