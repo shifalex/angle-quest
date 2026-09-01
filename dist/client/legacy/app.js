@@ -958,7 +958,9 @@ function speakSelection(category) {
     "ריבוע": "Выбран квадрат.", "מלבן": "Выбран прямоугольник.", "מעוין": "Выбран ромб.",
     "מקבילית": "Выбран параллелограмм.", "טרפז": "Выбрана трапеция.", "דלתון": "Выбран дельтоид."
   };
-  const spokenText = quadrilateralTools.includes(category)
+  const spokenText = category === "טרפז"
+    ? "נבחר טְרַפֵּז."
+    : quadrilateralTools.includes(category)
     ? `נבחר ${category}`
     : category === "משולש"
     ? "נבחר משולש"
@@ -968,7 +970,7 @@ function speakSelection(category) {
 
 function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallback) {
   if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return Promise.resolve();
-  const filename = recordedSpeechFiles[key];
+  const filename = state.language === "he" && key === "טרפז" ? null : recordedSpeechFiles[key];
   if (!filename) {
     return speakText(hebrewFallback, englishFallback, russianFallback);
   }
