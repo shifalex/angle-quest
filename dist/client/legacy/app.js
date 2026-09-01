@@ -792,9 +792,15 @@ function renderScene(level) {
     applyProSceneTransform(level);
     return;
   } else if (level.scene === "vertical") {
-    line(sceneLayer, 100, 335, 630, 95);
-    line(sceneLayer, 100, 95, 630, 335);
-    label(sceneLayer, 431, 211, "48°", "given-label");
+    const degrees = level.choices.find(c => c.id === level.correctChoice).degrees;
+    const center = { x: level.target.x, y: level.target.y };
+    const halfLength = 292;
+    [-degrees / 2, degrees / 2].forEach(angle => {
+      const direction = polar(halfLength, angle);
+      line(sceneLayer, center.x - direction.x, center.y - direction.y, center.x + direction.x, center.y + direction.y);
+    });
+    const givenLabel = polar(78, 0);
+    label(sceneLayer, center.x + givenLabel.x, center.y + givenLabel.y, `${degrees}°`, "given-label");
     label(sceneLayer, 82, 88, "A");
     label(sceneLayer, 650, 350, "B");
     label(sceneLayer, 650, 88, "C");
@@ -819,15 +825,30 @@ function renderScene(level) {
       label(sceneLayer, topIntersection.x + labelPoint.x, topIntersection.y + labelPoint.y, `${degrees}°`, "given-label");
     }
   } else if (level.scene === "adjacent") {
+    const missingDegrees = level.choices.find(c => c.id === level.correctChoice).degrees;
+    const givenDegrees = 180 - missingDegrees;
+    level.target.rotation = normalizeAngle(-missingDegrees / 2);
     line(sceneLayer, 95, 220, 635, 220);
-    line(sceneLayer, 360, 220, 535, 30);
-    label(sceneLayer, 289, 166, "125°", "given-label");
+    const diagonalEnd = polar(258, -missingDegrees);
+    line(sceneLayer, level.target.x, level.target.y, level.target.x + diagonalEnd.x, level.target.y + diagonalEnd.y);
+    const givenLabel = polar(86, -90 - missingDegrees / 2);
+    label(sceneLayer, level.target.x + givenLabel.x, level.target.y + givenLabel.y, `${givenDegrees}°`, "given-label");
     label(sceneLayer, 80, 241, "A");
     label(sceneLayer, 650, 241, "B");
   } else if (level.scene === "triangle") {
-    line(sceneLayer, 220, 365, 520, 365);
-    line(sceneLayer, 220, 365, 342, 153);
-    line(sceneLayer, 342, 153, 520, 365);
+    const left = { x: 220, y: 365 };
+    const right = { x: 520, y: 365 };
+    const leftDegrees = 60;
+    const rightDegrees = 50;
+    const base = right.x - left.x;
+    const height = base / (1 / Math.tan(leftDegrees * Math.PI / 180) + 1 / Math.tan(rightDegrees * Math.PI / 180));
+    const top = { x: left.x + height / Math.tan(leftDegrees * Math.PI / 180), y: left.y - height };
+    level.target.x = top.x;
+    level.target.y = top.y;
+    level.target.rotation = (180 - leftDegrees + rightDegrees) / 2;
+    line(sceneLayer, left.x, left.y, right.x, right.y);
+    line(sceneLayer, left.x, left.y, top.x, top.y);
+    line(sceneLayer, top.x, top.y, right.x, right.y);
     label(sceneLayer, 255, 339, "60°", "given-label");
     label(sceneLayer, 481, 339, "50°", "given-label");
   }
@@ -1226,7 +1247,8 @@ function renderPiece() {
   if (families["שוות"].includes(state.category)) {
     angleHandles = angleHandles.filter(handle => handle.priority === "primary");
   }
-  keepAngleHandlesInArena(angleHandles.map(handle => handle.point), mirrorCenterX);
+  if (isTouchInterface()) angleHandles = angleHandles.filter(handle => handle.priority === "primary");
+  if (!state.dragging) keepAngleHandlesInArena(angleHandles.map(handle => handle.point), mirrorCenterX);
   group.setAttribute("transform", `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})`);
   angleHandles.forEach(({ point, side, label: handleLabel, priority }) => {
     const hit = svgEl("circle", {
@@ -1619,6 +1641,7 @@ function startMove(event) {
   if (event.target.classList.contains("rotate-handle")) return;
   event.stopPropagation();
   event.preventDefault();
+  clearAdjustmentFeedback();
   const p = svgPoint(event);
   state.dragging = "move";
   state.dragMoved = false;
@@ -1631,6 +1654,7 @@ function startMove(event) {
 function startRotate(event) {
   event.stopPropagation();
   event.preventDefault();
+  clearAdjustmentFeedback();
   state.rotationAnchor = pieceAnchorPosition();
   const point = svgPoint(event);
   state.rotationDragStart = {
@@ -1646,6 +1670,7 @@ function startRotate(event) {
 function startResize(event, side) {
   event.stopPropagation();
   event.preventDefault();
+  clearAdjustmentFeedback();
   state.rotationAnchor = pieceAnchorPosition();
   const rays = state.category === "צמודות" ? state.adjacentRays : null;
   const fixedAngle = rays ? (side === -1 ? rays.b : rays.a) : 0;
@@ -1663,6 +1688,7 @@ function startResize(event, side) {
 function startPointResize(event, kind) {
   event.stopPropagation();
   event.preventDefault();
+  clearAdjustmentFeedback();
   const local = toPieceLocal(svgPoint(event));
   state.pointDragStart = {
     local,
@@ -1938,6 +1964,7 @@ svg.addEventListener("pointerup", event => {
   state.pointDragStart = null;
   if (completedGesture === "move") magneticallySnapToTarget();
   if (completedGesture === "multitouch" || completedGesture === "rotate" || completedGesture?.startsWith("resize:")) applyTouchDetents();
+  if (completedGesture) renderPiece();
   if (touchPoints.size < 2) touchGesture = null;
   setGestureVisual();
   if (touchPoints.size === 0) {
@@ -2321,7 +2348,8 @@ function check() {
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
   const rotationTolerance = level.target.rotationTolerance + (isTouchInterface() ? 5 : 0);
   if (distance <= positionTolerance && turn <= rotationTolerance && sizeDifference <= angleTolerance) {
-    state.piece.rotation = placementRotationForTarget(state.category, state.degrees, target.rotation, state.piece.mirrored);
+    resizeAngle(targetDegrees - state.degrees);
+    state.piece.rotation = placementRotationForTarget(state.category, targetDegrees, target.rotation, state.piece.mirrored);
     keepPieceAnchorAt(target);
     state.solved = true;
     const baseXP = level.xpBase || 100;
@@ -2509,6 +2537,12 @@ function startCourseAt(section) {
 function feedback(message, success) {
   $("feedback").textContent = message;
   $("feedback").className = `feedback ${success ? "success" : "error"}`;
+}
+
+function clearAdjustmentFeedback() {
+  if (!$("feedback").classList.contains("error")) return;
+  $("feedback").textContent = "";
+  $("feedback").className = "feedback";
 }
 
 let effectsAudioContext = null;
