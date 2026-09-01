@@ -280,6 +280,7 @@ const state = {
   dragMoved: false,
   dragStartPointer: null,
   rotationAnchor: null,
+  angleDragStart: null,
   rotationDragStart: null,
   lastPieceTap: 0,
   pointDragStart: null,
@@ -1618,6 +1619,14 @@ function startResize(event, side) {
   event.stopPropagation();
   event.preventDefault();
   state.rotationAnchor = pieceAnchorPosition();
+  const rays = state.category === "צמודות" ? state.adjacentRays : null;
+  const fixedAngle = rays ? (side === -1 ? rays.b : rays.a) : 0;
+  const movingAngle = rays ? (side === -1 ? rays.a : rays.b) : 0;
+  const adjacentSweep = rays ? normalizeSignedAngle(movingAngle - fixedAngle) : 0;
+  state.angleDragStart = {
+    side,
+    adjacentDirection: adjacentSweep < 0 ? -1 : 1
+  };
   state.dragging = `resize:${side}`;
   setGestureVisual("angle");
   svg.setPointerCapture(event.pointerId);
@@ -1832,8 +1841,8 @@ svg.addEventListener("pointermove", event => {
       const rays = state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 };
       const fixedAngle = side === -1 ? rays.b : rays.a;
       const delta = normalizeSignedAngle(relativeAngle - fixedAngle);
-      const requestedDegrees = Math.max(bounds.min, Math.min(bounds.max, Math.abs(delta)));
-      const direction = delta < 0 ? -1 : 1;
+      const direction = state.angleDragStart?.adjacentDirection || (delta < 0 ? -1 : 1);
+      const requestedDegrees = Math.max(bounds.min, Math.min(bounds.max, Math.max(0, delta * direction)));
       if (side === -1) rays.a = normalizeAngle(fixedAngle + direction * requestedDegrees);
       else {
         rays.b = normalizeAngle(fixedAngle + direction * requestedDegrees);
@@ -1896,6 +1905,7 @@ svg.addEventListener("pointerup", event => {
   state.dragging = null;
   state.dragStartPointer = null;
   state.rotationAnchor = null;
+  state.angleDragStart = null;
   state.rotationDragStart = null;
   state.pointDragStart = null;
   if (completedGesture === "move") magneticallySnapToTarget();
@@ -1992,6 +2002,7 @@ svg.addEventListener("pointercancel", event => {
   } else if (touchPoints.size < 2) {
     touchGesture = null;
     state.dragging = null;
+    state.angleDragStart = null;
     state.rotationDragStart = null;
     setGestureVisual();
   } else if (state.dragging === "multitouch") {
@@ -2184,6 +2195,7 @@ function toggleMirror() {
 }
 
 function angleBounds(type) {
+  if (type === "flexible") return { min: 15, max: 165 };
   if (type === "acute") return { min: 15, max: 89 };
   if (type === "right") return { min: 90, max: 90 };
   if (type === "flat") return { min: 180, max: 180 };
@@ -2191,6 +2203,7 @@ function angleBounds(type) {
 }
 
 function activeChoiceType(level, choice) {
+  if (families["שוות"].includes(state.category)) return "flexible";
   if (level.phase !== "beginner") return choice.type;
   return state.category === "חדה" ? "acute" : state.category === "ישרה" ? "right" : state.category === "שטוחה" ? "flat" : "obtuse";
 }
