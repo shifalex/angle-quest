@@ -1684,9 +1684,16 @@ function startResize(event, side) {
   const fixedAngle = rays ? (side === -1 ? rays.b : rays.a) : 0;
   const movingAngle = rays ? (side === -1 ? rays.a : rays.b) : 0;
   const adjacentSweep = rays ? normalizeSignedAngle(movingAngle - fixedAngle) : 0;
+  const alternateParallelWorld = state.category === "מתחלפות"
+    ? normalizeAngle(state.piece.rotation + state.degrees / 2)
+    : null;
   state.angleDragStart = {
     side,
-    adjacentDirection: adjacentSweep < 0 ? -1 : 1
+    adjacentDirection: adjacentSweep < 0 ? -1 : 1,
+    alternateParallelWorld,
+    alternateGap: state.category === "מתחלפות"
+      ? Math.abs(state.dimensions.cross * Math.sin(state.degrees * Math.PI / 180))
+      : null
   };
   state.dragging = `resize:${side}`;
   setGestureVisual("angle");
@@ -1918,7 +1925,10 @@ svg.addEventListener("pointermove", event => {
       const requestedDegrees = state.category === "קודקודיות"
         ? Math.abs(normalizeSignedAngle(relativeAngle - 180)) * 2
         : state.category === "מתחלפות"
-          ? Math.abs(normalizeSignedAngle(relativeAngle - 180)) / (state.piece.mirrored ? 1.5 : .5)
+          ? Math.abs(normalizeSignedAngle(
+              Math.atan2(p.y - state.rotationAnchor.y, p.x - state.rotationAnchor.x) * 180 / Math.PI
+              - (state.angleDragStart.alternateParallelWorld + 180)
+            ))
         : hasFixedHorizontalBase
         ? Math.abs(normalizeSignedAngle(relativeAngle))
         : triangle
@@ -1935,7 +1945,8 @@ svg.addEventListener("pointermove", event => {
       }
       state.degrees = nextDegrees;
       if (state.category === "מתחלפות") {
-        state.piece.rotation = normalizeAngle(state.piece.rotation + (previousDegrees - nextDegrees) / 2);
+        state.piece.rotation = normalizeAngle(state.angleDragStart.alternateParallelWorld - nextDegrees / 2);
+        state.dimensions.cross = Math.min(620, state.angleDragStart.alternateGap / Math.max(.01, Math.sin(nextDegrees * Math.PI / 180)));
       }
     }
     if (state.rotationAnchor) keepPieceAnchorAt(state.rotationAnchor);
@@ -2289,6 +2300,9 @@ function resizeAngle(delta) {
   const choice = level.choices.find(c => c.id === state.choice);
   const bounds = angleBounds(activeChoiceType(level, choice));
   const previousDegrees = state.degrees;
+  const alternateGap = state.category === "מתחלפות"
+    ? Math.abs(state.dimensions.cross * Math.sin(previousDegrees * Math.PI / 180))
+    : null;
   const nextDegrees = Math.max(bounds.min, Math.min(bounds.max, state.degrees + delta));
   if (state.category === "צמודות") {
     const rays = state.adjacentRays ||= { a: -state.degrees / 2, b: state.degrees / 2, opposite: state.degrees / 2 + 180 };
@@ -2310,6 +2324,7 @@ function resizeAngle(delta) {
   state.degrees = nextDegrees;
   if (state.category === "מתחלפות") {
     state.piece.rotation = normalizeAngle(state.piece.rotation + (previousDegrees - nextDegrees) / 2);
+    state.dimensions.cross = Math.min(620, alternateGap / Math.max(.01, Math.sin(nextDegrees * Math.PI / 180)));
   }
   keepPieceAnchorAt(fixedAnchor);
   updateAngleReadout();
