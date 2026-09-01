@@ -330,7 +330,7 @@ const uiText = {
   en: {
     appTitle: "Angle Quest", level: "Level", currentMission: "Current mission", chooseToolEyebrow: "Choose your tool", chooseTool: "Choose a tool", placeAngle: "Place the angle", selectAngle: "Choose an angle", toolbox: "Angle toolbox", primitives: "Primitives", equalFamily: "Equal angles", diagramTitle: "Angle exercise", diagramDesc: "A geometric diagram with a given angle and a missing angle.", arenaTip: "Drag to move • Double-click/tap anywhere: flip • ● angle • ■ height/length", anglePlus: "+ Angle", angleMinus: "− Angle", check: "Check", counterClockwise: "↶ Counterclockwise", clockwise: "Rotate ↷", mirror: "⇋ Mirror", discard: "⌫ Discard", footer: "Built for learning in motion: choose, collect, place, discover.", soundOff: "Turn narration off", soundOn: "Turn narration on",
     tutorialPrimitives: "Primitives tutorial", tutorialEqual: "Equal angles tutorial", tutorial180: "180° tutorial", practicePrimitives: "Primitives practice", practiceEqual: "Equal angles practice", practice180: "180° practice", masterStage: "MASTER — everything mixed", beginnerHint: "Choose acute, right, straight, or obtuse; then drag the selected angle onto the diagram.", advancedHint: "Choose the named tool that describes the relationship, then align it with the missing angle.", masterHint: "Everything is open and mixed. Ignore distractor lines, including lines through the vertex in the diagram color.", beginnerArena: "Choose and place on the angle", advancedArena: "Drag to the missing angle", tutorialMode: "TUTORIAL • Choose a tool", practiceMode: "PRACTICE • Choose a tool", masterMode: "MASTER • Everything open",
-    toolHidden: "Tool hidden. Press its name to show it again.", augmented: "AUGMENTED: {tool}. Drag, adjust, or discard it.", speechActive: "English narration is on.", placeAgain: "{tool} • Click the diagram to place again", discarded: "Tool discarded. Click the diagram to place a new tool.", chooseFirst: "Choose a tool from the angle toolbox first.", mirrorOn: "Mirror mode on.", mirrorOff: "Mirror mode off.", wrongTool: "This shape does not describe the relationship. Discard it and choose another tool.", correct: "Direct hit! +{xp} XP", correctBonus: "Direct hit! +{xp} XP and +{bonus} first-guess bonus!", moveCloser: "Almost! Place the angle center on the blue point.", rotateMore: "Position is correct. Rotate until the rays align with the diagram.", mirrorNeeded: "Position and rotation are correct, but the shape faces the other way. Long-press the tool.", angleNeeded: "Position and direction are correct. Target: {target}°; tool: {current}°.", complete: "Course complete! You earned {score} XP in {count} missions.", completeHint: "You completed three 10-question levels and 10 mixed Master missions.", touchTip: "One finger moves • Two fingers rotate and pinch to resize • Long press: mirror", mirrorTutorialTitle: "Natural touch controls", mirrorTutorialBody: "Drag with one finger to move. With two fingers, twist to rotate and pinch to resize. Long-press to mirror; double-tap stays available.", replayTutorial: "Replay", understood: "Got it", mirrorHelp: "Touch tutorial"
+    toolHidden: "Tool hidden. Press its name to show it again.", augmented: "AUGMENTED: {tool}. Drag, adjust, or discard it.", speechActive: "English narration is on.", placeAgain: "{tool} • Click the diagram to place again", discarded: "Tool discarded. Click the diagram to place a new tool.", chooseFirst: "Choose a tool from the angle toolbox first.", mirrorOn: "Mirror mode on.", mirrorOff: "Mirror mode off.", wrongTool: "This shape does not describe the relationship. Discard it and choose another tool.", correct: "Direct hit! +{xp} XP", correctBonus: "Direct hit! +{xp} XP and +{bonus} first-guess bonus!", moveCloser: "Almost! Place the angle center on the blue point.", rotateMore: "Position is correct. Rotate until the rays align with the diagram.", mirrorNeeded: "Position and rotation are correct, but the shape faces the other way. Double-tap the diagram.", angleNeeded: "Position and direction are correct. Target: {target}°; tool: {current}°.", complete: "Course complete! You earned {score} XP in {count} missions.", completeHint: "You completed three 10-question levels and 10 mixed Master missions.", touchTip: "One finger moves • Two fingers rotate and pinch to resize • Double-tap: flip", mirrorTutorialTitle: "Natural touch controls", mirrorTutorialBody: "Drag with one finger to move. With two fingers, twist to rotate and pinch to resize the tool or open the angle. Double-tap the diagram to flip without zooming.", replayTutorial: "Replay", understood: "Got it", mirrorHelp: "Touch tutorial"
   },
   ru: {
     appTitle: "Квест углов", level: "Уровень", currentMission: "Текущее задание", chooseToolEyebrow: "Выберите инструмент", chooseTool: "Выберите инструмент", placeAngle: "Разместите угол", selectAngle: "Выберите угол", toolbox: "Набор углов", primitives: "Примитивы", equalFamily: "Равные углы", diagramTitle: "Задание с углами", diagramDesc: "Геометрический чертёж с данным и недостающим углом.", arenaTip: "Тяните для перемещения • Двойной щелчок/тап: отражение • ● угол • ■ высота/длина", anglePlus: "+ Угол", angleMinus: "− Угол", check: "Проверить", counterClockwise: "↶ Против часовой", clockwise: "Поворот ↷", mirror: "⇋ Отразить", discard: "⌫ Удалить", footer: "Обучение в движении: выбирай, собирай, размещай, открывай.", soundOff: "Выключить озвучивание", soundOn: "Включить озвучивание",
@@ -1527,7 +1527,6 @@ function startMove(event) {
   state.dragMoved = false;
   state.dragStartPointer = { x: event.clientX, y: event.clientY };
   state.dragOffset = { x: p.x - state.piece.x, y: p.y - state.piece.y };
-  beginLongPress(event);
   svg.setPointerCapture(event.pointerId);
 }
 
@@ -1675,20 +1674,30 @@ svg.addEventListener("pointermove", event => {
         }));
       }
     } else {
-      const sizes = Object.values(touchGesture.dimensions);
-      const effectiveScale = Math.max(
-        Math.max(...sizes.map(value => 55 / value)),
-        Math.min(Math.min(...sizes.map(value => 260 / value)), requestedScale)
-      );
-      Object.keys(state.dimensions).forEach(key => {
-        state.dimensions[key] = touchGesture.dimensions[key] * effectiveScale;
-      });
-      if (touchGesture.triangleVertices) {
+      const choice = activeLevel.choices.find(item => item.id === state.choice);
+      const currentOpening = Math.abs(normalizeSignedAngle(
+        Math.atan2(points[1].y - state.piece.y, points[1].x - state.piece.x) * 180 / Math.PI -
+        Math.atan2(points[0].y - state.piece.y, points[0].x - state.piece.x) * 180 / Math.PI
+      ));
+      const openingDelta = normalizeSignedAngle(currentOpening - touchGesture.fingerOpening);
+      const pinchDelta = (metrics.distance - touchGesture.distance) * .34;
+      const bounds = angleBounds(activeChoiceType(activeLevel, choice), activeLevel.lockAngleType === true);
+      const nextDegrees = Math.max(bounds.min, Math.min(bounds.max, touchGesture.degrees + openingDelta + pinchDelta));
+      if (augmentedShape(activeLevel) === "adjacent2") {
+        const middle = (state.adjacentRays?.a ?? -touchGesture.degrees / 2) + touchGesture.degrees / 2;
+        state.adjacentRays = { a: middle - nextDegrees / 2, b: middle + nextDegrees / 2, opposite: middle + nextDegrees / 2 + 180 };
+      }
+      if (state.category === "משולש" && touchGesture.triangleVertices) {
+        const lengthA = Math.hypot(touchGesture.triangleVertices.a.x, touchGesture.triangleVertices.a.y);
+        const lengthB = Math.hypot(touchGesture.triangleVertices.b.x, touchGesture.triangleVertices.b.y);
+        const centerRotation = (Math.atan2(touchGesture.triangleVertices.a.y, touchGesture.triangleVertices.a.x) + Math.atan2(touchGesture.triangleVertices.b.y, touchGesture.triangleVertices.b.x)) * 90 / Math.PI;
         state.triangleVertices = {
-          a: { x: touchGesture.triangleVertices.a.x * effectiveScale, y: touchGesture.triangleVertices.a.y * effectiveScale },
-          b: { x: touchGesture.triangleVertices.b.x * effectiveScale, y: touchGesture.triangleVertices.b.y * effectiveScale }
+          a: polar(lengthA, centerRotation - nextDegrees / 2),
+          b: polar(lengthB, centerRotation + nextDegrees / 2)
         };
       }
+      state.degrees = nextDegrees;
+      updateAngleReadout();
     }
   } else if (state.dragging === "move") {
     if (state.dragStartPointer && Math.hypot(event.clientX - state.dragStartPointer.x, event.clientY - state.dragStartPointer.y) > 8) {
@@ -1738,8 +1747,9 @@ svg.addEventListener("pointerup", event => {
   const completedGesture = state.dragging;
   clearLongPress();
   touchPoints.delete(event.pointerId);
-  if (event.pointerType !== "touch" && completedGesture === "move" && !state.dragMoved && !completedMultiTouch) registerMirrorTap();
-  else if (event.pointerType !== "touch" && !completedGesture && state.equipped) registerMirrorTap();
+  const isTap = !state.dragMoved && !completedMultiTouch && !longPressTriggered;
+  if (completedGesture === "move" && isTap) registerMirrorTap();
+  else if (!completedGesture && state.equipped && isTap) registerMirrorTap();
   if (svg.hasPointerCapture(event.pointerId)) svg.releasePointerCapture(event.pointerId);
   state.dragging = null;
   state.dragStartPointer = null;
@@ -1751,6 +1761,12 @@ svg.addEventListener("pointerup", event => {
     completedMultiTouch = false;
     longPressTriggered = false;
   }
+});
+
+// Keep double-click/tap for flipping the tool instead of Safari's zoom gesture.
+svg.addEventListener("dblclick", event => event.preventDefault());
+["gesturestart", "gesturechange", "gestureend"].forEach(type => {
+  svg.addEventListener(type, event => event.preventDefault(), { passive: false });
 });
 
 svg.addEventListener("pointercancel", event => {
