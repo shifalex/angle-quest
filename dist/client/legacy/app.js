@@ -2608,18 +2608,22 @@ function playDiscardSound() {
   const context = activeEffectsContext();
   if (!context) return;
   const now = context.currentTime;
-  noiseBurst(context, now, .055, .12, 1350);
+  // Release click, falling magazine, then two metallic floor impacts.
+  noiseBurst(context, now, .035, .1, 2300);
+  noiseBurst(context, now + .19, .045, .105, 1050);
+  noiseBurst(context, now + .31, .035, .075, 1550);
   [
-    { delay: 0, frequency: 980, duration: .055, volume: .075 },
-    { delay: .07, frequency: 640, duration: .07, volume: .06 },
-    { delay: .15, frequency: 420, duration: .09, volume: .045 }
-  ].forEach(({ delay, frequency, duration, volume }) => {
+    { delay: 0, frequency: 1250, end: 760, duration: .04, volume: .09, type: "square" },
+    { delay: .06, frequency: 430, end: 120, duration: .16, volume: .055, type: "triangle" },
+    { delay: .195, frequency: 820, end: 330, duration: .055, volume: .105, type: "square" },
+    { delay: .315, frequency: 610, end: 260, duration: .045, volume: .07, type: "triangle" }
+  ].forEach(({ delay, frequency, end, duration, volume, type }) => {
     const start = now + delay;
     const oscillator = context.createOscillator();
     const gain = context.createGain();
-    oscillator.type = "triangle";
+    oscillator.type = type;
     oscillator.frequency.setValueAtTime(frequency, start);
-    oscillator.frequency.exponentialRampToValueAtTime(frequency * .72, start + duration);
+    oscillator.frequency.exponentialRampToValueAtTime(end, start + duration);
     gain.gain.setValueAtTime(volume, start);
     gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
     oscillator.connect(gain).connect(context.destination);
