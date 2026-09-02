@@ -2242,6 +2242,7 @@ function magneticallySnapToTarget() {
     if (state.category === "טרפז" && trapezoidHasSecondParallelPair()) return;
     state.piece.x = target.x;
     state.piece.y = target.y;
+    state.piece.rotation = target.rotation;
   } else {
     if (state.category !== level.correctCategory) return;
     const targetDegrees = level.choices.find(choice => choice.id === level.correctChoice).degrees;
