@@ -1752,13 +1752,16 @@ function startResize(event, side) {
   const alternateParallelWorld = state.category === "מתחלפות"
     ? normalizeAngle(state.piece.rotation + state.degrees / 2)
     : null;
+  const pointer = svgPoint(event);
   state.angleDragStart = {
     side,
     adjacentDirection: adjacentSweep < 0 ? -1 : 1,
     alternateParallelWorld,
-    alternateHandleReference: state.category === "מתחלפות"
-      ? normalizeAngle(alternateParallelWorld + (state.piece.mirrored ? 0 : 180))
+    alternatePointerAngle: state.category === "מתחלפות"
+      ? Math.atan2(pointer.y - state.rotationAnchor.y, pointer.x - state.rotationAnchor.x) * 180 / Math.PI
       : null,
+    alternateDegrees: state.degrees,
+    alternateMirrored: state.piece.mirrored,
     alternateGap: state.category === "מתחלפות"
       ? Math.abs(state.dimensions.cross * Math.sin(state.degrees * Math.PI / 180))
       : null
@@ -1993,10 +1996,11 @@ svg.addEventListener("pointermove", event => {
       const requestedDegrees = state.category === "קודקודיות"
         ? Math.abs(normalizeSignedAngle(relativeAngle - 180)) * 2
         : state.category === "מתחלפות"
-          ? Math.abs(normalizeSignedAngle(
+          ? state.angleDragStart.alternateDegrees
+            + normalizeSignedAngle(
               Math.atan2(p.y - state.rotationAnchor.y, p.x - state.rotationAnchor.x) * 180 / Math.PI
-              - state.angleDragStart.alternateHandleReference
-            ))
+              - state.angleDragStart.alternatePointerAngle
+            ) * (state.angleDragStart.alternateMirrored ? -1 : 1)
         : hasFixedHorizontalBase
         ? Math.abs(normalizeSignedAngle(relativeAngle))
         : triangle
@@ -2222,15 +2226,13 @@ function resizeShapePoint(kind, svgPosition) {
       const safeCandidate = index < 2
         ? { ...candidate, y: Math.min(candidate.y, oppositeBaseY - 30) }
         : { ...candidate, y: Math.max(candidate.y, oppositeBaseY + 30) };
-      const height = Math.abs(oppositeBaseY - safeCandidate.y);
-      const minimumInset = height / Math.tan(85 * Math.PI / 180);
-      if (index === 0) safeCandidate.x = Math.max(safeCandidate.x, state.quadVertices[3].x + minimumInset);
-      if (index === 1) safeCandidate.x = Math.min(safeCandidate.x, state.quadVertices[2].x - minimumInset);
-      if (index === 2) safeCandidate.x = Math.max(safeCandidate.x, state.quadVertices[1].x + minimumInset);
-      if (index === 3) safeCandidate.x = Math.min(safeCandidate.x, state.quadVertices[0].x - minimumInset);
+      // Either base may be shorter and may overhang the perpendiculars of the
+      // other base. Only preserve left/right order within the same base.
+      const basePartner = index % 2 === 0 ? index + 1 : index - 1;
+      if (index === 0 || index === 3) safeCandidate.x = Math.min(safeCandidate.x, state.quadVertices[basePartner].x - 30);
+      else safeCandidate.x = Math.max(safeCandidate.x, state.quadVertices[basePartner].x + 30);
       state.quadVertices[index] = safeCandidate;
-      const partner = index % 2 === 0 ? index + 1 : index - 1;
-      state.quadVertices[partner] = { ...state.quadVertices[partner], y: safeCandidate.y };
+      state.quadVertices[basePartner] = { ...state.quadVertices[basePartner], y: safeCandidate.y };
     } else {
       const opposite = (index + 2) % 4;
       if (index === 0 || index === 2) {
