@@ -1204,7 +1204,9 @@ function renderPiece() {
   });
   const content = svgEl("g", {
     class: "piece-content",
-    transform: mirrorScaleTransform(mirrorCenterX, state.piece.mirrored ? -1 : 1)
+    transform: shape === "z"
+      ? zMirrorTransform(state.piece.mirrored ? -1 : 1)
+      : mirrorScaleTransform(mirrorCenterX, state.piece.mirrored ? -1 : 1)
   });
   const rayLength = Math.max(68, Math.min(165, state.dimensions.arm * .8));
   const adjacentRays = shape === "adjacent2"
@@ -1473,7 +1475,7 @@ function animateMirrorFlip(fromMirrored, toMirrored, fixedAnchor) {
     }
     if (isAlternate) {
       group.setAttribute("transform", `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})`);
-      content.setAttribute("transform", mirrorScaleTransform(centerX, scale));
+      content.setAttribute("transform", zMirrorTransform(scale));
       return;
     }
     const localAnchorX = centerX * (1 - scale);
@@ -1505,7 +1507,7 @@ function augmentedShape(level) {
 }
 
 function shapeMirrorCenterX(shape) {
-  if (shape === "z") return polar(state.dimensions.cross / 2, -state.degrees / 2).x;
+  if (shape === "z") return 0;
   if (shape === "f") {
     const spine = unit(state.degrees);
     const topJointX = -spine.x * state.dimensions.gap;
@@ -1519,6 +1521,32 @@ function shapeMirrorCenterX(shape) {
   // while a corner is dragged and creates a feedback loop in mirrored mode.
   if (shape === "triangle") return 0;
   return 0;
+}
+
+function zMirrorGeometry() {
+  const railAngle = state.degrees / 2;
+  const joint = polar(state.dimensions.cross, -state.degrees / 2);
+  return { railAngle, center: { x: joint.x / 2, y: joint.y / 2 } };
+}
+
+function zMirrorTransform(scale) {
+  const { railAngle, center } = zMirrorGeometry();
+  return `translate(${center.x} ${center.y}) rotate(${railAngle}) scale(${scale} 1) rotate(${-railAngle}) translate(${-center.x} ${-center.y})`;
+}
+
+function zMirrorPoint(point) {
+  const { railAngle, center } = zMirrorGeometry();
+  const radians = -railAngle * Math.PI / 180;
+  const dx = point.x - center.x;
+  const dy = point.y - center.y;
+  const alignedX = dx * Math.cos(radians) - dy * Math.sin(radians);
+  const alignedY = dx * Math.sin(radians) + dy * Math.cos(radians);
+  const reflectedX = -alignedX;
+  const reverse = -radians;
+  return {
+    x: center.x + reflectedX * Math.cos(reverse) - alignedY * Math.sin(reverse),
+    y: center.y + reflectedX * Math.sin(reverse) + alignedY * Math.cos(reverse)
+  };
 }
 
 function triangleGeometry() {
@@ -1543,13 +1571,17 @@ function toolMarkerRotation(category, degrees) {
 
 function effectiveToolRotation(category, degrees, piece = state.piece) {
   const markerRotation = toolMarkerRotation(category, degrees);
-  const mirroredMarkerRotation = piece.mirrored ? 180 - markerRotation : markerRotation;
+  const mirroredMarkerRotation = !piece.mirrored ? markerRotation
+    : category === "מתחלפות" ? normalizeAngle(degrees + 180 - markerRotation)
+      : 180 - markerRotation;
   return normalizeAngle(piece.rotation + mirroredMarkerRotation);
 }
 
 function placementRotationForTarget(category, degrees, targetRotation, mirrored) {
   const markerRotation = toolMarkerRotation(category, degrees);
-  const mirroredMarkerRotation = mirrored ? 180 - markerRotation : markerRotation;
+  const mirroredMarkerRotation = !mirrored ? markerRotation
+    : category === "מתחלפות" ? normalizeAngle(degrees + 180 - markerRotation)
+      : 180 - markerRotation;
   return normalizeAngle(targetRotation - mirroredMarkerRotation);
 }
 
@@ -2280,6 +2312,7 @@ function toPieceLocal(svgPosition) {
   if (levels[state.levelIndex].phase === "quadrilateral" && state.piece.mirrored && quadrilateralCanFlip(state.category)) {
     return { x: -rotated.x, y: rotated.y };
   }
+  if (state.category === "מתחלפות" && state.piece.mirrored) return zMirrorPoint(rotated);
   const mirrorCenterX = shapeMirrorCenterX(augmentedShape(levels[state.levelIndex]));
   return { x: state.piece.mirrored ? 2 * mirrorCenterX - rotated.x : rotated.x, y: rotated.y };
 }
