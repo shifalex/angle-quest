@@ -2547,6 +2547,14 @@ function pieceAnchorPosition() {
   // them because an unrelated X-shaped tool center was being reused here.
   if (levels[state.levelIndex].phase === "quadrilateral") return { x: state.piece.x, y: state.piece.y };
   if (!state.piece.mirrored) return { x: state.piece.x, y: state.piece.y };
+  if (state.category === "מתחלפות") {
+    const displayed = zMirrorPoint({ x: 0, y: 0 });
+    const rotation = state.piece.rotation * Math.PI / 180;
+    return {
+      x: state.piece.x + displayed.x * Math.cos(rotation) - displayed.y * Math.sin(rotation),
+      y: state.piece.y + displayed.x * Math.sin(rotation) + displayed.y * Math.cos(rotation)
+    };
+  }
   const mirrorCenterX = shapeMirrorCenterX(augmentedShape(levels[state.levelIndex]));
   const localAnchorX = 2 * mirrorCenterX;
   const rotation = state.piece.rotation * Math.PI / 180;
