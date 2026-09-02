@@ -2249,8 +2249,9 @@ function magneticallySnapToTarget() {
   const positionTolerance = Math.max(54, level.target.tolerance);
   if (distance > positionTolerance) return;
   if (level.phase === "quadrilateral") {
-    const shapeTolerance = state.category === "מקבילית" ? 36 : 27;
-    const rotationTolerance = state.category === "מקבילית" ? 15 : 10;
+    const forgivingShape = state.category === "מקבילית" || state.category === "דלתון";
+    const shapeTolerance = forgivingShape ? 36 : 27;
+    const rotationTolerance = forgivingShape ? 15 : 10;
     if (!level.offeredValidNames?.includes(state.category) || quadrilateralMatchError(level) > shapeTolerance) return;
     if (state.category === "טרפז" && trapezoidHasSecondParallelPair()) return;
     if (quadrilateralRotationError(state.category, state.piece.rotation, target.rotation) > rotationTolerance) return;
@@ -2441,19 +2442,19 @@ function resizeShapePoint(kind, svgPosition) {
       else safeCandidate.x = Math.max(safeCandidate.x, state.quadVertices[basePartner].x + 30);
       state.quadVertices[index] = safeCandidate;
       state.quadVertices[basePartner] = { ...state.quadVertices[basePartner], y: safeCandidate.y };
-    } else {
+    } else if (actualShape === "דלתון") {
       const opposite = (index + 2) % 4;
       if (index === 0 || index === 2) {
         const oppositeY = state.quadVertices[opposite].y;
         const safeY = index === 0 ? Math.min(candidate.y, oppositeY - 30) : Math.max(candidate.y, oppositeY + 30);
-        state.quadVertices[index] = { x: candidate.x, y: safeY };
-        state.quadVertices[opposite] = { ...state.quadVertices[opposite], x: candidate.x };
+        state.quadVertices[index] = { x: state.quadVertices[opposite].x, y: safeY };
       } else {
         const oppositeX = state.quadVertices[opposite].x;
         const safeX = index === 1 ? Math.max(candidate.x, oppositeX + 30) : Math.min(candidate.x, oppositeX - 30);
-        state.quadVertices[index] = { x: safeX, y: candidate.y };
-        state.quadVertices[opposite] = { ...state.quadVertices[opposite], y: candidate.y };
+        state.quadVertices[index] = { x: safeX, y: state.quadVertices[opposite].y };
       }
+    } else {
+      state.quadVertices[index] = candidate;
     }
     const xs = state.quadVertices.map(point => point.x);
     const ys = state.quadVertices.map(point => point.y);
@@ -2829,8 +2830,9 @@ function checkQuadrilateral(level) {
   const shapeError = quadrilateralMatchError(level);
   const rotationError = quadrilateralRotationError(state.category, state.piece.rotation, level.target.rotation);
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
-  const shapeTolerance = isTouchInterface() ? (state.category === "מקבילית" ? 36 : 27) : 20;
-  const rotationTolerance = isTouchInterface() ? (state.category === "מקבילית" ? 15 : 10) : 7;
+  const forgivingShape = state.category === "מקבילית" || state.category === "דלתון";
+  const shapeTolerance = isTouchInterface() ? (forgivingShape ? 36 : 27) : 20;
+  const rotationTolerance = isTouchInterface() ? (forgivingShape ? 15 : 10) : 7;
   if (distance > positionTolerance) {
     feedback("קרבו את מרכז הצורה למסגרת הכחולה.", false);
     playMissSound();
