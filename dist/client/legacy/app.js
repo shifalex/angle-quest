@@ -2246,12 +2246,12 @@ function magneticallySnapToTarget() {
   const placement = level.phase === "quadrilateral" ? null : bestAnglePlacement(level, target);
   const anchor = level.phase === "quadrilateral" ? quadrilateralVisualCenter() : placement.anchor;
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
-  const positionTolerance = Math.max(54, level.target.tolerance);
+  const positionTolerance = level.phase === "quadrilateral" ? Math.max(48, level.target.tolerance) : Math.max(54, level.target.tolerance);
   if (distance > positionTolerance) return;
   if (level.phase === "quadrilateral") {
     const forgivingShape = level.correctCategory === "ריבוע" || state.category === "מקבילית" || state.category === "דלתון";
-    const shapeTolerance = forgivingShape ? 36 : 27;
-    const rotationTolerance = forgivingShape ? 15 : 10;
+    const shapeTolerance = forgivingShape ? 31 : 27;
+    const rotationTolerance = forgivingShape ? 12 : 10;
     if (!level.offeredValidNames?.includes(state.category) || quadrilateralMatchError(level) > shapeTolerance) return;
     if (state.category === "טרפז" && trapezoidHasSecondParallelPair()) return;
     if (quadrilateralRotationError(state.category, state.piece.rotation, target.rotation) > rotationTolerance) return;
@@ -2719,7 +2719,7 @@ function check() {
   const sizeDifference = Math.abs(placement.degrees - targetDegrees);
   const angleTolerance = isTouchInterface() ? 7 : 5;
   const heightTolerance = isTouchInterface() ? 24 : 16;
-  const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
+  const positionTolerance = isTouchInterface() ? Math.max(48, level.target.tolerance) : level.target.tolerance;
   const rotationTolerance = level.target.rotationTolerance + (isTouchInterface() ? 5 : 0);
   const mirrorMismatch = typeof level.requiredMirrored === "boolean" && state.piece.mirrored !== level.requiredMirrored;
   if (distance <= positionTolerance && turn <= rotationTolerance && sizeDifference <= angleTolerance && parallelHeightError(level) <= heightTolerance && !mirrorMismatch) {
@@ -2858,8 +2858,8 @@ function checkQuadrilateral(level) {
   const rotationError = quadrilateralRotationError(state.category, state.piece.rotation, level.target.rotation);
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
   const forgivingShape = level.correctCategory === "ריבוע" || state.category === "מקבילית" || state.category === "דלתון";
-  const shapeTolerance = isTouchInterface() ? (forgivingShape ? 36 : 27) : 20;
-  const rotationTolerance = isTouchInterface() ? (forgivingShape ? 15 : 10) : 7;
+  const shapeTolerance = isTouchInterface() ? (forgivingShape ? 31 : 27) : 20;
+  const rotationTolerance = isTouchInterface() ? (forgivingShape ? 12 : 10) : 7;
   if (distance > positionTolerance) {
     feedback("קרבו את מרכז הצורה למסגרת הכחולה.", false);
     playMissSound();
