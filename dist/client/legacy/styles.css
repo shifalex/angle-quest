@@ -191,6 +191,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .shape-control:disabled { opacity: .34; cursor: not-allowed; }
 .quad-target { fill: rgba(34,211,238,.08); stroke: var(--cyan); stroke-width: 4; stroke-dasharray: 10 7; }
 .quad-piece { fill: rgba(185,242,39,.16); stroke: var(--lime); stroke-width: 7; stroke-linejoin: round; }
+.invalid-parallel-side { stroke: #ff536b; stroke-width: 9; stroke-linecap: round; pointer-events: none; }
 .quad-diagonal { stroke: rgba(185,242,39,.55); stroke-width: 2; stroke-dasharray: 5 5; pointer-events: none; }
 .course-menu-grid button[aria-current="true"] { border-color: var(--lime); background: rgba(185,242,39,.12); color: var(--lime); box-shadow: inset 0 0 0 1px var(--lime); }
 .player-menu-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }

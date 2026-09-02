@@ -1343,6 +1343,14 @@ function quadrilateralPoints(shape, width, height, vertices = null) {
   return (vertices || quadrilateralVertices(shape, width, height)).map(point => `${point.x},${point.y}`).join(" ");
 }
 
+function trapezoidHasSecondParallelPair(vertices = state.quadVertices) {
+  if (!vertices || vertices.length !== 4) return false;
+  const right = { x: vertices[2].x - vertices[1].x, y: vertices[2].y - vertices[1].y };
+  const left = { x: vertices[3].x - vertices[0].x, y: vertices[3].y - vertices[0].y };
+  const lengths = Math.hypot(right.x, right.y) * Math.hypot(left.x, left.y);
+  return lengths > 0 && Math.abs(right.x * left.y - right.y * left.x) / lengths < .025;
+}
+
 function renderQuadrilateralPiece(level) {
   const { width, height } = state.quadDimensions;
   const actualShape = state.category;
@@ -1351,6 +1359,11 @@ function renderQuadrilateralPiece(level) {
   const flipScale = quadrilateralCanFlip(actualShape) && state.piece.mirrored ? -1 : 1;
   const shapeContent = svgEl("g", { class: "quad-flip-content", transform: `scale(${flipScale} 1)` });
   shapeContent.append(svgEl("polygon", { points: quadrilateralPoints(actualShape, width, height, state.quadVertices), class: "quad-piece piece-rays" }));
+  if (actualShape === "טרפז" && trapezoidHasSecondParallelPair(state.quadVertices)) {
+    const [topLeft, topRight, bottomRight, bottomLeft] = state.quadVertices;
+    shapeContent.append(svgEl("line", { x1: topRight.x, y1: topRight.y, x2: bottomRight.x, y2: bottomRight.y, class: "invalid-parallel-side" }));
+    shapeContent.append(svgEl("line", { x1: bottomLeft.x, y1: bottomLeft.y, x2: topLeft.x, y2: topLeft.y, class: "invalid-parallel-side" }));
+  }
   if (actualShape === "מעוין") {
     shapeContent.append(svgEl("line", { x1: -width / 2, y1: 0, x2: width / 2, y2: 0, class: "quad-diagonal" }));
     shapeContent.append(svgEl("line", { x1: 0, y1: -height / 2, x2: 0, y2: height / 2, class: "quad-diagonal" }));
@@ -2166,6 +2179,7 @@ function magneticallySnapToTarget() {
   if (distance > positionTolerance) return;
   if (level.phase === "quadrilateral") {
     if (!level.offeredValidNames?.includes(state.category) || quadrilateralMatchError(level) > 27) return;
+    if (state.category === "טרפז" && trapezoidHasSecondParallelPair()) return;
     state.piece.x = target.x;
     state.piece.y = target.y;
     state.piece.rotation = target.rotation;
@@ -2651,6 +2665,12 @@ function quadrilateralMatchError(level) {
 function checkQuadrilateral(level) {
   if (!level.offeredValidNames?.includes(state.category)) {
     feedback("הבחירה אינה מתארת את הצורה הזו. נסו שם אחר.", false);
+    playMissSound();
+    pulse(100);
+    return;
+  }
+  if (state.category === "טרפז" && trapezoidHasSecondParallelPair()) {
+    feedback("זהו מקבילית: גם שתי השוקיים מקבילות. בטרפז צריך להיות בדיוק זוג אחד של צלעות מקבילות.", false);
     playMissSound();
     pulse(100);
     return;
