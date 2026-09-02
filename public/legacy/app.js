@@ -1535,7 +1535,13 @@ function zMirrorTransform(scale) {
 }
 
 function zMirrorPoint(point) {
-  const { railAngle, center } = zMirrorGeometry();
+  return reflectZPoint(point, state.degrees, state.dimensions.cross);
+}
+
+function reflectZPoint(point, degrees, cross) {
+  const railAngle = degrees / 2;
+  const joint = polar(cross, -degrees / 2);
+  const center = { x: joint.x / 2, y: joint.y / 2 };
   const radians = -railAngle * Math.PI / 180;
   const dx = point.x - center.x;
   const dy = point.y - center.y;
@@ -1547,6 +1553,32 @@ function zMirrorPoint(point) {
     x: center.x + reflectedX * Math.cos(reverse) - alignedY * Math.sin(reverse),
     y: center.y + reflectedX * Math.sin(reverse) + alignedY * Math.cos(reverse)
   };
+}
+
+function alternateHandleWorldForDegrees(degrees, drag) {
+  const radians = degrees * Math.PI / 180;
+  const cross = Math.min(620, drag.alternateGap / Math.max(.01, Math.sin(radians)));
+  let local = polar(52, -degrees / 2 + 180);
+  if (drag.alternateMirrored) local = reflectZPoint(local, degrees, cross);
+  const rotation = (drag.alternateParallelWorld - degrees / 2) * Math.PI / 180;
+  return {
+    x: drag.alternateOrigin.x + local.x * Math.cos(rotation) - local.y * Math.sin(rotation),
+    y: drag.alternateOrigin.y + local.x * Math.sin(rotation) + local.y * Math.cos(rotation)
+  };
+}
+
+function closestAlternateDegrees(pointer, bounds, drag) {
+  let bestDegrees = Math.max(bounds.min, Math.min(bounds.max, drag.alternateDegrees));
+  let bestDistance = Infinity;
+  for (let degrees = bounds.min; degrees <= bounds.max; degrees += .5) {
+    const handle = alternateHandleWorldForDegrees(degrees, drag);
+    const distance = (handle.x - pointer.x) ** 2 + (handle.y - pointer.y) ** 2;
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestDegrees = degrees;
+    }
+  }
+  return bestDegrees;
 }
 
 function triangleGeometry() {
@@ -1762,6 +1794,7 @@ function startResize(event, side) {
       : null,
     alternateDegrees: state.degrees,
     alternateMirrored: state.piece.mirrored,
+    alternateOrigin: { x: state.piece.x, y: state.piece.y },
     alternateGap: state.category === "מתחלפות"
       ? Math.abs(state.dimensions.cross * Math.sin(state.degrees * Math.PI / 180))
       : null
@@ -1996,11 +2029,7 @@ svg.addEventListener("pointermove", event => {
       const requestedDegrees = state.category === "קודקודיות"
         ? Math.abs(normalizeSignedAngle(relativeAngle - 180)) * 2
         : state.category === "מתחלפות"
-          ? state.angleDragStart.alternateDegrees
-            + normalizeSignedAngle(
-              Math.atan2(p.y - state.rotationAnchor.y, p.x - state.rotationAnchor.x) * 180 / Math.PI
-              - state.angleDragStart.alternatePointerAngle
-            ) * (state.angleDragStart.alternateMirrored ? -1 : 1)
+          ? closestAlternateDegrees(p, bounds, state.angleDragStart)
         : hasFixedHorizontalBase
         ? Math.abs(normalizeSignedAngle(relativeAngle))
         : triangle
