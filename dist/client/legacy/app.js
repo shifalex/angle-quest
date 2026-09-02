@@ -990,7 +990,7 @@ function speakSelection(category) {
 
 function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallback) {
   if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return Promise.resolve();
-  const filename = state.language === "he" && key === "טרפז" ? null : recordedSpeechFiles[key];
+  const filename = recordedSpeechFiles[key];
   if (!filename) {
     return speakText(hebrewFallback, englishFallback, russianFallback);
   }
@@ -2164,6 +2164,12 @@ function resizeShapePoint(kind, svgPosition) {
       const safeCandidate = index < 2
         ? { ...candidate, y: Math.min(candidate.y, oppositeBaseY - 30) }
         : { ...candidate, y: Math.max(candidate.y, oppositeBaseY + 30) };
+      const height = Math.abs(oppositeBaseY - safeCandidate.y);
+      const minimumInset = height / Math.tan(85 * Math.PI / 180);
+      if (index === 0) safeCandidate.x = Math.max(safeCandidate.x, state.quadVertices[3].x + minimumInset);
+      if (index === 1) safeCandidate.x = Math.min(safeCandidate.x, state.quadVertices[2].x - minimumInset);
+      if (index === 2) safeCandidate.x = Math.max(safeCandidate.x, state.quadVertices[1].x + minimumInset);
+      if (index === 3) safeCandidate.x = Math.min(safeCandidate.x, state.quadVertices[0].x - minimumInset);
       state.quadVertices[index] = safeCandidate;
       const partner = index % 2 === 0 ? index + 1 : index - 1;
       state.quadVertices[partner] = { ...state.quadVertices[partner], y: safeCandidate.y };
