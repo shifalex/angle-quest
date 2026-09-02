@@ -2025,8 +2025,11 @@ svg.addEventListener("pointermove", event => {
         : (state.angleDragStart.adjacentMirrored ? -1 : 1);
       const rawDegrees = state.angleDragStart.adjacentDegrees + pointerDelta * dragSign;
       const crossedWrapAtMaximum = state.degrees >= bounds.max - .5 && rawDegrees < bounds.min + 10;
+      const crossedWrapAtMinimum = state.degrees <= bounds.min + .5 && rawDegrees > bounds.max - 10;
       const requestedDegrees = crossedWrapAtMaximum
         ? bounds.max
+        : crossedWrapAtMinimum
+          ? bounds.min
         : Math.max(bounds.min, Math.min(bounds.max, rawDegrees));
       if (side === -1) rays.a = normalizeAngle(fixedAngle + direction * requestedDegrees);
       else {
@@ -2406,7 +2409,7 @@ function toggleMirror() {
 }
 
 function angleBounds(type) {
-  if (state.category === "צמודות") return { min: 15, max: 175 };
+  if (state.category === "צמודות") return { min: 5, max: 175 };
   if (type === "flexible") return { min: 15, max: 165 };
   if (type === "acute") return { min: 5, max: 85 };
   if (type === "right") return { min: 90, max: 90 };
