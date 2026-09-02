@@ -989,7 +989,10 @@ function speakSelection(category) {
     "ריבוע": "Выбран квадрат.", "מלבן": "Выбран прямоугольник.", "מעוין": "Выбран ромб.",
     "מקבילית": "Выбран параллелограмм.", "טרפז": "Выбрана трапеция.", "דלתון": "Выбран дельтоид."
   };
-  const spokenText = category === "טרפז" ? "טְרַפֵּז." : category === "מלבן" ? "מַלְבֵּן." : category === "דלתון" ? "דַלְטוֹן." : category;
+  const primitiveSpoken = { "חדה": "זָוִית חַדָּה", "ישרה": "זָוִית יְשָׁרָה", "שטוחה": "זָוִית שְׁטוּחָה", "קהה": "זָוִית קֵהָה" };
+  const complexSpoken = { "מתאימות": "זָוִיּוֹת מַתְאִימוֹת", "מתחלפות": "זָוִיּוֹת מִתְחַלְּפוֹת", "קודקודיות": "זָוִיּוֹת קָדְקֳדִיּוֹת", "צמודות": "זָוִיּוֹת צְמוּדוֹת" };
+  const spokenText = primitiveSpoken[category] || complexSpoken[category]
+    || (category === "טרפז" ? "טְרַפֵּז." : category === "מלבן" ? "מַלְבֵּן." : category === "דלתון" ? "דַלְטוֹן." : category);
   return playRecordedSpeech(category, spokenText, englishNames[category], russianNames[category]);
 }
 
@@ -1005,7 +1008,7 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallbac
   }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   return new Promise(resolve => {
-    const audio = new Audio(`audio/${state.language}/${filename}?v=7`);
+    const audio = new Audio(`audio/${state.language}/${filename}?v=8`);
     let usedFallback = false;
     let completed = false;
     const safetyTimer = window.setTimeout(() => finish(), 7000);
@@ -2641,68 +2644,56 @@ function noiseBurst(context, start, duration, volume, frequency) {
   source.stop(start + duration);
 }
 
+function toneHit(context, start, { from, to = from, duration, volume, type = "sine" }) {
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(from, start);
+  oscillator.frequency.exponentialRampToValueAtTime(Math.max(20, to), start + duration);
+  gain.gain.setValueAtTime(Math.max(.0001, volume), start);
+  gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
+  oscillator.connect(gain).connect(context.destination);
+  oscillator.start(start);
+  oscillator.stop(start + duration);
+}
+
 function playEquipSound() {
   const context = activeEffectsContext();
   if (!context) return;
   const now = context.currentTime;
-  noiseBurst(context, now, .045, .11, 1800);
-  [
-    { delay: 0, from: 330, to: 190, duration: .055 },
-    { delay: .075, from: 520, to: 260, duration: .07 }
-  ].forEach(({ delay, from, to, duration }) => {
-    const start = now + delay;
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.type = "square";
-    oscillator.frequency.setValueAtTime(from, start);
-    oscillator.frequency.exponentialRampToValueAtTime(to, start + duration);
-    gain.gain.setValueAtTime(.065, start);
-    gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
-    oscillator.connect(gain).connect(context.destination);
-    oscillator.start(start);
-    oscillator.stop(start + duration);
-  });
+  // A compact magazine-seat and slide-rack sequence: mechanical, not melodic.
+  noiseBurst(context, now, .022, .13, 2700);
+  toneHit(context, now, { from: 190, to: 115, duration: .045, volume: .12, type: "triangle" });
+  noiseBurst(context, now + .075, .065, .1, 3600);
+  toneHit(context, now + .078, { from: 1250, to: 520, duration: .065, volume: .055, type: "sine" });
+  noiseBurst(context, now + .155, .025, .12, 2300);
+  toneHit(context, now + .155, { from: 240, to: 145, duration: .055, volume: .1, type: "triangle" });
 }
 
 function playDiscardSound() {
   const context = activeEffectsContext();
   if (!context) return;
   const now = context.currentTime;
-  noiseBurst(context, now, .055, .12, 1350);
-  [
-    { delay: 0, frequency: 980, duration: .055, volume: .075 },
-    { delay: .07, frequency: 640, duration: .07, volume: .06 },
-    { delay: .15, frequency: 420, duration: .09, volume: .045 }
-  ].forEach(({ delay, frequency, duration, volume }) => {
-    const start = now + delay;
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.type = "triangle";
-    oscillator.frequency.setValueAtTime(frequency, start);
-    oscillator.frequency.exponentialRampToValueAtTime(frequency * .72, start + duration);
-    gain.gain.setValueAtTime(volume, start);
-    gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
-    oscillator.connect(gain).connect(context.destination);
-    oscillator.start(start);
-    oscillator.stop(start + duration);
-  });
+  // Magazine release, short fall, then two asymmetric metal impacts.
+  noiseBurst(context, now, .018, .105, 3100);
+  toneHit(context, now, { from: 760, to: 390, duration: .035, volume: .07, type: "triangle" });
+  toneHit(context, now + .085, { from: 310, to: 185, duration: .055, volume: .07, type: "triangle" });
+  noiseBurst(context, now + .16, .028, .14, 2200);
+  toneHit(context, now + .16, { from: 1180, to: 430, duration: .07, volume: .085, type: "sine" });
+  noiseBurst(context, now + .245, .02, .075, 1750);
+  toneHit(context, now + .245, { from: 720, to: 310, duration: .055, volume: .045, type: "sine" });
 }
 
 function playCheckShot() {
   const context = activeEffectsContext();
   if (!context) return;
   const now = context.currentTime;
-  noiseBurst(context, now, .11, .2, 720);
-  const thump = context.createOscillator();
-  const gain = context.createGain();
-  thump.type = "triangle";
-  thump.frequency.setValueAtTime(170, now);
-  thump.frequency.exponentialRampToValueAtTime(48, now + .14);
-  gain.gain.setValueAtTime(.16, now);
-  gain.gain.exponentialRampToValueAtTime(.0001, now + .15);
-  thump.connect(gain).connect(context.destination);
-  thump.start(now);
-  thump.stop(now + .16);
+  // Sharp transient, low body, and a restrained tail give the check real impact.
+  noiseBurst(context, now, .035, .3, 1450);
+  noiseBurst(context, now + .012, .12, .13, 620);
+  toneHit(context, now, { from: 155, to: 42, duration: .18, volume: .24, type: "triangle" });
+  toneHit(context, now + .018, { from: 92, to: 38, duration: .24, volume: .12, type: "sine" });
+  noiseBurst(context, now + .095, .18, .04, 1050);
 }
 
 function playMissSound() {
