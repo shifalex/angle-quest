@@ -201,6 +201,17 @@ levels.splice(0, levels.length,
   ...masterPractice
 );
 
+// Flip is an explicit learning objective: alternate/corresponding questions
+// include a deterministic mix of mirrored and non-mirrored solutions.
+const flipEligibleLevels = levels.filter(level => level.correctCategory === "מתחלפות" || level.correctCategory === "מתאימות");
+const flipCounters = new Map();
+flipEligibleLevels.forEach(level => {
+  const group = level.mode === "master" ? "master" : "equal";
+  const index = flipCounters.get(group) || 0;
+  level.requiredMirrored = index % 2 === 0;
+  flipCounters.set(group, index + 1);
+});
+
 const quadrilateralLevels = Array.from({ length: 12 }, (_, index) => {
   const shapes = ["ריבוע", "מעוין", "מלבן"];
   const shape = shapes[index % shapes.length];
@@ -2248,6 +2259,7 @@ function magneticallySnapToTarget() {
     state.piece.rotation = closestQuadrilateralRotation(state.category, state.piece.rotation, target.rotation);
   } else {
     if (state.category !== level.correctCategory) return;
+    if (typeof level.requiredMirrored === "boolean" && state.piece.mirrored !== level.requiredMirrored) return;
     const targetDegrees = level.choices.find(choice => choice.id === level.correctChoice).degrees;
     const rotationTolerance = level.target.rotationTolerance + 5;
     if (Math.abs(placement.degrees - targetDegrees) > 7) return;
@@ -2705,7 +2717,8 @@ function check() {
   const heightTolerance = isTouchInterface() ? 24 : 16;
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
   const rotationTolerance = level.target.rotationTolerance + (isTouchInterface() ? 5 : 0);
-  if (distance <= positionTolerance && turn <= rotationTolerance && sizeDifference <= angleTolerance && parallelHeightError(level) <= heightTolerance) {
+  const mirrorMismatch = typeof level.requiredMirrored === "boolean" && state.piece.mirrored !== level.requiredMirrored;
+  if (distance <= positionTolerance && turn <= rotationTolerance && sizeDifference <= angleTolerance && parallelHeightError(level) <= heightTolerance && !mirrorMismatch) {
     if (state.category === "משולש") {
       state.piece.x += target.x - placement.anchor.x;
       state.piece.y += target.y - placement.anchor.y;
@@ -2730,6 +2743,10 @@ function check() {
     continueAfterCorrectSpeech(state.category, nextLevel);
   } else if (distance > positionTolerance) {
     feedback(t("moveCloser"), false);
+    playMissSound();
+    pulse(80);
+  } else if (mirrorMismatch) {
+    feedback(t("mirrorNeeded"), false);
     playMissSound();
     pulse(80);
   } else if (turn > rotationTolerance) {
