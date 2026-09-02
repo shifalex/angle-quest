@@ -879,28 +879,38 @@ function renderDistractorLines(level) {
 }
 
 function applyProSceneTransform(level) {
-  if (!level.proRotation) return;
-  const transform = `rotate(${level.proRotation} 360 215)`;
+  const rotation = level.proRotation || 0;
+  const mirrored = (level.scene === "alternate" || level.scene === "corresponding") && level.requiredMirrored;
+  if (!rotation && !mirrored) return;
+  const transform = `${rotation ? `rotate(${rotation} 360 215)` : ""} ${mirrored ? "translate(720 0) scale(-1 1)" : ""}`.trim();
   sceneLayer.setAttribute("transform", transform);
   targetLayer.setAttribute("transform", transform);
   sceneLayer.querySelectorAll("text").forEach(text => {
     const x = Number(text.getAttribute("x"));
     const y = Number(text.getAttribute("y"));
-    text.setAttribute("transform", `rotate(${-level.proRotation} ${x} ${y})`);
+    const correction = `translate(${x} ${y}) ${mirrored ? "scale(-1 1)" : ""} ${rotation ? `rotate(${-rotation})` : ""} translate(${-x} ${-y})`;
+    text.setAttribute("transform", correction);
   });
 }
 
 function currentTarget(level) {
   const rotation = level.proRotation || 0;
-  if (!rotation) return { ...level.target };
-  const radians = rotation * Math.PI / 180;
-  const dx = level.target.x - 360;
-  const dy = level.target.y - 215;
-  return {
+  const mirrored = (level.scene === "alternate" || level.scene === "corresponding") && level.requiredMirrored;
+  const targetDegrees = level.choices.find(choice => choice.id === level.correctChoice)?.degrees || 0;
+  const base = {
     ...level.target,
+    x: mirrored ? 720 - level.target.x : level.target.x,
+    rotation: mirrored ? normalizeAngle(180 - level.target.rotation - targetDegrees) : level.target.rotation
+  };
+  if (!rotation) return base;
+  const radians = rotation * Math.PI / 180;
+  const dx = base.x - 360;
+  const dy = base.y - 215;
+  return {
+    ...base,
     x: 360 + dx * Math.cos(radians) - dy * Math.sin(radians),
     y: 215 + dx * Math.sin(radians) + dy * Math.cos(radians),
-    rotation: normalizeAngle(level.target.rotation + rotation)
+    rotation: normalizeAngle(base.rotation + rotation)
   };
 }
 
