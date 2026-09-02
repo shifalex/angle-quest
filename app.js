@@ -1008,7 +1008,7 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallbac
   }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   return new Promise(resolve => {
-    const audio = new Audio(`audio/${state.language}/${filename}?v=10`);
+    const audio = new Audio(`audio/${state.language}/${filename}?v=11`);
     let usedFallback = false;
     let completed = false;
     const safetyTimer = window.setTimeout(() => finish(), 7000);
@@ -1036,7 +1036,7 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallbac
 function preloadQuadrilateralSpeech() {
   speechState.preloaded = quadrilateralTools.map(category => {
     const filename = recordedSpeechFiles[category];
-    const audio = new Audio(`audio/${state.language}/${filename}?v=5`);
+    const audio = new Audio(`audio/${state.language}/${filename}?v=6`);
     audio.preload = "auto";
     audio.load();
     return audio;
@@ -1340,21 +1340,22 @@ function renderQuadrilateralPiece(level) {
   const { width, height } = state.quadDimensions;
   const actualShape = state.category;
   const group = svgEl("g", { class: "piece", transform: `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})` });
-  const content = svgEl("g", {
-    class: "piece-content",
-    transform: quadrilateralFlipTransform(actualShape, state.piece.mirrored ? -1 : 1)
-  });
-  content.append(svgEl("polygon", { points: quadrilateralPoints(actualShape, width, height, state.quadVertices), class: "quad-piece piece-rays" }));
+  const content = svgEl("g", { class: "piece-content" });
+  const flipScale = quadrilateralCanFlip(actualShape) && state.piece.mirrored ? -1 : 1;
+  const shapeContent = svgEl("g", { class: "quad-flip-content", transform: `scale(${flipScale} 1)` });
+  shapeContent.append(svgEl("polygon", { points: quadrilateralPoints(actualShape, width, height, state.quadVertices), class: "quad-piece piece-rays" }));
   if (actualShape === "מעוין") {
-    content.append(svgEl("line", { x1: -width / 2, y1: 0, x2: width / 2, y2: 0, class: "quad-diagonal" }));
-    content.append(svgEl("line", { x1: 0, y1: -height / 2, x2: 0, y2: height / 2, class: "quad-diagonal" }));
+    shapeContent.append(svgEl("line", { x1: -width / 2, y1: 0, x2: width / 2, y2: 0, class: "quad-diagonal" }));
+    shapeContent.append(svgEl("line", { x1: 0, y1: -height / 2, x2: 0, y2: height / 2, class: "quad-diagonal" }));
   }
+  content.append(shapeContent);
+  const displayPoint = point => ({ x: point.x * flipScale, y: point.y });
   if (actualShape === "מקבילית") {
-    [0, 1, 2].forEach(index => addPointHandle(content, state.quadVertices[index], `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
+    [0, 1, 2].forEach(index => addPointHandle(content, displayPoint(state.quadVertices[index]), `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
   } else if (actualShape === "טרפז") {
-    state.quadVertices.forEach((point, index) => addPointHandle(content, point, `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
+    state.quadVertices.forEach((point, index) => addPointHandle(content, displayPoint(point), `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
   } else if (actualShape === "דלתון") {
-    state.quadVertices.forEach((point, index) => addPointHandle(content, point, `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
+    state.quadVertices.forEach((point, index) => addPointHandle(content, displayPoint(point), `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
   } else if (actualShape === "ריבוע") {
     addPointHandle(content, { x: width / 2, y: height / 2 }, "quadUniform", "הגדלה או הקטנה אחידה של הריבוע", "גודל");
   } else {
@@ -1407,7 +1408,7 @@ function updateShapeControls(level) {
   $("shape-height-smaller").hidden = parallelogram || vertexTrapezoid;
   $("shape-height-larger").hidden = parallelogram || vertexTrapezoid;
   if (state.equipped && square) $("angle-readout").textContent = "ריבוע • גודל אחיד • אפשר לסובב";
-  $("mirror-button").disabled = !state.equipped || state.solved;
+  $("mirror-button").disabled = !state.equipped || state.solved || !quadrilateralCanFlip(state.category);
 }
 
 function addPieceDragArea(content) {
@@ -1439,22 +1440,18 @@ function mirrorScaleTransform(centerX, scaleX) {
   return `translate(${centerX * (1 - scaleX)} 0) scale(${scaleX} 1)`;
 }
 
-function quadrilateralFlipAxis(shape) {
-  // A rhombus and a kite flip around their upright diagonal. The other
-  // quadrilaterals flip around the direction of their parallel bases.
-  return shape === "מעוין" || shape === "דלתון" ? "vertical" : "horizontal";
+function quadrilateralCanFlip(shape) {
+  return shape === "מקבילית" || shape === "טרפז" || shape === "דלתון";
 }
 
 function quadrilateralFlipTransform(shape, scale) {
-  return quadrilateralFlipAxis(shape) === "vertical"
-    ? `scale(${scale} 1)`
-    : `scale(1 ${scale})`;
+  return quadrilateralCanFlip(shape) ? `scale(${scale} 1)` : "scale(1 1)";
 }
 
 function animateMirrorFlip(fromMirrored, toMirrored, fixedAnchor) {
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
   const group = pieceLayer.querySelector(".piece");
-  const content = pieceLayer.querySelector(".piece-content");
+  const content = pieceLayer.querySelector(levels[state.levelIndex].phase === "quadrilateral" ? ".quad-flip-content" : ".piece-content");
   if (!group || !content) return;
   const level = levels[state.levelIndex];
   const isQuadrilateral = level.phase === "quadrilateral";
@@ -2275,10 +2272,8 @@ function toPieceLocal(svgPosition) {
     x: dx * Math.cos(rotation) - dy * Math.sin(rotation),
     y: dx * Math.sin(rotation) + dy * Math.cos(rotation)
   };
-  if (levels[state.levelIndex].phase === "quadrilateral" && state.piece.mirrored) {
-    return quadrilateralFlipAxis(state.category) === "vertical"
-      ? { x: -rotated.x, y: rotated.y }
-      : { x: rotated.x, y: -rotated.y };
+  if (levels[state.levelIndex].phase === "quadrilateral" && state.piece.mirrored && quadrilateralCanFlip(state.category)) {
+    return { x: -rotated.x, y: rotated.y };
   }
   const mirrorCenterX = shapeMirrorCenterX(augmentedShape(levels[state.levelIndex]));
   return { x: state.piece.mirrored ? 2 * mirrorCenterX - rotated.x : rotated.x, y: rotated.y };
@@ -2314,6 +2309,7 @@ function rotate(delta) {
 
 function toggleMirror() {
   if (!state.equipped || state.solved) return;
+  if (levels[state.levelIndex].phase === "quadrilateral" && !quadrilateralCanFlip(state.category)) return;
   const fixedAnchor = pieceAnchorPosition();
   const wasMirrored = state.piece.mirrored;
   state.piece.mirrored = !state.piece.mirrored;
@@ -2465,11 +2461,10 @@ function check() {
 
 function transformedQuadrilateralVertices(vertices, piece) {
   const rotation = piece.rotation * Math.PI / 180;
-  const flipped = piece.mirrored ? -1 : 1;
-  const verticalAxis = quadrilateralFlipAxis(state.category) === "vertical";
+  const flipped = piece.mirrored && quadrilateralCanFlip(state.category) ? -1 : 1;
   return vertices.map(point => {
-    const localX = verticalAxis ? point.x * flipped : point.x;
-    const localY = verticalAxis ? point.y : point.y * flipped;
+    const localX = point.x * flipped;
+    const localY = point.y;
     return {
       x: piece.x + localX * Math.cos(rotation) - localY * Math.sin(rotation),
       y: piece.y + localX * Math.sin(rotation) + localY * Math.cos(rotation)
