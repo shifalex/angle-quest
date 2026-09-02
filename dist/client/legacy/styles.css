@@ -103,6 +103,15 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .target-dot { fill: var(--cyan); }
 .target-halo { fill: rgba(49,215,245,.08); stroke: rgba(49,215,245,.45); stroke-width: 2; transform-box: fill-box; transform-origin: center; }
 .target-layer-snap .target-halo { fill: rgba(185,242,39,.18); stroke: var(--lime); animation: target-snap-pulse .42s ease-out; }
+.mirror-hint { transform-box: fill-box; transform-origin: center; animation: mirror-hint-360 .9s ease-in-out both; pointer-events: none; }
+.mirror-hint-ring { fill: rgba(49,207,239,.13); stroke: var(--cyan); stroke-width: 3; }
+.mirror-hint-icon { fill: var(--cyan); font-size: 27px; font-weight: 900; }
+@keyframes mirror-hint-360 {
+  0% { opacity: 0; transform: rotate(0deg) scale(.6); }
+  25% { opacity: 1; transform: rotate(90deg) scale(1.12); }
+  75% { opacity: 1; transform: rotate(300deg) scale(1); }
+  100% { opacity: 0; transform: rotate(360deg) scale(.72); }
+}
 @keyframes target-snap-pulse { from { opacity: .45; transform: scale(.72); } 65% { opacity: 1; transform: scale(1.18); } to { opacity: 1; transform: scale(1); } }
 .diagram-label { fill: var(--ink); font-size: 18px; font-weight: 800; paint-order: stroke; stroke: #0a1120; stroke-width: 5px; }
 .given-label { fill: var(--orange); font-size: 20px; font-weight: 900; paint-order: stroke; stroke: #0a1120; stroke-width: 6px; }

@@ -1678,6 +1678,16 @@ function renderedEqualAngleAnchors() {
   });
 }
 
+function renderedTargetPosition() {
+  const dot = targetLayer.querySelector(".target-dot");
+  if (!dot) return null;
+  const point = svg.createSVGPoint();
+  point.x = Number(dot.getAttribute("cx"));
+  point.y = Number(dot.getAttribute("cy"));
+  const screenPoint = point.matrixTransform(dot.getScreenCTM());
+  return screenPoint.matrixTransform(svg.getScreenCTM().inverse());
+}
+
 function bestAnglePlacement(level, target, displayedAnchors = null) {
   const candidates = state.category === "משולש"
     ? trianglePlacementCandidates()
@@ -2262,10 +2272,20 @@ function flashTargetSnap() {
   }, 460);
 }
 
+function flashMirrorHint(target) {
+  const hint = svgEl("g", { class: "mirror-hint", transform: `translate(${target.x} ${target.y - 62})`, "aria-hidden": "true" });
+  hint.append(svgEl("circle", { cx: 0, cy: 0, r: 24, class: "mirror-hint-ring" }));
+  hint.append(svgEl("text", { x: 0, y: 2, class: "mirror-hint-icon", "text-anchor": "middle", "dominant-baseline": "middle" }, "⇋"));
+  pieceLayer.append(hint);
+  window.setTimeout(() => hint.remove(), 950);
+}
+
 function magneticallySnapToTarget() {
   if (!state.equipped || state.solved || !isTouchInterface()) return;
   const level = levels[state.levelIndex];
-  const target = currentTarget(level);
+  const calculatedTarget = currentTarget(level);
+  const visibleTarget = renderedTargetPosition();
+  const target = visibleTarget ? { ...calculatedTarget, x: visibleTarget.x, y: visibleTarget.y } : calculatedTarget;
   const placement = level.phase === "quadrilateral" ? null : bestAnglePlacement(level, target, renderedEqualAngleAnchors());
   const anchor = level.phase === "quadrilateral" ? quadrilateralVisualCenter() : placement.anchor;
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
@@ -2734,7 +2754,9 @@ function check() {
   if (!state.equipped) return;
   playCheckShot();
   const level = levels[state.levelIndex];
-  const target = currentTarget(level);
+  const calculatedTarget = currentTarget(level);
+  const visibleTarget = renderedTargetPosition();
+  const target = visibleTarget ? { ...calculatedTarget, x: visibleTarget.x, y: visibleTarget.y } : calculatedTarget;
   if (level.phase === "quadrilateral") { checkQuadrilateral(level); return; }
   if (state.category !== level.correctCategory) {
     feedback(t("wrongTool"), false);
@@ -2776,12 +2798,13 @@ function check() {
       : t("correct", { xp: baseXP }), true);
     pulse([50, 40, 90]);
     continueAfterCorrectSpeech(state.category, nextLevel);
-  } else if (distance > positionTolerance) {
-    feedback(t("moveCloser"), false);
-    playMissSound();
-    pulse(80);
   } else if (mirrorMismatch) {
     feedback(t("mirrorNeeded"), false);
+    flashMirrorHint(target);
+    playMissSound();
+    pulse(80);
+  } else if (distance > positionTolerance) {
+    feedback(t("moveCloser"), false);
     playMissSound();
     pulse(80);
   } else if (turn > rotationTolerance) {
