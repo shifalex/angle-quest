@@ -2933,6 +2933,7 @@ function pulse(pattern) {
 
 function loadLevel() {
   const level = levels[state.levelIndex];
+  document.documentElement.classList.toggle("master-mode", level.mode === "master");
   if (level.phase === "quadrilateral") preloadQuadrilateralSpeech();
   prepareQuadrilateralLevel(level);
   prepareDynamicLevel(level);
