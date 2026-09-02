@@ -1228,7 +1228,7 @@ function renderPiece() {
     primaryMarkerRotation = normalizeAngle((aAngle + normalizeSignedAngle(bAngle - aAngle) / 2));
   } else if (shape === "triangle") {
     primaryMarkerRotation = triangleGeometry().rotation;
-    renderTriangleShape(content, a, b);
+    renderTriangleShape(content);
   } else if (shape === "primitive") {
     primaryMarkerRotation = -state.degrees / 2;
     renderPrimitiveShape(content, a, b);
@@ -1294,6 +1294,11 @@ function renderPiece() {
   [rotateHit, handle, rotateIcon].forEach(element => element.addEventListener("pointerdown", startRotate));
   handleGroup.append(rotateHit, handle, rotateIcon);
   group.append(content);
+  if (shape === "triangle") {
+    const triangleFlip = state.piece.mirrored ? -1 : 1;
+    addPointHandle(group, { x: triangle.a.x * triangleFlip, y: triangle.a.y }, "triangleVertexA", "שינוי הקודקוד הראשון של המשולש", "קודקוד");
+    addPointHandle(group, { x: triangle.b.x * triangleFlip, y: triangle.b.y }, "triangleVertexB", "שינוי הקודקוד השני של המשולש", "קודקוד");
+  }
   group.append(handleGroup);
   pieceLayer.append(group);
   addPieceDragArea(content);
@@ -1510,10 +1515,9 @@ function shapeMirrorCenterX(shape) {
     const values = [0, topJointX, spineEndX, middleEndX, topEndX];
     return (Math.min(...values) + Math.max(...values)) / 2;
   }
-  if (shape === "triangle" && state.triangleVertices) {
-    const values = [0, state.triangleVertices.a.x, state.triangleVertices.b.x];
-    return (Math.min(...values) + Math.max(...values)) / 2;
-  }
+  // The triangle flips around its main vertex. A bounding-box center changes
+  // while a corner is dragged and creates a feedback loop in mirrored mode.
+  if (shape === "triangle") return 0;
   return 0;
 }
 
@@ -1582,8 +1586,6 @@ function renderTriangleShape(group) {
   group.append(svgEl("line", { x1: 0, y1: 0, x2: a.x, y2: a.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: 0, y1: 0, x2: b.x, y2: b.y, class: "piece-rays" }));
   group.append(svgEl("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: "piece-rays" }));
-  addPointHandle(group, a, "triangleVertexA", "שינוי הקודקוד הראשון של המשולש", "קודקוד");
-  addPointHandle(group, b, "triangleVertexB", "שינוי הקודקוד השני של המשולש", "קודקוד");
 }
 
 function unit(degrees) {
