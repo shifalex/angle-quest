@@ -1665,10 +1665,22 @@ function trianglePlacementCandidates() {
   });
 }
 
-function bestAnglePlacement(level, target) {
+function renderedEqualAngleAnchors() {
+  if (state.category !== "מתחלפות" && state.category !== "מתאימות") return null;
+  const cores = [...pieceLayer.querySelectorAll(".piece-core")].slice(0, 2);
+  if (cores.length < 2) return null;
+  return cores.map(core => {
+    const point = svg.createSVGPoint();
+    point.x = Number(core.getAttribute("cx"));
+    point.y = Number(core.getAttribute("cy"));
+    return point.matrixTransform(core.getCTM());
+  });
+}
+
+function bestAnglePlacement(level, target, displayedAnchors = null) {
   const candidates = state.category === "משולש"
     ? trianglePlacementCandidates()
-    : equivalentAngleAnchors().map(anchor => ({
+    : (displayedAnchors || equivalentAngleAnchors()).map(anchor => ({
         anchor,
         degrees: state.degrees,
         rotation: effectiveToolRotation(state.category, state.degrees)
@@ -2253,7 +2265,7 @@ function magneticallySnapToTarget() {
   if (!state.equipped || state.solved || !isTouchInterface()) return;
   const level = levels[state.levelIndex];
   const target = currentTarget(level);
-  const placement = level.phase === "quadrilateral" ? null : bestAnglePlacement(level, target);
+  const placement = level.phase === "quadrilateral" ? null : bestAnglePlacement(level, target, renderedEqualAngleAnchors());
   const anchor = level.phase === "quadrilateral" ? quadrilateralVisualCenter() : placement.anchor;
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
   const positionTolerance = level.phase === "quadrilateral" ? Math.max(48, level.target.tolerance) : Math.max(54, level.target.tolerance);
@@ -2264,8 +2276,8 @@ function magneticallySnapToTarget() {
     const rotationTolerance = forgivingShape ? 12 : 10;
     if (!level.offeredValidNames?.includes(state.category) || quadrilateralMatchError(level) > shapeTolerance) return;
     if (state.category === "טרפז" && trapezoidHasSecondParallelPair()) return;
-    if (quadrilateralRotationError(state.category, state.piece.rotation, target.rotation) > rotationTolerance) return;
-    state.piece.rotation = closestQuadrilateralRotation(state.category, state.piece.rotation, target.rotation);
+    if (quadrilateralRotationError(level.correctCategory, state.piece.rotation, target.rotation) > rotationTolerance) return;
+    state.piece.rotation = closestQuadrilateralRotation(level.correctCategory, state.piece.rotation, target.rotation);
     alignQuadrilateralCenterToTarget(level);
   } else {
     if (state.category !== level.correctCategory) return;
@@ -2730,7 +2742,7 @@ function check() {
     return;
   }
   const targetDegrees = level.choices.find(c => c.id === level.correctChoice).degrees;
-  const placement = bestAnglePlacement(level, target);
+  const placement = bestAnglePlacement(level, target, renderedEqualAngleAnchors());
   const anchor = placement.anchor;
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
   const turn = toolRotationDistance(state.category, placement.rotation, target.rotation);
@@ -2873,7 +2885,7 @@ function checkQuadrilateral(level) {
   const visualCenter = quadrilateralVisualCenter();
   const distance = Math.hypot(visualCenter.x - level.target.x, visualCenter.y - level.target.y);
   const shapeError = quadrilateralMatchError(level);
-  const rotationError = quadrilateralRotationError(state.category, state.piece.rotation, level.target.rotation);
+  const rotationError = quadrilateralRotationError(level.correctCategory, state.piece.rotation, level.target.rotation);
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
   const forgivingShape = level.correctCategory === "ריבוע" || state.category === "מקבילית" || state.category === "דלתון";
   const shapeTolerance = isTouchInterface() ? (forgivingShape ? 31 : 27) : 20;
@@ -2886,7 +2898,7 @@ function checkQuadrilateral(level) {
     playMissSound();
   }
   else {
-    state.piece.rotation = closestQuadrilateralRotation(state.category, state.piece.rotation, level.target.rotation);
+    state.piece.rotation = closestQuadrilateralRotation(level.correctCategory, state.piece.rotation, level.target.rotation);
     alignQuadrilateralCenterToTarget(level);
     state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
     renderPiece();
