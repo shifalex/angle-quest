@@ -1785,9 +1785,13 @@ function startResize(event, side) {
     ? normalizeAngle(state.piece.rotation + state.degrees / 2)
     : null;
   const pointer = svgPoint(event);
+  const pointerAngle = Math.atan2(pointer.y - state.rotationAnchor.y, pointer.x - state.rotationAnchor.x) * 180 / Math.PI;
   state.angleDragStart = {
     side,
     adjacentDirection: adjacentSweep < 0 ? -1 : 1,
+    adjacentPointerAngle: rays ? pointerAngle : null,
+    adjacentDegrees: rays ? state.degrees : null,
+    adjacentMirrored: rays ? state.piece.mirrored : false,
     alternateParallelWorld,
     alternatePointerAngle: state.category === "מתחלפות"
       ? Math.atan2(pointer.y - state.rotationAnchor.y, pointer.x - state.rotationAnchor.x) * 180 / Math.PI
@@ -2013,9 +2017,17 @@ svg.addEventListener("pointermove", event => {
       const side = Number(state.dragging.slice(7));
       const rays = state.adjacentRays ||= { a: -state.degrees, b: 0, opposite: 180 };
       const fixedAngle = side === -1 ? rays.b : rays.a;
-      const delta = normalizeSignedAngle(relativeAngle - fixedAngle);
-      const direction = state.angleDragStart?.adjacentDirection || (delta < 0 ? -1 : 1);
-      const requestedDegrees = Math.max(bounds.min, Math.min(bounds.max, Math.max(0, delta * direction)));
+      const direction = state.angleDragStart?.adjacentDirection || -1;
+      const pointerAngle = Math.atan2(p.y - state.rotationAnchor.y, p.x - state.rotationAnchor.x) * 180 / Math.PI;
+      const pointerDelta = normalizeSignedAngle(pointerAngle - state.angleDragStart.adjacentPointerAngle);
+      const dragSign = side === -1
+        ? (state.angleDragStart.adjacentMirrored ? 1 : -1)
+        : (state.angleDragStart.adjacentMirrored ? -1 : 1);
+      const rawDegrees = state.angleDragStart.adjacentDegrees + pointerDelta * dragSign;
+      const crossedWrapAtMaximum = state.degrees >= bounds.max - .5 && rawDegrees < bounds.min + 10;
+      const requestedDegrees = crossedWrapAtMaximum
+        ? bounds.max
+        : Math.max(bounds.min, Math.min(bounds.max, rawDegrees));
       if (side === -1) rays.a = normalizeAngle(fixedAngle + direction * requestedDegrees);
       else {
         rays.b = normalizeAngle(fixedAngle + direction * requestedDegrees);
