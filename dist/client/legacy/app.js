@@ -911,11 +911,13 @@ function renderChoices(level) {
   const isMaster = level.mode === "master";
   const primitivesEnabled = isBeginner || isMaster;
   const advancedHidden = isBeginner && !isMaster;
-  const primitiveSection = `<section class="tool-family"><h3 class="tool-family-title">${t("primitives")}</h3><div class="choice-grid">${shuffle([...primitiveTools]).map(value => `<button type="button" class="choice-button" data-category="${value}" aria-pressed="false" ${primitivesEnabled ? "" : "disabled"}>${categoryLabel(value)}</button>`).join("")}</div></section>`;
-  const advancedSections = Object.entries(families).map(([family, tools]) => {
+  const primitiveOrder = isMaster ? masterToolPermutation(primitiveTools, level, 0) : shuffle([...primitiveTools]);
+  const primitiveSection = `<section class="tool-family"><h3 class="tool-family-title">${t("primitives")}</h3><div class="choice-grid">${primitiveOrder.map(value => `<button type="button" class="choice-button" data-category="${value}" aria-pressed="false" ${primitivesEnabled ? "" : "disabled"}>${categoryLabel(value)}</button>`).join("")}</div></section>`;
+  const advancedSections = Object.entries(families).map(([family, tools], familyIndex) => {
     const familyHidden = advancedHidden || (!isMaster && !isBeginner && family !== level.family);
     const familyLabel = family === "שוות" ? t("equalFamily") : "180°";
-    return `<section class="tool-family ${familyHidden ? "tool-family-reserved" : ""}" ${familyHidden ? "aria-hidden=\"true\"" : ""}><h3 class="tool-family-title">${familyLabel}</h3><div class="choice-grid">${shuffle([...tools]).map(value => `<button type="button" class="choice-button" data-category="${value}" aria-pressed="false" ${familyHidden ? "disabled" : ""}>${categoryLabel(value)}</button>`).join("")}</div></section>`;
+    const toolOrder = isMaster ? masterToolPermutation(tools, level, familyIndex + 1) : shuffle([...tools]);
+    return `<section class="tool-family ${familyHidden ? "tool-family-reserved" : ""}" ${familyHidden ? "aria-hidden=\"true\"" : ""}><h3 class="tool-family-title">${familyLabel}</h3><div class="choice-grid">${toolOrder.map(value => `<button type="button" class="choice-button" data-category="${value}" aria-pressed="false" ${familyHidden ? "disabled" : ""}>${categoryLabel(value)}</button>`).join("")}</div></section>`;
   }).join("");
   $("category-list").innerHTML = `<legend>${t("toolbox")}</legend>${primitiveSection}${advancedSections}`;
   document.querySelectorAll("[data-category]").forEach(button => button.addEventListener("click", () => {
@@ -939,6 +941,15 @@ function renderChoices(level) {
     placeSelected({ x: level.start.x, y: level.start.y });
     playEquipSound();
   }));
+}
+
+function masterToolPermutation(tools, level, salt) {
+  const values = [...tools];
+  if (values.length < 2) return values;
+  const question = Math.max(1, level.exerciseNumber || 1);
+  const offset = (question - 1 + salt) % values.length;
+  const rotated = values.slice(offset).concat(values.slice(0, offset));
+  return Math.floor((question - 1) / values.length) % 2 ? rotated.reverse() : rotated;
 }
 
 function hideSelectedTool() {
