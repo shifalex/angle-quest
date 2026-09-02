@@ -2132,7 +2132,7 @@ svg.addEventListener("pointerup", event => {
   state.angleDragStart = null;
   state.rotationDragStart = null;
   state.pointDragStart = null;
-  if (completedGesture === "move") magneticallySnapToTarget();
+  if (completedGesture === "move" || completedGesture === "multitouch" || completedGesture?.startsWith("resize:") || completedGesture?.startsWith("point:")) magneticallySnapToTarget();
   if (completedGesture === "rotate") applyTouchDetents();
   if (completedGesture) renderPiece();
   if (touchPoints.size < 2) touchGesture = null;
@@ -2162,10 +2162,23 @@ function magneticallySnapToTarget() {
   const target = currentTarget(level);
   const anchor = level.phase === "quadrilateral" ? state.piece : pieceAnchorPosition();
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
-  const snapRadius = Math.max(74, level.target.tolerance * 1.8);
-  if (distance > snapRadius) return;
-  state.piece.x += target.x - anchor.x;
-  state.piece.y += target.y - anchor.y;
+  const positionTolerance = Math.max(54, level.target.tolerance);
+  if (distance > positionTolerance) return;
+  if (level.phase === "quadrilateral") {
+    if (!level.offeredValidNames?.includes(state.category) || quadrilateralMatchError(level) > 27) return;
+    state.piece.x = target.x;
+    state.piece.y = target.y;
+    state.piece.rotation = target.rotation;
+  } else {
+    if (state.category !== level.correctCategory) return;
+    const targetDegrees = level.choices.find(choice => choice.id === level.correctChoice).degrees;
+    const rotationTolerance = level.target.rotationTolerance + 5;
+    if (Math.abs(state.degrees - targetDegrees) > 7) return;
+    if (toolRotationDistance(state.category, effectiveToolRotation(state.category, state.degrees), target.rotation) > rotationTolerance) return;
+    resizeAngle(targetDegrees - state.degrees);
+    state.piece.rotation = placementRotationForTarget(state.category, targetDegrees, target.rotation, state.piece.mirrored);
+    keepPieceAnchorAt(target);
+  }
   renderPiece();
   flashTargetSnap();
   pulse(24);
