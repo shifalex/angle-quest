@@ -1217,6 +1217,7 @@ function renderPiece() {
   const bAngle = adjacentRays?.b ?? (shape === "f" ? state.degrees : shape === "primitive" ? -state.degrees : state.degrees / 2);
   const a = polar(shape === "adjacent2" ? Math.max(56, rayLength - 20) : rayLength, aAngle);
   const b = polar(rayLength, bAngle);
+  const triangle = shape === "triangle" ? triangleGeometry() : null;
   let equalMarker = null;
   let primaryMarkerRotation = 0;
 
@@ -1255,7 +1256,6 @@ function renderPiece() {
   group.addEventListener("pointerdown", startMove);
 
   const bounds = angleBounds(activeChoiceType(level, choice));
-  const triangle = shape === "triangle" ? triangleGeometry() : null;
   let angleHandles = bounds.min === bounds.max || shape === "triangle"
     ? []
     : shape === "adjacent2"
@@ -2240,9 +2240,10 @@ function magneticallySnapToTarget() {
   if (level.phase === "quadrilateral") {
     if (!level.offeredValidNames?.includes(state.category) || quadrilateralMatchError(level) > 27) return;
     if (state.category === "טרפז" && trapezoidHasSecondParallelPair()) return;
+    if (quadrilateralRotationError(state.category, state.piece.rotation, target.rotation) > 10) return;
     state.piece.x = target.x;
     state.piece.y = target.y;
-    state.piece.rotation = target.rotation;
+    state.piece.rotation = closestQuadrilateralRotation(state.category, state.piece.rotation, target.rotation);
   } else {
     if (state.category !== level.correctCategory) return;
     const targetDegrees = level.choices.find(choice => choice.id === level.correctChoice).degrees;
@@ -2757,6 +2758,22 @@ function transformedQuadrilateralVertices(vertices, piece) {
   });
 }
 
+function quadrilateralRotationPeriod(shape) {
+  if (shape === "ריבוע") return 90;
+  if (shape === "מלבן" || shape === "מעוין" || shape === "מקבילית") return 180;
+  return 360;
+}
+
+function closestQuadrilateralRotation(shape, current, target) {
+  const period = quadrilateralRotationPeriod(shape);
+  const candidates = Array.from({ length: 360 / period }, (_, index) => normalizeAngle(target + index * period));
+  return candidates.reduce((best, candidate) => angleDistance(current, candidate) < angleDistance(current, best) ? candidate : best);
+}
+
+function quadrilateralRotationError(shape, current, target) {
+  return angleDistance(current, closestQuadrilateralRotation(shape, current, target));
+}
+
 function quadrilateralMatchError(level) {
   const pieceVertices = transformedQuadrilateralVertices(
     state.quadVertices || quadrilateralVertices(state.category, state.quadDimensions.width, state.quadDimensions.height),
@@ -2791,19 +2808,20 @@ function checkQuadrilateral(level) {
   }
   const distance = Math.hypot(state.piece.x - level.target.x, state.piece.y - level.target.y);
   const shapeError = quadrilateralMatchError(level);
+  const rotationError = quadrilateralRotationError(state.category, state.piece.rotation, level.target.rotation);
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
   const shapeTolerance = isTouchInterface() ? 27 : 20;
   if (distance > positionTolerance) {
     feedback("קרבו את מרכז הצורה למסגרת הכחולה.", false);
     playMissSound();
-  } else if (shapeError > shapeTolerance) {
+  } else if (rotationError > (isTouchInterface() ? 10 : 7) || shapeError > shapeTolerance) {
     feedback("כוונו את הסיבוב והקודקודים עד שהצורה תשב על המסגרת.", false);
     playMissSound();
   }
   else {
     state.piece.x = level.target.x;
     state.piece.y = level.target.y;
-    state.piece.rotation = level.target.rotation;
+    state.piece.rotation = closestQuadrilateralRotation(state.category, state.piece.rotation, level.target.rotation);
     state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
     renderPiece();
     flashTargetSnap();
