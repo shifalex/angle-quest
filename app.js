@@ -1248,6 +1248,10 @@ function renderPiece() {
   if ((state.category === "מתחלפות" || state.category === "מתאימות") && equalMarker) {
     content.append(svgEl("circle", { cx: equalMarker.x, cy: equalMarker.y, r: 7, class: "piece-core" }));
   }
+  if (shape === "triangle" && triangle) {
+    content.append(svgEl("circle", { cx: triangle.a.x, cy: triangle.a.y, r: 7, class: "piece-core" }));
+    content.append(svgEl("circle", { cx: triangle.b.x, cy: triangle.b.y, r: 7, class: "piece-core" }));
+  }
   group.addEventListener("pointerdown", startMove);
 
   const bounds = angleBounds(activeChoiceType(level, choice));
@@ -1607,6 +1611,54 @@ function triangleGeometry() {
   const angleB = Math.atan2(vertices.b.y, vertices.b.x) * 180 / Math.PI;
   const sweep = normalizeSignedAngle(angleB - angleA);
   return { ...vertices, degrees: Math.abs(sweep), rotation: normalizeAngle(angleA + sweep / 2) };
+}
+
+function trianglePlacementCandidates() {
+  const triangle = triangleGeometry();
+  const flip = state.piece.mirrored ? -1 : 1;
+  const vertices = [
+    { x: 0, y: 0 },
+    { x: triangle.a.x * flip, y: triangle.a.y },
+    { x: triangle.b.x * flip, y: triangle.b.y }
+  ];
+  const pieceRotation = state.piece.rotation * Math.PI / 180;
+  return vertices.map((vertex, index) => {
+    const others = vertices.filter((_, otherIndex) => otherIndex !== index);
+    const vectors = others.map(point => {
+      const x = point.x - vertex.x;
+      const y = point.y - vertex.y;
+      const length = Math.max(.01, Math.hypot(x, y));
+      return { x: x / length, y: y / length };
+    });
+    const cosine = Math.max(-1, Math.min(1, vectors[0].x * vectors[1].x + vectors[0].y * vectors[1].y));
+    const degrees = Math.acos(cosine) * 180 / Math.PI;
+    const localRotation = Math.atan2(vectors[0].y + vectors[1].y, vectors[0].x + vectors[1].x) * 180 / Math.PI;
+    return {
+      anchor: {
+        x: state.piece.x + vertex.x * Math.cos(pieceRotation) - vertex.y * Math.sin(pieceRotation),
+        y: state.piece.y + vertex.x * Math.sin(pieceRotation) + vertex.y * Math.cos(pieceRotation)
+      },
+      degrees,
+      rotation: normalizeAngle(state.piece.rotation + localRotation)
+    };
+  });
+}
+
+function bestAnglePlacement(level, target) {
+  const candidates = state.category === "משולש"
+    ? trianglePlacementCandidates()
+    : equivalentAngleAnchors().map(anchor => ({
+        anchor,
+        degrees: state.degrees,
+        rotation: effectiveToolRotation(state.category, state.degrees)
+      }));
+  const targetDegrees = level.choices.find(choice => choice.id === level.correctChoice).degrees;
+  return candidates.reduce((best, candidate) => {
+    const score = Math.hypot(candidate.anchor.x - target.x, candidate.anchor.y - target.y)
+      + Math.abs(candidate.degrees - targetDegrees) * 3
+      + toolRotationDistance(state.category, candidate.rotation, target.rotation) * 2;
+    return !best || score < best.score ? { ...candidate, score } : best;
+  }, null);
 }
 
 function toolMarkerRotation(category, degrees) {
@@ -2180,7 +2232,8 @@ function magneticallySnapToTarget() {
   if (!state.equipped || state.solved || !isTouchInterface()) return;
   const level = levels[state.levelIndex];
   const target = currentTarget(level);
-  const anchor = level.phase === "quadrilateral" ? state.piece : closestAngleAnchor(target);
+  const placement = level.phase === "quadrilateral" ? null : bestAnglePlacement(level, target);
+  const anchor = level.phase === "quadrilateral" ? state.piece : placement.anchor;
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
   const positionTolerance = Math.max(54, level.target.tolerance);
   if (distance > positionTolerance) return;
@@ -2193,12 +2246,17 @@ function magneticallySnapToTarget() {
     if (state.category !== level.correctCategory) return;
     const targetDegrees = level.choices.find(choice => choice.id === level.correctChoice).degrees;
     const rotationTolerance = level.target.rotationTolerance + 5;
-    if (Math.abs(state.degrees - targetDegrees) > 7) return;
-    if (toolRotationDistance(state.category, effectiveToolRotation(state.category, state.degrees), target.rotation) > rotationTolerance) return;
+    if (Math.abs(placement.degrees - targetDegrees) > 7) return;
+    if (toolRotationDistance(state.category, placement.rotation, target.rotation) > rotationTolerance) return;
     if (parallelHeightError(level) > 24) return;
-    resizeAngle(targetDegrees - state.degrees);
-    state.piece.rotation = placementRotationForTarget(state.category, targetDegrees, target.rotation, state.piece.mirrored);
-    keepClosestAngleAnchorAt(target);
+    if (state.category === "משולש") {
+      state.piece.x += target.x - placement.anchor.x;
+      state.piece.y += target.y - placement.anchor.y;
+    } else {
+      resizeAngle(targetDegrees - state.degrees);
+      state.piece.rotation = placementRotationForTarget(state.category, targetDegrees, target.rotation, state.piece.mirrored);
+      keepClosestAngleAnchorAt(target);
+    }
   }
   state.snappedToTarget = true;
   renderPiece();
@@ -2634,19 +2692,24 @@ function check() {
     return;
   }
   const targetDegrees = level.choices.find(c => c.id === level.correctChoice).degrees;
-  const anchor = closestAngleAnchor(target);
+  const placement = bestAnglePlacement(level, target);
+  const anchor = placement.anchor;
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
-  const effectiveRotation = effectiveToolRotation(state.category, state.degrees);
-  const turn = toolRotationDistance(state.category, effectiveRotation, target.rotation);
-  const sizeDifference = Math.abs(state.degrees - targetDegrees);
+  const turn = toolRotationDistance(state.category, placement.rotation, target.rotation);
+  const sizeDifference = Math.abs(placement.degrees - targetDegrees);
   const angleTolerance = isTouchInterface() ? 7 : 5;
   const heightTolerance = isTouchInterface() ? 24 : 16;
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
   const rotationTolerance = level.target.rotationTolerance + (isTouchInterface() ? 5 : 0);
   if (distance <= positionTolerance && turn <= rotationTolerance && sizeDifference <= angleTolerance && parallelHeightError(level) <= heightTolerance) {
-    resizeAngle(targetDegrees - state.degrees);
-    state.piece.rotation = placementRotationForTarget(state.category, targetDegrees, target.rotation, state.piece.mirrored);
-    keepClosestAngleAnchorAt(target);
+    if (state.category === "משולש") {
+      state.piece.x += target.x - placement.anchor.x;
+      state.piece.y += target.y - placement.anchor.y;
+    } else {
+      resizeAngle(targetDegrees - state.degrees);
+      state.piece.rotation = placementRotationForTarget(state.category, targetDegrees, target.rotation, state.piece.mirrored);
+      keepClosestAngleAnchorAt(target);
+    }
     state.snappedToTarget = true;
     state.solved = true;
     const baseXP = level.xpBase || 100;
@@ -2674,7 +2737,7 @@ function check() {
     playMissSound();
     pulse(80);
   } else {
-    feedback(t("angleNeeded", { target: Math.round(targetDegrees), current: Math.round(state.degrees) }), false);
+    feedback(t("angleNeeded", { target: Math.round(targetDegrees), current: Math.round(placement.degrees) }), false);
     playMissSound();
     pulse(80);
   }
