@@ -2244,12 +2244,12 @@ function magneticallySnapToTarget() {
   const level = levels[state.levelIndex];
   const target = currentTarget(level);
   const placement = level.phase === "quadrilateral" ? null : bestAnglePlacement(level, target);
-  const anchor = level.phase === "quadrilateral" ? state.piece : placement.anchor;
+  const anchor = level.phase === "quadrilateral" ? quadrilateralVisualCenter() : placement.anchor;
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
   const positionTolerance = Math.max(54, level.target.tolerance);
   if (distance > positionTolerance) return;
   if (level.phase === "quadrilateral") {
-    const forgivingShape = state.category === "מקבילית" || state.category === "דלתון";
+    const forgivingShape = level.correctCategory === "ריבוע" || state.category === "מקבילית" || state.category === "דלתון";
     const shapeTolerance = forgivingShape ? 36 : 27;
     const rotationTolerance = forgivingShape ? 15 : 10;
     if (!level.offeredValidNames?.includes(state.category) || quadrilateralMatchError(level) > shapeTolerance) return;
@@ -2793,12 +2793,17 @@ function quadrilateralRotationError(shape, current, target) {
   return angleDistance(current, closestQuadrilateralRotation(shape, current, target));
 }
 
-function alignQuadrilateralCenterToTarget(level) {
+function quadrilateralVisualCenter() {
   const vertices = state.quadVertices || quadrilateralVertices(state.category, state.quadDimensions.width, state.quadDimensions.height);
   const transformed = transformedQuadrilateralVertices(vertices, state.piece);
   const center = transformed.reduce((sum, point) => ({ x: sum.x + point.x, y: sum.y + point.y }), { x: 0, y: 0 });
   center.x /= transformed.length;
   center.y /= transformed.length;
+  return center;
+}
+
+function alignQuadrilateralCenterToTarget(level) {
+  const center = quadrilateralVisualCenter();
   state.piece.x += level.target.x - center.x;
   state.piece.y += level.target.y - center.y;
 }
@@ -2835,11 +2840,12 @@ function checkQuadrilateral(level) {
     pulse(100);
     return;
   }
-  const distance = Math.hypot(state.piece.x - level.target.x, state.piece.y - level.target.y);
+  const visualCenter = quadrilateralVisualCenter();
+  const distance = Math.hypot(visualCenter.x - level.target.x, visualCenter.y - level.target.y);
   const shapeError = quadrilateralMatchError(level);
   const rotationError = quadrilateralRotationError(state.category, state.piece.rotation, level.target.rotation);
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
-  const forgivingShape = state.category === "מקבילית" || state.category === "דלתון";
+  const forgivingShape = level.correctCategory === "ריבוע" || state.category === "מקבילית" || state.category === "דלתון";
   const shapeTolerance = isTouchInterface() ? (forgivingShape ? 36 : 27) : 20;
   const rotationTolerance = isTouchInterface() ? (forgivingShape ? 15 : 10) : 7;
   if (distance > positionTolerance) {
