@@ -1131,6 +1131,7 @@ function placeSelected(point) {
   const level = levels[state.levelIndex];
   const target = currentTarget(level);
   if (!state.category || state.solved) return;
+  state.snappedToTarget = false;
   state.choice = level.correctChoice;
   const selectedAngle = level.choices.find(c => c.id === state.choice);
   state.degrees = defaultDegreesForTool(state.category, selectedAngle.degrees, selectedAngle.type);
@@ -1244,6 +1245,9 @@ function renderPiece() {
   renderAngleMarker(content, { x: 0, y: 0, rotation: primaryMarkerRotation });
   if (families["שוות"].includes(state.category) && equalMarker) renderAngleMarker(content, equalMarker);
   content.append(svgEl("circle", { cx: 0, cy: 0, r: 7, class: "piece-core" }));
+  if ((state.category === "מתחלפות" || state.category === "מתאימות") && equalMarker) {
+    content.append(svgEl("circle", { cx: equalMarker.x, cy: equalMarker.y, r: 7, class: "piece-core" }));
+  }
   group.addEventListener("pointerdown", startMove);
 
   const bounds = angleBounds(activeChoiceType(level, choice));
@@ -1265,7 +1269,7 @@ function renderPiece() {
         ];
   angleHandles = angleHandles.filter(handle => handle.priority === "primary");
   if (isTouchInterface()) angleHandles = angleHandles.filter(handle => handle.priority === "primary");
-  if (!state.dragging) keepAngleHandlesInArena(angleHandles.map(handle => handle.point), mirrorCenterX);
+  if (!state.dragging && !state.solved && !state.snappedToTarget) keepAngleHandlesInArena(angleHandles.map(handle => handle.point), mirrorCenterX);
   group.setAttribute("transform", `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})`);
   angleHandles.forEach(({ point, side, label: handleLabel, priority }) => {
     const hit = svgEl("circle", {
@@ -1760,6 +1764,7 @@ function startMove(event) {
   event.stopPropagation();
   event.preventDefault();
   clearAdjustmentFeedback();
+  state.snappedToTarget = false;
   const p = svgPoint(event);
   state.dragging = "move";
   state.dragMoved = false;
@@ -1789,6 +1794,7 @@ function startResize(event, side) {
   event.stopPropagation();
   event.preventDefault();
   clearAdjustmentFeedback();
+  state.snappedToTarget = false;
   state.rotationAnchor = pieceAnchorPosition();
   const rays = state.category === "צמודות" ? state.adjacentRays : null;
   const fixedAngle = rays ? (side === -1 ? rays.b : rays.a) : 0;
@@ -1825,6 +1831,7 @@ function startPointResize(event, kind) {
   event.stopPropagation();
   event.preventDefault();
   clearAdjustmentFeedback();
+  state.snappedToTarget = false;
   const local = toPieceLocal(svgPoint(event));
   state.pointDragStart = {
     local,
@@ -2173,7 +2180,7 @@ function magneticallySnapToTarget() {
   if (!state.equipped || state.solved || !isTouchInterface()) return;
   const level = levels[state.levelIndex];
   const target = currentTarget(level);
-  const anchor = level.phase === "quadrilateral" ? state.piece : pieceAnchorPosition();
+  const anchor = level.phase === "quadrilateral" ? state.piece : closestAngleAnchor(target);
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
   const positionTolerance = Math.max(54, level.target.tolerance);
   if (distance > positionTolerance) return;
@@ -2189,10 +2196,12 @@ function magneticallySnapToTarget() {
     const rotationTolerance = level.target.rotationTolerance + 5;
     if (Math.abs(state.degrees - targetDegrees) > 7) return;
     if (toolRotationDistance(state.category, effectiveToolRotation(state.category, state.degrees), target.rotation) > rotationTolerance) return;
+    if (parallelHeightError(level) > 24) return;
     resizeAngle(targetDegrees - state.degrees);
     state.piece.rotation = placementRotationForTarget(state.category, targetDegrees, target.rotation, state.piece.mirrored);
-    keepPieceAnchorAt(target);
+    keepClosestAngleAnchorAt(target);
   }
+  state.snappedToTarget = true;
   renderPiece();
   flashTargetSnap();
   pulse(24);
@@ -2460,6 +2469,42 @@ function pieceAnchorPosition() {
   };
 }
 
+function equivalentAngleAnchors() {
+  if (state.category !== "מתחלפות" && state.category !== "מתאימות") return [pieceAnchorPosition()];
+  const localSecond = state.category === "מתחלפות"
+    ? polar(state.dimensions.cross, -state.degrees / 2)
+    : polar(state.dimensions.gap, state.degrees + 180);
+  const shape = augmentedShape(levels[state.levelIndex]);
+  const displayed = !state.piece.mirrored ? localSecond
+    : shape === "z" ? zMirrorPoint(localSecond)
+      : { x: 2 * shapeMirrorCenterX(shape) - localSecond.x, y: localSecond.y };
+  const rotation = state.piece.rotation * Math.PI / 180;
+  return [pieceAnchorPosition(), {
+    x: state.piece.x + displayed.x * Math.cos(rotation) - displayed.y * Math.sin(rotation),
+    y: state.piece.y + displayed.x * Math.sin(rotation) + displayed.y * Math.cos(rotation)
+  }];
+}
+
+function closestAngleAnchor(target) {
+  return equivalentAngleAnchors().reduce((best, anchor) =>
+    Math.hypot(anchor.x - target.x, anchor.y - target.y) < Math.hypot(best.x - target.x, best.y - target.y) ? anchor : best
+  );
+}
+
+function keepClosestAngleAnchorAt(target) {
+  const anchor = closestAngleAnchor(target);
+  state.piece.x += target.x - anchor.x;
+  state.piece.y += target.y - anchor.y;
+}
+
+function parallelHeightError(level) {
+  if (state.category !== "מתחלפות" && state.category !== "מתאימות") return 0;
+  const targetDegrees = level.choices.find(choice => choice.id === level.correctChoice).degrees;
+  const expected = 160 / Math.max(.01, Math.abs(Math.sin(targetDegrees * Math.PI / 180)));
+  const actual = state.category === "מתחלפות" ? state.dimensions.cross : state.dimensions.gap;
+  return Math.abs(actual - expected);
+}
+
 function keepPieceAnchorAt(fixedAnchor) {
   const movedAnchor = pieceAnchorPosition();
   state.piece.x += fixedAnchor.x - movedAnchor.x;
@@ -2590,18 +2635,20 @@ function check() {
     return;
   }
   const targetDegrees = level.choices.find(c => c.id === level.correctChoice).degrees;
-  const anchor = pieceAnchorPosition();
+  const anchor = closestAngleAnchor(target);
   const distance = Math.hypot(anchor.x - target.x, anchor.y - target.y);
   const effectiveRotation = effectiveToolRotation(state.category, state.degrees);
   const turn = toolRotationDistance(state.category, effectiveRotation, target.rotation);
   const sizeDifference = Math.abs(state.degrees - targetDegrees);
   const angleTolerance = isTouchInterface() ? 7 : 5;
+  const heightTolerance = isTouchInterface() ? 24 : 16;
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
   const rotationTolerance = level.target.rotationTolerance + (isTouchInterface() ? 5 : 0);
-  if (distance <= positionTolerance && turn <= rotationTolerance && sizeDifference <= angleTolerance) {
+  if (distance <= positionTolerance && turn <= rotationTolerance && sizeDifference <= angleTolerance && parallelHeightError(level) <= heightTolerance) {
     resizeAngle(targetDegrees - state.degrees);
     state.piece.rotation = placementRotationForTarget(state.category, targetDegrees, target.rotation, state.piece.mirrored);
-    keepPieceAnchorAt(target);
+    keepClosestAngleAnchorAt(target);
+    state.snappedToTarget = true;
     state.solved = true;
     const baseXP = level.xpBase || 100;
     const firstChoiceBonus = state.firstChoiceCorrect ? Math.round(baseXP * .5) : 0;
@@ -2621,6 +2668,10 @@ function check() {
     pulse(80);
   } else if (turn > rotationTolerance) {
     feedback(t("rotateMore"), false);
+    playMissSound();
+    pulse(80);
+  } else if (parallelHeightError(level) > heightTolerance) {
+    feedback("המיקום והזווית נכונים. כוונו גם את המרחק בין הישרים המקבילים.", false);
     playMissSound();
     pulse(80);
   } else {
