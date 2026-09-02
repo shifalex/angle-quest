@@ -1925,6 +1925,7 @@ function beginTouchGesture() {
   const points = touchPair();
   if (points.length < 2 || !state.equipped) return;
   const metrics = pairMetrics(points);
+  if (metrics.distance < 40) return;
   clearLongPress();
   touchGesture = {
     ...metrics,
@@ -1964,6 +1965,7 @@ svg.addEventListener("pointermove", event => {
   if (!state.dragging || state.solved) return;
   const p = svgPoint(event);
   if (event.pointerType === "touch" && touchPoints.has(event.pointerId)) touchPoints.set(event.pointerId, p);
+  if (event.pointerType === "touch" && touchPoints.size >= 2 && state.dragging !== "multitouch") beginTouchGesture();
   if (state.dragging === "multitouch" && touchGesture && touchPoints.size >= 2) {
     event.preventDefault();
     const points = touchPair();
@@ -2112,7 +2114,6 @@ svg.addEventListener("pointerup", event => {
     return;
   }
   if (completedGesture === "multitouch" && touchPoints.size === 1) {
-    applyTouchDetents();
     touchGesture = null;
     const remainingPoint = [...touchPoints.values()][0];
     state.dragging = "move";
@@ -2132,7 +2133,7 @@ svg.addEventListener("pointerup", event => {
   state.rotationDragStart = null;
   state.pointDragStart = null;
   if (completedGesture === "move") magneticallySnapToTarget();
-  if (completedGesture === "multitouch" || completedGesture === "rotate" || completedGesture?.startsWith("resize:")) applyTouchDetents();
+  if (completedGesture === "rotate") applyTouchDetents();
   if (completedGesture) renderPiece();
   if (touchPoints.size < 2) touchGesture = null;
   setGestureVisual();
