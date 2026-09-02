@@ -979,12 +979,12 @@ function speakSelection(category) {
     "מקבילית": "Выбран параллелограмм.", "טרפז": "Выбрана трапеция.", "דלתון": "Выбран дельтоид."
   };
   const spokenText = category === "טרפז"
-    ? "נבחר טְרַפֵּז."
+    ? "טְרַפֵּז."
     : quadrilateralTools.includes(category)
-    ? `נבחר ${category}`
+    ? category
     : category === "משולש"
-    ? "נבחר משולש"
-    : primitiveTools.includes(category) ? `נבחרה זווית ${category}` : `נבחרו זוויות ${category}`;
+    ? "משולש"
+    : primitiveTools.includes(category) ? `זווית ${category}` : `זוויות ${category}`;
   return playRecordedSpeech(category, spokenText, englishNames[category], russianNames[category]);
 }
 
@@ -1000,7 +1000,7 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallbac
   }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   return new Promise(resolve => {
-    const audio = new Audio(`audio/${state.language}/${filename}?v=3`);
+    const audio = new Audio(`audio/${state.language}/${filename}?v=4`);
     let usedFallback = false;
     let completed = false;
     const safetyTimer = window.setTimeout(() => finish(), 7000);
