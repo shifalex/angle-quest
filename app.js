@@ -2255,9 +2255,8 @@ function magneticallySnapToTarget() {
     if (!level.offeredValidNames?.includes(state.category) || quadrilateralMatchError(level) > shapeTolerance) return;
     if (state.category === "טרפז" && trapezoidHasSecondParallelPair()) return;
     if (quadrilateralRotationError(state.category, state.piece.rotation, target.rotation) > rotationTolerance) return;
-    state.piece.x = target.x;
-    state.piece.y = target.y;
     state.piece.rotation = closestQuadrilateralRotation(state.category, state.piece.rotation, target.rotation);
+    alignQuadrilateralCenterToTarget(level);
   } else {
     if (state.category !== level.correctCategory) return;
     if (typeof level.requiredMirrored === "boolean" && state.piece.mirrored !== level.requiredMirrored) return;
@@ -2794,6 +2793,16 @@ function quadrilateralRotationError(shape, current, target) {
   return angleDistance(current, closestQuadrilateralRotation(shape, current, target));
 }
 
+function alignQuadrilateralCenterToTarget(level) {
+  const vertices = state.quadVertices || quadrilateralVertices(state.category, state.quadDimensions.width, state.quadDimensions.height);
+  const transformed = transformedQuadrilateralVertices(vertices, state.piece);
+  const center = transformed.reduce((sum, point) => ({ x: sum.x + point.x, y: sum.y + point.y }), { x: 0, y: 0 });
+  center.x /= transformed.length;
+  center.y /= transformed.length;
+  state.piece.x += level.target.x - center.x;
+  state.piece.y += level.target.y - center.y;
+}
+
 function quadrilateralMatchError(level) {
   const pieceVertices = transformedQuadrilateralVertices(
     state.quadVertices || quadrilateralVertices(state.category, state.quadDimensions.width, state.quadDimensions.height),
@@ -2841,9 +2850,8 @@ function checkQuadrilateral(level) {
     playMissSound();
   }
   else {
-    state.piece.x = level.target.x;
-    state.piece.y = level.target.y;
     state.piece.rotation = closestQuadrilateralRotation(state.category, state.piece.rotation, level.target.rotation);
+    alignQuadrilateralCenterToTarget(level);
     state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
     renderPiece();
     flashTargetSnap();
