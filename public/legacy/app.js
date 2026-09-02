@@ -1673,7 +1673,8 @@ function renderedEqualAngleAnchors() {
     const point = svg.createSVGPoint();
     point.x = Number(core.getAttribute("cx"));
     point.y = Number(core.getAttribute("cy"));
-    return point.matrixTransform(core.getCTM());
+    const screenPoint = point.matrixTransform(core.getScreenCTM());
+    return screenPoint.matrixTransform(svg.getScreenCTM().inverse());
   });
 }
 
