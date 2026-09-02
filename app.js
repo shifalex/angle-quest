@@ -1204,7 +1204,7 @@ function renderPiece() {
   });
   const content = svgEl("g", {
     class: "piece-content",
-    transform: mirrorScaleTransform(mirrorCenterX, state.piece.mirrored && shape !== "z" ? -1 : 1)
+    transform: mirrorScaleTransform(mirrorCenterX, state.piece.mirrored ? -1 : 1)
   });
   const rayLength = Math.max(68, Math.min(165, state.dimensions.arm * .8));
   const adjacentRays = shape === "adjacent2"
@@ -1258,7 +1258,7 @@ function renderPiece() {
           { point: state.category === "קודקודיות"
             ? polar(rayLength, bAngle + 180)
             : state.category === "מתחלפות"
-              ? polar(52, (state.piece.mirrored ? 180 + state.degrees * 1.5 : -state.degrees / 2) + 180)
+              ? polar(52, -state.degrees / 2 + 180)
               : (triangle?.b || b), side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
         ];
   angleHandles = angleHandles.filter(handle => handle.priority === "primary");
@@ -1458,6 +1458,7 @@ function animateMirrorFlip(fromMirrored, toMirrored, fixedAnchor) {
   if (!group || !content) return;
   const level = levels[state.levelIndex];
   const isQuadrilateral = level.phase === "quadrilateral";
+  const isAlternate = state.category === "מתחלפות";
   const centerX = isQuadrilateral ? 0 : shapeMirrorCenterX(augmentedShape(level));
   const startScale = fromMirrored ? -1 : 1;
   const endScale = toMirrored ? -1 : 1;
@@ -1466,6 +1467,11 @@ function animateMirrorFlip(fromMirrored, toMirrored, fixedAnchor) {
     if (isQuadrilateral) {
       group.setAttribute("transform", `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})`);
       content.setAttribute("transform", quadrilateralFlipTransform(state.category, scale));
+      return;
+    }
+    if (isAlternate) {
+      group.setAttribute("transform", `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})`);
+      content.setAttribute("transform", mirrorScaleTransform(centerX, scale));
       return;
     }
     const localAnchorX = centerX * (1 - scale);
@@ -1497,7 +1503,7 @@ function augmentedShape(level) {
 }
 
 function shapeMirrorCenterX(shape) {
-  if (shape === "z") return 0;
+  if (shape === "z") return polar(state.dimensions.cross / 2, -state.degrees / 2).x;
   if (shape === "f") {
     const spine = unit(state.degrees);
     const topJointX = -spine.x * state.dimensions.gap;
@@ -1609,9 +1615,7 @@ function addPointHandle(group, point, kind, labelText, visibleLabel) {
 
 function renderZShape(group) {
   const parallelDirection = unit(state.degrees / 2);
-  // Flip only the transversal across the parallel direction. The two rails
-  // keep their direction and location instead of mirroring the whole Z.
-  const diagonalDirection = unit(state.piece.mirrored ? 180 + state.degrees * 1.5 : -state.degrees / 2);
+  const diagonalDirection = unit(-state.degrees / 2);
   const joint = {
     x: diagonalDirection.x * state.dimensions.cross,
     y: diagonalDirection.y * state.dimensions.cross
@@ -1631,16 +1635,6 @@ function renderZShape(group) {
     addPointHandle(group, { x: joint.x * .72, y: joint.y * .72 }, "height", "שינוי המרחק בין הישרים המקבילים", "גובה");
   }
   return { x: joint.x, y: joint.y, rotation: 180 };
-}
-
-function zVisualCenter(mirrored = state.piece.mirrored) {
-  const diagonalAngle = mirrored ? 180 + state.degrees * 1.5 : -state.degrees / 2;
-  const local = polar(state.dimensions.cross / 2, diagonalAngle);
-  const rotation = state.piece.rotation * Math.PI / 180;
-  return {
-    x: state.piece.x + local.x * Math.cos(rotation) - local.y * Math.sin(rotation),
-    y: state.piece.y + local.x * Math.sin(rotation) + local.y * Math.cos(rotation)
-  };
 }
 
 function renderFShape(group) {
@@ -2321,20 +2315,13 @@ function rotate(delta) {
 function toggleMirror() {
   if (!state.equipped || state.solved) return;
   const fixedAnchor = pieceAnchorPosition();
-  const fixedZCenter = state.category === "מתחלפות" ? zVisualCenter() : null;
   const wasMirrored = state.piece.mirrored;
   state.piece.mirrored = !state.piece.mirrored;
-  if (fixedZCenter) {
-    const movedCenter = zVisualCenter();
-    state.piece.x += fixedZCenter.x - movedCenter.x;
-    state.piece.y += fixedZCenter.y - movedCenter.y;
-  } else {
-    keepPieceAnchorAt(fixedAnchor);
-  }
+  if (state.category !== "מתחלפות") keepPieceAnchorAt(fixedAnchor);
   $("mirror-button").setAttribute("aria-pressed", String(state.piece.mirrored));
   feedback(t(state.piece.mirrored ? "mirrorOn" : "mirrorOff"), true);
   renderPiece();
-  if (state.category !== "מתחלפות") animateMirrorFlip(wasMirrored, state.piece.mirrored, fixedAnchor);
+  animateMirrorFlip(wasMirrored, state.piece.mirrored, fixedAnchor);
 }
 
 function angleBounds(type) {
