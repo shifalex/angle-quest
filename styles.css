@@ -67,7 +67,6 @@ h2 { font-size: clamp(1.05rem, 2.5vw, 1.35rem); }
 
 .game-layout { display: grid; grid-template-columns: minmax(270px, .72fr) minmax(0, 1.55fr); gap: 16px; direction: inherit; }
 .loadout, .play-panel { background: rgba(16,24,39,.94); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
-.loadout { container-type: inline-size; }
 .panel-heading { gap: 12px; margin-bottom: 16px; }
 .step-chip { display: grid; place-items: center; flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px; background: var(--cyan); color: #05202a; font-weight: 900; }
 .arena-heading .angle-readout { margin-inline-start: auto; }
@@ -301,7 +300,14 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 
 @media (max-width: 700px) {
   .app-shell { padding: 10px; }
-  .game-layout { grid-template-columns: 1fr; }
+  .game-layout { grid-template-columns: minmax(145px, .55fr) minmax(0, 2.3fr); gap: 6px; }
+  .touch-ui .game-layout {
+    grid-template-columns: minmax(0, 2.3fr) minmax(145px, .55fr);
+    grid-template-areas: "play tools";
+    direction: ltr;
+  }
+  html[dir="rtl"].touch-ui .game-layout > * { direction: rtl; }
+  html[dir="ltr"].touch-ui .game-layout > * { direction: ltr; }
   .loadout, .play-panel { padding: 14px; }
   .topbar { align-items: flex-start; }
   .hud { flex-direction: column; align-items: stretch; font-size: .8rem; }
@@ -341,37 +347,11 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
   fieldset { margin-bottom: 7px; }
   legend, .tool-family-title, .touch-ui .loadout legend, .touch-ui .loadout .tool-family-title { margin-bottom: 4px; font-size: .72rem; }
   .tool-family + .tool-family { margin-top: 7px; }
-  .choice-grid, .touch-ui .loadout .choice-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 4px;
-    overflow: visible;
-    padding: 0;
-  }
-  .choice-button, .touch-ui .loadout .choice-button {
-    min-width: 0;
-    min-height: 38px;
-    padding: 4px 3px;
-    border-radius: 9px;
-    font-size: clamp(.68rem, 1.35vw, .8rem);
-  }
   .arena, .touch-ui .arena { height: clamp(300px, calc(100vh - 205px), 470px); }
 }
 
 @media (orientation: landscape) and (max-width: 700px) {
-  .choice-grid, .touch-ui .choice-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 5px;
-    overflow: visible;
-    padding: 0;
-  }
-  .choice-button, .touch-ui .choice-button { min-width: 0; min-height: 40px; padding: 5px; font-size: .76rem; }
   .arena, .touch-ui .arena { height: clamp(300px, 60vh, 430px); }
-}
-
-@media (orientation: landscape) and (max-width: 380px) {
-  .choice-grid, .touch-ui .choice-grid { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
