@@ -1394,7 +1394,7 @@ function renderQuadrilateralPiece(level) {
   } else if (actualShape === "טרפז") {
     state.quadVertices.forEach((point, index) => addPointHandle(content, displayPoint(point), `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
   } else if (actualShape === "דלתון") {
-    state.quadVertices.forEach((point, index) => addPointHandle(content, displayPoint(point), `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
+    [0, 1, 2].forEach(index => addPointHandle(content, displayPoint(state.quadVertices[index]), `quadVertex${index}`, `שינוי קודקוד ${index + 1}`, "קודקוד"));
   } else if (actualShape === "ריבוע") {
     addPointHandle(content, { x: width / 2, y: height / 2 }, "quadUniform", "הגדלה או הקטנה אחידה של הריבוע", "גודל");
   } else {
@@ -2442,15 +2442,19 @@ function resizeShapePoint(kind, svgPosition) {
       state.quadVertices[index] = safeCandidate;
       state.quadVertices[basePartner] = { ...state.quadVertices[basePartner], y: safeCandidate.y };
     } else if (actualShape === "דלתון") {
-      const opposite = (index + 2) % 4;
-      if (index === 0 || index === 2) {
-        const oppositeY = state.quadVertices[opposite].y;
-        const safeY = index === 0 ? Math.min(candidate.y, oppositeY - 30) : Math.max(candidate.y, oppositeY + 30);
-        state.quadVertices[index] = { x: state.quadVertices[opposite].x, y: safeY };
+      const axisX = (state.quadVertices[0].x + state.quadVertices[2].x) / 2;
+      if (index === 0) {
+        state.quadVertices[0] = { x: axisX, y: Math.min(candidate.y, state.quadVertices[1].y - 30) };
+        state.quadVertices[2].x = axisX;
+      } else if (index === 2) {
+        state.quadVertices[2] = { x: axisX, y: Math.max(candidate.y, state.quadVertices[1].y + 30) };
+        state.quadVertices[0].x = axisX;
       } else {
-        const oppositeX = state.quadVertices[opposite].x;
-        const safeX = index === 1 ? Math.max(candidate.x, oppositeX + 30) : Math.min(candidate.x, oppositeX - 30);
-        state.quadVertices[index] = { x: safeX, y: state.quadVertices[opposite].y };
+        const currentSide = state.quadVertices[1].x >= axisX ? 1 : -1;
+        const halfWidth = Math.max(30, Math.abs(candidate.x - axisX));
+        const middleY = Math.max(state.quadVertices[0].y + 30, Math.min(state.quadVertices[2].y - 30, candidate.y));
+        state.quadVertices[1] = { x: axisX + currentSide * halfWidth, y: middleY };
+        state.quadVertices[3] = { x: axisX - currentSide * halfWidth, y: middleY };
       }
     } else {
       state.quadVertices[index] = candidate;
@@ -2817,12 +2821,20 @@ function quadrilateralMatchError(level) {
     quadrilateralVertices(level.correctCategory, level.targetDimensions.width, level.targetDimensions.height),
     level.target
   );
+  const centerPoints = points => {
+    const center = points.reduce((sum, point) => ({ x: sum.x + point.x, y: sum.y + point.y }), { x: 0, y: 0 });
+    center.x /= points.length;
+    center.y /= points.length;
+    return points.map(point => ({ x: point.x - center.x, y: point.y - center.y }));
+  };
+  const centeredPieceVertices = centerPoints(pieceVertices);
+  const centeredTargetVertices = centerPoints(targetVertices);
   const orders = [];
   for (let shift = 0; shift < 4; shift += 1) {
-    orders.push(targetVertices.map((_, index) => targetVertices[(index + shift) % 4]));
-    orders.push(targetVertices.map((_, index) => targetVertices[(shift - index + 4) % 4]));
+    orders.push(centeredTargetVertices.map((_, index) => centeredTargetVertices[(index + shift) % 4]));
+    orders.push(centeredTargetVertices.map((_, index) => centeredTargetVertices[(shift - index + 4) % 4]));
   }
-  return Math.min(...orders.map(order => Math.max(...pieceVertices.map((point, index) =>
+  return Math.min(...orders.map(order => Math.max(...centeredPieceVertices.map((point, index) =>
     Math.hypot(point.x - order[index].x, point.y - order[index].y)
   ))));
 }
