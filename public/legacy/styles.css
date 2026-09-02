@@ -249,6 +249,10 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .touch-ui .rotate-handle { filter: drop-shadow(0 0 10px rgba(49,215,245,.9)); }
 .touch-ui .rotate-handle-icon { font-size: 24px; }
 .touch-ui .rotate-handle-hit { cursor: grab; }
+.touch-ui .rotate-handle-line,
+.touch-ui .rotate-handle,
+.touch-ui .rotate-handle-icon,
+.touch-ui .rotate-handle-hit { display: none; }
 .touch-ui .point-handle-hit { r: 34px; }
 .touch-ui .point-handle { filter: drop-shadow(0 0 9px rgba(255,159,67,.8)); }
 .touch-ui .handle-label { display: none; }

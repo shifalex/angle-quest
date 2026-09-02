@@ -1898,11 +1898,26 @@ function constrainedToolScale(baseDimensions, requestedScale) {
   return Math.max(minimumScale, Math.min(maximumScale, requestedScale));
 }
 
-function constrainedQuadrilateralScale(baseDimensions, requestedScale) {
+function maximumQuadrilateralScaleInArena(vertices, piece, margin = 18) {
+  const rotation = piece.rotation * Math.PI / 180;
+  const flipped = piece.mirrored && quadrilateralCanFlip(state.category) ? -1 : 1;
+  let maximum = Infinity;
+  vertices.forEach(point => {
+    const localX = point.x * flipped;
+    const dx = localX * Math.cos(rotation) - point.y * Math.sin(rotation);
+    const dy = localX * Math.sin(rotation) + point.y * Math.cos(rotation);
+    if (dx > 0) maximum = Math.min(maximum, (720 - margin - piece.x) / dx);
+    else if (dx < 0) maximum = Math.min(maximum, (piece.x - margin) / -dx);
+    if (dy > 0) maximum = Math.min(maximum, (430 - margin - piece.y) / dy);
+    else if (dy < 0) maximum = Math.min(maximum, (piece.y - margin) / -dy);
+  });
+  return Math.max(0, maximum);
+}
+
+function constrainedQuadrilateralScale(baseDimensions, requestedScale, baseVertices, piece) {
   const minimum = state.category === "ריבוע" ? 60 : 55;
-  const maximum = state.category === "ריבוע" ? 210 : 220;
   const minimumScale = Math.max(minimum / baseDimensions.width, minimum / baseDimensions.height);
-  const maximumScale = Math.min(maximum / baseDimensions.width, maximum / baseDimensions.height);
+  const maximumScale = maximumQuadrilateralScaleInArena(baseVertices, piece);
   return Math.max(minimumScale, Math.min(maximumScale, requestedScale));
 }
 
@@ -1968,7 +1983,8 @@ svg.addEventListener("pointermove", event => {
     const activeLevel = levels[state.levelIndex];
     if (activeLevel.phase === "quadrilateral") {
       const { width, height } = touchGesture.quadDimensions;
-      const effectiveScale = constrainedQuadrilateralScale(touchGesture.quadDimensions, requestedScale);
+      const baseVertices = touchGesture.quadVertices || quadrilateralVertices(state.category, width, height);
+      const effectiveScale = constrainedQuadrilateralScale(touchGesture.quadDimensions, requestedScale, baseVertices, state.piece);
       state.quadDimensions = { width: width * effectiveScale, height: height * effectiveScale };
       if (touchGesture.quadVertices) {
         state.quadVertices = touchGesture.quadVertices.map(point => ({
@@ -1981,6 +1997,16 @@ svg.addEventListener("pointermove", event => {
       state.dimensions = Object.fromEntries(
         Object.entries(touchGesture.dimensions).map(([key, value]) => [key, value * effectiveScale])
       );
+      // After uniform zoom reaches its limit, continued pinching adjusts the
+      // height between parallel lines rather than appearing to do nothing.
+      if (requestedScale > effectiveScale) {
+        if (state.category === "מתחלפות") {
+          state.dimensions.cross = Math.min(620, touchGesture.dimensions.cross * requestedScale);
+        } else if (state.category === "מתאימות") {
+          state.dimensions.gap = Math.min(240, touchGesture.dimensions.gap * requestedScale);
+          state.dimensions.spine = Math.max(state.dimensions.spine, state.dimensions.gap + 70);
+        }
+      }
       state.degrees = touchGesture.degrees;
       state.adjacentRays = touchGesture.adjacentRays ? { ...touchGesture.adjacentRays } : null;
       if (touchGesture.triangleVertices) {
@@ -2223,6 +2249,34 @@ function normalizeAngle(value) { return ((value % 360) + 360) % 360; }
 function normalizeSignedAngle(value) { return ((value + 180) % 360 + 360) % 360 - 180; }
 function angleDistance(a, b) { const d = Math.abs(normalizeAngle(a) - normalizeAngle(b)); return Math.min(d, 360 - d); }
 
+function constrainedQuadResizeValue(start, desired, axis) {
+  const starting = axis === "uniform" ? start.quadDimensions.width : start.quadDimensions[axis];
+  if (desired <= starting) return desired;
+  const fits = value => {
+    const width = axis === "height" ? start.quadDimensions.width : value;
+    const height = axis === "width" ? start.quadDimensions.height : value;
+    const localX = axis === "height" ? 0 : (value - starting) / 2;
+    const localY = axis === "width" ? 0 : (value - starting) / 2;
+    const rotation = start.piece.rotation * Math.PI / 180;
+    const piece = {
+      ...start.piece,
+      x: start.piece.x + localX * Math.cos(rotation) - localY * Math.sin(rotation),
+      y: start.piece.y + localX * Math.sin(rotation) + localY * Math.cos(rotation)
+    };
+    const vertices = quadrilateralVertices(state.category, width, height);
+    return maximumQuadrilateralScaleInArena(vertices, piece) >= 1;
+  };
+  if (fits(desired)) return desired;
+  let low = starting;
+  let high = desired;
+  for (let iteration = 0; iteration < 18; iteration += 1) {
+    const middle = (low + high) / 2;
+    if (fits(middle)) low = middle;
+    else high = middle;
+  }
+  return low;
+}
+
 function resizeShapePoint(kind, svgPosition) {
   const local = toPieceLocal(svgPosition);
   const start = state.pointDragStart || { local, dimensions: { ...state.dimensions } };
@@ -2235,12 +2289,12 @@ function resizeShapePoint(kind, svgPosition) {
   if (kind === "quadUniform") {
     const startSize = start.quadDimensions?.width || state.quadDimensions.width;
     const rawDelta = ((startLocal.x - start.local.x) + (startLocal.y - start.local.y)) / 2;
-    const next = Math.max(60, Math.min(210, startSize + rawDelta));
+    const next = constrainedQuadResizeValue(start, Math.max(60, startSize + rawDelta), "uniform");
     movePieceFromPointResize(start, (next - startSize) / 2, (next - startSize) / 2);
     state.quadDimensions = { width: next, height: next };
   } else if (kind === "quadWidth") {
     const startWidth = start.quadDimensions?.width || state.quadDimensions.width;
-    const next = Math.max(55, Math.min(220, startWidth + startLocal.x - start.local.x));
+    const next = constrainedQuadResizeValue(start, Math.max(55, startWidth + startLocal.x - start.local.x), "width");
     if (start.quadVertices) {
       const scaleX = next / Math.max(1, startWidth);
       state.quadVertices = start.quadVertices.map(point => ({ x: point.x * scaleX, y: point.y }));
@@ -2248,7 +2302,7 @@ function resizeShapePoint(kind, svgPosition) {
     state.quadDimensions.width = next;
   } else if (kind === "quadHeight") {
     const startHeight = start.quadDimensions?.height || state.quadDimensions.height;
-    const next = Math.max(55, Math.min(220, startHeight + startLocal.y - start.local.y));
+    const next = constrainedQuadResizeValue(start, Math.max(55, startHeight + startLocal.y - start.local.y), "height");
     if (start.quadVertices) {
       const scaleY = next / Math.max(1, startHeight);
       state.quadVertices = start.quadVertices.map(point => ({ x: point.x, y: point.y * scaleY }));
@@ -2599,7 +2653,12 @@ function checkQuadrilateral(level) {
     playMissSound();
   }
   else {
+    state.piece.x = level.target.x;
+    state.piece.y = level.target.y;
+    state.piece.rotation = level.target.rotation;
     state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
+    renderPiece();
+    flashTargetSnap();
     feedback(`מצוין! זיהיתם וכיוונתם ${categoryLabel(state.category)}. +${level.xpBase} XP`, true);
     updateShapeControls(level);
     continueAfterCorrectSpeech(state.category, () => level.askWhatElse ? beginWhatElse(level) : nextLevel());
