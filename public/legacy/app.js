@@ -990,7 +990,7 @@ function speakSelection(category) {
     "מקבילית": "Выбран параллелограмм.", "טרפז": "Выбрана трапеция.", "דלתון": "Выбран дельтоид."
   };
   const primitiveSpoken = { "חדה": "זווית חדה", "ישרה": "זווית ישרה", "שטוחה": "זָוִית שְׁטוּחָה", "קהה": "זָוִית קֵהָה" };
-  const complexSpoken = { "מתאימות": "זָוִיּוֹת מַתְאִימוֹת", "מתחלפות": "זָוִיּוֹת מִתְחַלְּפוֹת", "קודקודיות": "זוויות קודקודיות", "צמודות": "זָוִיּוֹת צְמוּדוֹת" };
+  const complexSpoken = { "מתאימות": "זָוִיּוֹת מַתְאִימוֹת", "מתחלפות": "זָוִיּוֹת מִתְחַלְּפוֹת", "קודקודיות": "זָוִיּוֹת קוֹדְקוֹדִיּוֹת", "צמודות": "זָוִיּוֹת צְמוּדוֹת" };
   const spokenText = primitiveSpoken[category] || complexSpoken[category]
     || (category === "טרפז" ? "טְרַפֵּז." : category === "מלבן" ? "מַלְבֵּן." : category === "דלתון" ? "דַלְטוֹן." : category);
   return playRecordedSpeech(category, spokenText, englishNames[category], russianNames[category]);
@@ -1008,7 +1008,7 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallbac
   }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   return new Promise(resolve => {
-    const audio = new Audio(`audio/${state.language}/${filename}?v=9`);
+    const audio = new Audio(`audio/${state.language}/${filename}?v=10`);
     let usedFallback = false;
     let completed = false;
     const safetyTimer = window.setTimeout(() => finish(), 7000);
@@ -1036,7 +1036,7 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallbac
 function preloadQuadrilateralSpeech() {
   speechState.preloaded = quadrilateralTools.map(category => {
     const filename = recordedSpeechFiles[category];
-    const audio = new Audio(`audio/${state.language}/${filename}?v=4`);
+    const audio = new Audio(`audio/${state.language}/${filename}?v=5`);
     audio.preload = "auto";
     audio.load();
     return audio;
