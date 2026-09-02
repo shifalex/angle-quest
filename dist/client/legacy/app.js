@@ -1340,7 +1340,10 @@ function renderQuadrilateralPiece(level) {
   const { width, height } = state.quadDimensions;
   const actualShape = state.category;
   const group = svgEl("g", { class: "piece", transform: `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})` });
-  const content = svgEl("g", { class: "piece-content" });
+  const content = svgEl("g", {
+    class: "piece-content",
+    transform: quadrilateralFlipTransform(actualShape, state.piece.mirrored ? -1 : 1)
+  });
   content.append(svgEl("polygon", { points: quadrilateralPoints(actualShape, width, height, state.quadVertices), class: "quad-piece piece-rays" }));
   if (actualShape === "מעוין") {
     content.append(svgEl("line", { x1: -width / 2, y1: 0, x2: width / 2, y2: 0, class: "quad-diagonal" }));
@@ -1404,7 +1407,7 @@ function updateShapeControls(level) {
   $("shape-height-smaller").hidden = parallelogram || vertexTrapezoid;
   $("shape-height-larger").hidden = parallelogram || vertexTrapezoid;
   if (state.equipped && square) $("angle-readout").textContent = "ריבוע • גודל אחיד • אפשר לסובב";
-  $("mirror-button").disabled = true;
+  $("mirror-button").disabled = !state.equipped || state.solved;
 }
 
 function addPieceDragArea(content) {
@@ -1436,16 +1439,35 @@ function mirrorScaleTransform(centerX, scaleX) {
   return `translate(${centerX * (1 - scaleX)} 0) scale(${scaleX} 1)`;
 }
 
+function quadrilateralFlipAxis(shape) {
+  // A rhombus and a kite flip around their upright diagonal. The other
+  // quadrilaterals flip around the direction of their parallel bases.
+  return shape === "מעוין" || shape === "דלתון" ? "vertical" : "horizontal";
+}
+
+function quadrilateralFlipTransform(shape, scale) {
+  return quadrilateralFlipAxis(shape) === "vertical"
+    ? `scale(${scale} 1)`
+    : `scale(1 ${scale})`;
+}
+
 function animateMirrorFlip(fromMirrored, toMirrored, fixedAnchor) {
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
   const group = pieceLayer.querySelector(".piece");
   const content = pieceLayer.querySelector(".piece-content");
   if (!group || !content) return;
-  const centerX = shapeMirrorCenterX(augmentedShape(levels[state.levelIndex]));
+  const level = levels[state.levelIndex];
+  const isQuadrilateral = level.phase === "quadrilateral";
+  const centerX = isQuadrilateral ? 0 : shapeMirrorCenterX(augmentedShape(level));
   const startScale = fromMirrored ? -1 : 1;
   const endScale = toMirrored ? -1 : 1;
   const rotation = state.piece.rotation * Math.PI / 180;
   const renderFrame = scale => {
+    if (isQuadrilateral) {
+      group.setAttribute("transform", `translate(${state.piece.x} ${state.piece.y}) rotate(${state.piece.rotation})`);
+      content.setAttribute("transform", quadrilateralFlipTransform(state.category, scale));
+      return;
+    }
     const localAnchorX = centerX * (1 - scale);
     const x = fixedAnchor.x - localAnchorX * Math.cos(rotation);
     const y = fixedAnchor.y - localAnchorX * Math.sin(rotation);
@@ -2259,6 +2281,11 @@ function toPieceLocal(svgPosition) {
     x: dx * Math.cos(rotation) - dy * Math.sin(rotation),
     y: dx * Math.sin(rotation) + dy * Math.cos(rotation)
   };
+  if (levels[state.levelIndex].phase === "quadrilateral" && state.piece.mirrored) {
+    return quadrilateralFlipAxis(state.category) === "vertical"
+      ? { x: -rotated.x, y: rotated.y }
+      : { x: rotated.x, y: -rotated.y };
+  }
   const mirrorCenterX = shapeMirrorCenterX(augmentedShape(levels[state.levelIndex]));
   return { x: state.piece.mirrored ? 2 * mirrorCenterX - rotated.x : rotated.x, y: rotated.y };
 }
@@ -2451,10 +2478,16 @@ function check() {
 
 function transformedQuadrilateralVertices(vertices, piece) {
   const rotation = piece.rotation * Math.PI / 180;
-  return vertices.map(point => ({
-    x: piece.x + point.x * Math.cos(rotation) - point.y * Math.sin(rotation),
-    y: piece.y + point.x * Math.sin(rotation) + point.y * Math.cos(rotation)
-  }));
+  const flipped = piece.mirrored ? -1 : 1;
+  const verticalAxis = quadrilateralFlipAxis(state.category) === "vertical";
+  return vertices.map(point => {
+    const localX = verticalAxis ? point.x * flipped : point.x;
+    const localY = verticalAxis ? point.y : point.y * flipped;
+    return {
+      x: piece.x + localX * Math.cos(rotation) - localY * Math.sin(rotation),
+      y: piece.y + localX * Math.sin(rotation) + localY * Math.cos(rotation)
+    };
+  });
 }
 
 function quadrilateralMatchError(level) {
