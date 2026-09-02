@@ -2175,7 +2175,10 @@ function resizeShapePoint(kind, svgPosition) {
   } else if (kind.startsWith("quadVertex") && start.quadVertices) {
     const index = Number(kind.slice("quadVertex".length));
     const actualShape = state.category;
-    const candidate = { x: Math.max(-180, Math.min(180, startLocal.x)), y: Math.max(-160, Math.min(160, startLocal.y)) };
+    // `toPieceLocal` already converts a mirrored handle back into the model's
+    // original coordinate space. Using the raw start-piece coordinates here
+    // would write the displayed (mirrored) point into the source geometry.
+    const candidate = { x: Math.max(-180, Math.min(180, local.x)), y: Math.max(-160, Math.min(160, local.y)) };
     if (actualShape === "מקבילית") {
       state.quadVertices[index] = candidate;
       const [a, b, c] = state.quadVertices;
@@ -2280,6 +2283,10 @@ function toPieceLocal(svgPosition) {
 }
 
 function pieceAnchorPosition() {
+  // Quadrilaterals flip around their own center, so their placement anchor is
+  // unchanged by mirroring. The generic angle anchor calculation would shift
+  // them because an unrelated X-shaped tool center was being reused here.
+  if (levels[state.levelIndex].phase === "quadrilateral") return { x: state.piece.x, y: state.piece.y };
   if (!state.piece.mirrored) return { x: state.piece.x, y: state.piece.y };
   const mirrorCenterX = shapeMirrorCenterX(augmentedShape(levels[state.levelIndex]));
   const localAnchorX = 2 * mirrorCenterX;
