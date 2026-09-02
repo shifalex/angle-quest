@@ -2294,11 +2294,11 @@ function magneticallySnapToTarget() {
   if (level.phase === "quadrilateral") {
     const forgivingShape = level.correctCategory === "ריבוע" || state.category === "מקבילית" || state.category === "דלתון";
     const shapeTolerance = forgivingShape ? 31 : 27;
-    const rotationTolerance = forgivingShape ? 12 : 10;
+    const angularTolerance = forgivingShape ? 12 : 10;
     if (!level.offeredValidNames?.includes(state.category) || quadrilateralMatchError(level) > shapeTolerance) return;
     if (state.category === "טרפז" && trapezoidHasSecondParallelPair()) return;
-    if (quadrilateralRotationError(level.correctCategory, state.piece.rotation, target.rotation) > rotationTolerance) return;
-    state.piece.rotation = closestQuadrilateralRotation(level.correctCategory, state.piece.rotation, target.rotation);
+    if (quadrilateralAngularMatchError(level) > angularTolerance) return;
+    state.piece.rotation = bestQuadrilateralSnapRotation(level);
     alignQuadrilateralCenterToTarget(level);
   } else {
     if (state.category !== level.correctCategory) return;
@@ -2866,10 +2866,10 @@ function alignQuadrilateralCenterToTarget(level) {
   state.piece.y += level.target.y - center.y;
 }
 
-function quadrilateralMatchError(level) {
+function quadrilateralMatchMetrics(level, piece = state.piece) {
   const pieceVertices = transformedQuadrilateralVertices(
     state.quadVertices || quadrilateralVertices(state.category, state.quadDimensions.width, state.quadDimensions.height),
-    state.piece
+    piece
   );
   const targetVertices = transformedQuadrilateralVertices(
     quadrilateralVertices(level.correctCategory, level.targetDimensions.width, level.targetDimensions.height),
@@ -2888,9 +2888,33 @@ function quadrilateralMatchError(level) {
     orders.push(centeredTargetVertices.map((_, index) => centeredTargetVertices[(index + shift) % 4]));
     orders.push(centeredTargetVertices.map((_, index) => centeredTargetVertices[(shift - index + 4) % 4]));
   }
-  return Math.min(...orders.map(order => Math.max(...centeredPieceVertices.map((point, index) =>
-    Math.hypot(point.x - order[index].x, point.y - order[index].y)
-  ))));
+  const metrics = orders.map(order => {
+    const vertexError = Math.max(...centeredPieceVertices.map((point, index) => Math.hypot(point.x - order[index].x, point.y - order[index].y)));
+    const angularError = Math.max(...centeredPieceVertices.map((point, index) => {
+      const next = centeredPieceVertices[(index + 1) % centeredPieceVertices.length];
+      const targetNext = order[(index + 1) % order.length];
+      const pieceAngle = Math.atan2(next.y - point.y, next.x - point.x) * 180 / Math.PI;
+      const targetAngle = Math.atan2(targetNext.y - order[index].y, targetNext.x - order[index].x) * 180 / Math.PI;
+      const difference = angleDistance(pieceAngle, targetAngle);
+      return Math.min(difference, Math.abs(180 - difference));
+    }));
+    return { vertexError, angularError };
+  });
+  return metrics.reduce((best, metric) => metric.vertexError < best.vertexError ? metric : best);
+}
+
+function quadrilateralMatchError(level, piece = state.piece) { return quadrilateralMatchMetrics(level, piece).vertexError; }
+function quadrilateralAngularMatchError(level, piece = state.piece) { return quadrilateralMatchMetrics(level, piece).angularError; }
+
+function bestQuadrilateralSnapRotation(level) {
+  const current = state.piece.rotation;
+  let best = { rotation: current, error: quadrilateralMatchError(level) };
+  for (let correction = -12; correction <= 12; correction += .5) {
+    const rotation = normalizeAngle(current + correction);
+    const error = quadrilateralMatchError(level, { ...state.piece, rotation });
+    if (error < best.error) best = { rotation, error };
+  }
+  return best.rotation;
 }
 
 function checkQuadrilateral(level) {
@@ -2909,20 +2933,19 @@ function checkQuadrilateral(level) {
   const visualCenter = quadrilateralVisualCenter();
   const distance = Math.hypot(visualCenter.x - level.target.x, visualCenter.y - level.target.y);
   const shapeError = quadrilateralMatchError(level);
-  const rotationError = quadrilateralRotationError(level.correctCategory, state.piece.rotation, level.target.rotation);
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
   const forgivingShape = level.correctCategory === "ריבוע" || state.category === "מקבילית" || state.category === "דלתון";
   const shapeTolerance = isTouchInterface() ? (forgivingShape ? 31 : 27) : 20;
-  const rotationTolerance = isTouchInterface() ? (forgivingShape ? 12 : 10) : 7;
+  const angularTolerance = isTouchInterface() ? (forgivingShape ? 12 : 10) : 7;
   if (distance > positionTolerance) {
     feedback("קרבו את מרכז הצורה למסגרת הכחולה.", false);
     playMissSound();
-  } else if (rotationError > rotationTolerance || shapeError > shapeTolerance) {
+  } else if (shapeError > shapeTolerance || quadrilateralAngularMatchError(level) > angularTolerance) {
     feedback("כוונו את הסיבוב והקודקודים עד שהצורה תשב על המסגרת.", false);
     playMissSound();
   }
   else {
-    state.piece.rotation = closestQuadrilateralRotation(level.correctCategory, state.piece.rotation, level.target.rotation);
+    state.piece.rotation = bestQuadrilateralSnapRotation(level);
     alignQuadrilateralCenterToTarget(level);
     state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
     renderPiece();
