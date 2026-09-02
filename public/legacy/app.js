@@ -1250,7 +1250,7 @@ function renderPiece() {
           { point: state.category === "קודקודיות"
             ? polar(rayLength, bAngle + 180)
             : state.category === "מתחלפות"
-              ? polar(52, state.piece.mirrored ? 180 + state.degrees * 1.5 : 180 - state.degrees / 2)
+              ? polar(52, (state.piece.mirrored ? 180 + state.degrees * 1.5 : -state.degrees / 2) + 180)
               : (triangle?.b || b), side: 1, label: "פתיחה וסגירה של הזווית", priority: "primary" }
         ];
   angleHandles = angleHandles.filter(handle => handle.priority === "primary");
@@ -1701,6 +1701,9 @@ function startResize(event, side) {
     side,
     adjacentDirection: adjacentSweep < 0 ? -1 : 1,
     alternateParallelWorld,
+    alternateHandleReference: state.category === "מתחלפות"
+      ? normalizeAngle(alternateParallelWorld + (state.piece.mirrored ? 0 : 180))
+      : null,
     alternateGap: state.category === "מתחלפות"
       ? Math.abs(state.dimensions.cross * Math.sin(state.degrees * Math.PI / 180))
       : null
@@ -1937,7 +1940,7 @@ svg.addEventListener("pointermove", event => {
         : state.category === "מתחלפות"
           ? Math.abs(normalizeSignedAngle(
               Math.atan2(p.y - state.rotationAnchor.y, p.x - state.rotationAnchor.x) * 180 / Math.PI
-              - (state.angleDragStart.alternateParallelWorld + 180)
+              - state.angleDragStart.alternateHandleReference
             ))
         : hasFixedHorizontalBase
         ? Math.abs(normalizeSignedAngle(relativeAngle))
