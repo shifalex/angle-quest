@@ -1214,7 +1214,7 @@ function renderPiece() {
     : null;
   const aAngle = adjacentRays?.a ?? (shape === "f" || shape === "primitive" ? 0 : -state.degrees / 2);
   const bAngle = adjacentRays?.b ?? (shape === "f" ? state.degrees : shape === "primitive" ? -state.degrees : state.degrees / 2);
-  const a = polar(shape === "adjacent2" ? rayLength + 24 : rayLength, aAngle);
+  const a = polar(shape === "adjacent2" ? Math.max(56, rayLength - 20) : rayLength, aAngle);
   const b = polar(rayLength, bAngle);
   let equalMarker = null;
   let primaryMarkerRotation = 0;
@@ -2367,10 +2367,10 @@ function toggleMirror() {
 function angleBounds(type) {
   if (state.category === "צמודות") return { min: 15, max: 175 };
   if (type === "flexible") return { min: 15, max: 165 };
-  if (type === "acute") return { min: 15, max: 89 };
+  if (type === "acute") return { min: 5, max: 85 };
   if (type === "right") return { min: 90, max: 90 };
   if (type === "flat") return { min: 180, max: 180 };
-  return { min: 91, max: 165 };
+  return { min: 95, max: 175 };
 }
 
 function activeChoiceType(level, choice) {
