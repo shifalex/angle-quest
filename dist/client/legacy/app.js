@@ -2363,6 +2363,7 @@ function toggleMirror() {
 }
 
 function angleBounds(type) {
+  if (state.category === "צמודות") return { min: 15, max: 175 };
   if (type === "flexible") return { min: 15, max: 165 };
   if (type === "acute") return { min: 15, max: 89 };
   if (type === "right") return { min: 90, max: 90 };
