@@ -2425,7 +2425,7 @@ function check() {
       ? t("correctBonus", { xp: baseXP, bonus: firstChoiceBonus })
       : t("correct", { xp: baseXP }), true);
     pulse([50, 40, 90]);
-    continueAfterCorrectSpeech(level.correctCategory, nextLevel);
+    continueAfterCorrectSpeech(state.category, nextLevel);
   } else if (distance > positionTolerance) {
     feedback(t("moveCloser"), false);
     playMissSound();
@@ -2490,7 +2490,7 @@ function checkQuadrilateral(level) {
     state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
     feedback(`מצוין! זיהיתם וכיוונתם ${categoryLabel(state.category)}. +${level.xpBase} XP`, true);
     updateShapeControls(level);
-    continueAfterCorrectSpeech(level.correctCategory, () => level.askWhatElse ? beginWhatElse(level) : nextLevel());
+    continueAfterCorrectSpeech(state.category, () => level.askWhatElse ? beginWhatElse(level) : nextLevel());
   }
 }
 
