@@ -2238,9 +2238,11 @@ function magneticallySnapToTarget() {
   const positionTolerance = Math.max(54, level.target.tolerance);
   if (distance > positionTolerance) return;
   if (level.phase === "quadrilateral") {
-    if (!level.offeredValidNames?.includes(state.category) || quadrilateralMatchError(level) > 27) return;
+    const shapeTolerance = state.category === "מקבילית" ? 36 : 27;
+    const rotationTolerance = state.category === "מקבילית" ? 15 : 10;
+    if (!level.offeredValidNames?.includes(state.category) || quadrilateralMatchError(level) > shapeTolerance) return;
     if (state.category === "טרפז" && trapezoidHasSecondParallelPair()) return;
-    if (quadrilateralRotationError(state.category, state.piece.rotation, target.rotation) > 10) return;
+    if (quadrilateralRotationError(state.category, state.piece.rotation, target.rotation) > rotationTolerance) return;
     state.piece.x = target.x;
     state.piece.y = target.y;
     state.piece.rotation = closestQuadrilateralRotation(state.category, state.piece.rotation, target.rotation);
@@ -2810,11 +2812,12 @@ function checkQuadrilateral(level) {
   const shapeError = quadrilateralMatchError(level);
   const rotationError = quadrilateralRotationError(state.category, state.piece.rotation, level.target.rotation);
   const positionTolerance = isTouchInterface() ? Math.max(54, level.target.tolerance) : level.target.tolerance;
-  const shapeTolerance = isTouchInterface() ? 27 : 20;
+  const shapeTolerance = isTouchInterface() ? (state.category === "מקבילית" ? 36 : 27) : 20;
+  const rotationTolerance = isTouchInterface() ? (state.category === "מקבילית" ? 15 : 10) : 7;
   if (distance > positionTolerance) {
     feedback("קרבו את מרכז הצורה למסגרת הכחולה.", false);
     playMissSound();
-  } else if (rotationError > (isTouchInterface() ? 10 : 7) || shapeError > shapeTolerance) {
+  } else if (rotationError > rotationTolerance || shapeError > shapeTolerance) {
     feedback("כוונו את הסיבוב והקודקודים עד שהצורה תשב על המסגרת.", false);
     playMissSound();
   }
