@@ -2987,8 +2987,12 @@ function beginWhatElse(level) {
   state.followUp = true;
   state.followUpFound = [state.category];
   $("mission-title").textContent = "מה עוד?";
-  $("mission-hint").textContent = "הצורה התקבעה. בחרו את השם החוקי הנוסף שנשאר.";
-  $("angle-readout").textContent = "מה עוד מתאר את הצורה?";
+  $("mission-hint").textContent = "הצורה כבר התקבעה ואין צורך להזיז אותה. בחרו לה שם חוקי נוסף.";
+  $("angle-readout").textContent = "בחרו שם נוסף";
+  feedback("עכשיו בחרו שם נוסף שמתאים לאותה צורה", true);
+  $("feedback").classList.add("follow-up-prompt");
+  document.querySelector(".loadout").classList.add("follow-up-attention");
+  pieceLayer.classList.add("follow-up-locked");
   const selected = document.querySelector(`[data-category="${state.category}"]`);
   if (selected) { selected.disabled = true; selected.setAttribute("aria-pressed", "true"); }
 }
@@ -3013,6 +3017,8 @@ function handleWhatElseChoice(level, button) {
   } else {
     feedback("מצוין — מצאתם את כל השמות החוקיים לצורה.", true);
     state.followUp = false;
+    document.querySelector(".loadout").classList.remove("follow-up-attention");
+    pieceLayer.classList.remove("follow-up-locked");
     setTimeout(nextLevel, 1000);
   }
 }
@@ -3217,6 +3223,8 @@ function pulse(pattern) {
 
 function loadLevel() {
   const level = levels[state.levelIndex];
+  document.querySelector(".loadout").classList.remove("follow-up-attention");
+  pieceLayer.classList.remove("follow-up-locked");
   document.documentElement.classList.toggle("master-mode", level.mode === "master");
   if (level.phase === "quadrilateral") preloadQuadrilateralSpeech();
   prepareQuadrilateralLevel(level);

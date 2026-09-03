@@ -56,6 +56,7 @@ body {
 :root[data-theme="light"] .arena-tip { background: rgba(255,255,255,.86); }
 :root[data-theme="light"] .diagram-label,
 :root[data-theme="light"] .given-label { stroke: #f7faff; }
+:root[data-theme="light"] .handle-label { stroke: #f7faff; }
 :root[data-theme="light"] .geo-line,
 :root[data-theme="light"] .target-distractor { stroke: #52647b; }
 :root[data-theme="light"] .geo-secondary { stroke: #8292a7; }
@@ -200,6 +201,11 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .feedback { height: 64px; display: grid; place-items: center; overflow: hidden; text-align: center; margin-top: 10px; padding-inline: 8px; font-weight: 750; line-height: 1.35; }
 .feedback.success { color: var(--lime); }
 .feedback.error { color: var(--danger); }
+.feedback.follow-up-prompt { color: var(--cyan); border: 1px solid var(--cyan-dark); border-radius: 12px; background: rgba(49,215,245,.10); animation: follow-up-prompt .75s ease-out; }
+.follow-up-attention { animation: follow-up-attention 1.15s ease-in-out 2; }
+.follow-up-locked { opacity: .55; filter: saturate(.65); pointer-events: none; }
+@keyframes follow-up-prompt { 0% { opacity: 0; transform: scale(.94); } 55% { opacity: 1; transform: scale(1.025); } 100% { transform: scale(1); } }
+@keyframes follow-up-attention { 0%,100% { box-shadow: none; } 50% { border-color: var(--cyan); box-shadow: 0 0 0 4px rgba(49,215,245,.16), 0 0 24px rgba(49,215,245,.18); } }
 
 .touch-tutorial[hidden] { display: none; }
 .stage-transition[hidden], .course-menu[hidden], .player-menu[hidden] { display: none; }
