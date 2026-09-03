@@ -1724,7 +1724,7 @@ function toolMarkerRotation(category, degrees) {
 function effectiveToolRotation(category, degrees, piece = state.piece) {
   const markerRotation = toolMarkerRotation(category, degrees);
   const mirroredMarkerRotation = !piece.mirrored ? markerRotation
-    : category === "מתחלפות" ? normalizeAngle(degrees + 180 - markerRotation)
+    : category === "מתחלפות" ? markerRotation
       : category === "מתאימות" ? normalizeAngle(180 - markerRotation - degrees)
       : 180 - markerRotation;
   return normalizeAngle(piece.rotation + mirroredMarkerRotation);
@@ -1733,7 +1733,7 @@ function effectiveToolRotation(category, degrees, piece = state.piece) {
 function placementRotationForTarget(category, degrees, targetRotation, mirrored) {
   const markerRotation = toolMarkerRotation(category, degrees);
   const mirroredMarkerRotation = !mirrored ? markerRotation
-    : category === "מתחלפות" ? normalizeAngle(degrees + 180 - markerRotation)
+    : category === "מתחלפות" ? markerRotation
       : category === "מתאימות" ? normalizeAngle(180 - markerRotation - degrees)
       : 180 - markerRotation;
   return normalizeAngle(targetRotation - mirroredMarkerRotation);
