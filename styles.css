@@ -15,6 +15,21 @@
   color-scheme: dark;
 }
 
+:root[data-theme="light"] {
+  --ink: #172033;
+  --muted: #55657b;
+  --bg: #eef4fb;
+  --panel: #ffffff;
+  --panel-2: #e7eef8;
+  --line: #b8c7da;
+  --cyan: #087f9e;
+  --cyan-dark: #159aba;
+  --lime: #6e9f00;
+  --orange: #c96a10;
+  --danger: #d92f55;
+  color-scheme: light;
+}
+
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { scrollbar-gutter: stable; }
 
@@ -28,6 +43,24 @@ body {
     radial-gradient(circle at 90% 80%, rgba(185, 242, 39, .07), transparent 24rem),
     var(--bg);
 }
+
+:root[data-theme="light"] body {
+  background: radial-gradient(circle at 15% 10%, rgba(8,127,158,.09), transparent 30rem), radial-gradient(circle at 90% 80%, rgba(110,159,0,.08), transparent 24rem), var(--bg);
+}
+:root[data-theme="light"] .hud-item,
+:root[data-theme="light"] .language-switcher,
+:root[data-theme="light"] .loadout,
+:root[data-theme="light"] .play-panel { background: rgba(255,255,255,.94); }
+:root[data-theme="light"] .mission { background: linear-gradient(110deg, rgba(255,255,255,.96), rgba(8,127,158,.10)); }
+:root[data-theme="light"] .arena { background-color: #f7faff; background-image: linear-gradient(rgba(62,85,115,.10) 1px, transparent 1px), linear-gradient(90deg, rgba(62,85,115,.10) 1px, transparent 1px); }
+:root[data-theme="light"] .arena-tip { background: rgba(255,255,255,.86); }
+:root[data-theme="light"] .diagram-label,
+:root[data-theme="light"] .given-label { stroke: #f7faff; }
+:root[data-theme="light"] .geo-line,
+:root[data-theme="light"] .target-distractor { stroke: #52647b; }
+:root[data-theme="light"] .geo-secondary { stroke: #8292a7; }
+:root[data-theme="light"] .player-form input { background: #ffffff; }
+:root[data-theme="light"] .portrait-blocker { background: var(--bg); }
 
 .touch-ui,
 .touch-ui body {
@@ -60,6 +93,7 @@ h2 { font-size: clamp(1.05rem, 2.5vw, 1.35rem); }
 .portrait-blocker { display: none; }
 .course-menu-button { min-height: 38px; padding: 6px 11px; border: 1px solid var(--cyan-dark); border-radius: 10px; background: var(--panel); color: var(--cyan); cursor: pointer; font-weight: 800; transition: border-color .15s, background .15s; }
 .course-menu-button:hover { border-color: var(--cyan); background: rgba(49,215,245,.1); }
+.theme-toggle { white-space: nowrap; }
 
 .mission { justify-content: space-between; gap: 16px; min-height: 108px; background: linear-gradient(110deg, rgba(22,32,51,.94), rgba(11,128,157,.18)); border: 1px solid var(--line); border-inline-end: 4px solid var(--cyan); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px; }
 .mission-hint { color: var(--muted); margin-top: 7px; line-height: 1.5; }

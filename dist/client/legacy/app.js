@@ -241,11 +241,11 @@ const initialLinkSettings = (() => {
     const course = params.get("course");
     return {
       language: supportedLanguages.includes(language) ? language : null,
-      course: supportedCourseSections.includes(course) ? course : null,
+      course: supportedCourseSections.includes(course) ? course : "primitives",
       tablet: params.get("tablet") === "1"
     };
   } catch {
-    return { language: null, course: null, tablet: false };
+    return { language: null, course: "primitives", tablet: false };
   }
 })();
 
@@ -257,6 +257,10 @@ const savedLanguage = (() => {
   } catch {
     return "he";
   }
+})();
+const savedTheme = (() => {
+  try { return localStorage.getItem("angleQuestTheme") === "light" ? "light" : "dark"; }
+  catch { return "dark"; }
 })();
 let pendingLinkedCourse = initialLinkSettings.course;
 
@@ -271,6 +275,7 @@ const playerStore = (() => {
 
 const state = {
   language: savedLanguage,
+  theme: savedTheme,
   activePlayerId: playerStore.activePlayerId,
   activeRunId: null,
   runScore: 0,
@@ -649,6 +654,18 @@ function updatePlayerButton() {
   $("player-menu-button").textContent = `${t("player")}: ${player?.name || "—"} ▾`;
 }
 
+function applyTheme() {
+  document.documentElement.dataset.theme = state.theme;
+  const labels = {
+    he: state.theme === "dark" ? "☀ מצב בהיר · ניסויי" : "☾ מצב כהה",
+    en: state.theme === "dark" ? "☀ Light · Experimental" : "☾ Dark mode",
+    ru: state.theme === "dark" ? "☀ Светлая · эксперимент" : "☾ Тёмная тема"
+  };
+  const button = $("theme-toggle");
+  button.textContent = labels[state.language] || labels.he;
+  button.setAttribute("aria-pressed", String(state.theme === "light"));
+}
+
 function updateArenaInstructions(level = levels[state.levelIndex]) {
   const isQuadrilateral = level?.phase === "quadrilateral";
   const isPrimitive = level?.phase === "beginner";
@@ -661,6 +678,7 @@ function applyLanguage(reload = true) {
   document.documentElement.lang = state.language;
   document.documentElement.dir = isRtl ? "rtl" : "ltr";
   document.title = `Angle Quest — ${t("appTitle")}`;
+  applyTheme();
   document.querySelector(".brand h1").textContent = t("appTitle");
   document.querySelector(".mission .eyebrow").textContent = t("currentMission").toUpperCase();
   $("loadout-title").textContent = t("chooseTool");
@@ -3353,6 +3371,12 @@ $("sound-toggle").addEventListener("click", event => {
   } else {
     playRecordedSpeech("sound-on", "הקול פועל", "Sound is on.");
   }
+});
+
+$("theme-toggle").addEventListener("click", () => {
+  state.theme = state.theme === "dark" ? "light" : "dark";
+  try { localStorage.setItem("angleQuestTheme", state.theme); } catch { /* Theme still changes for this session. */ }
+  applyTheme();
 });
 
 if ("speechSynthesis" in window) {
