@@ -57,6 +57,10 @@ body {
 :root[data-theme="light"] .diagram-label,
 :root[data-theme="light"] .given-label { stroke: #f7faff; }
 :root[data-theme="light"] .handle-label { stroke: #f7faff; }
+:root[data-theme="light"] .rotate-handle,
+:root[data-theme="light"] .size-handle,
+:root[data-theme="light"] .point-handle,
+:root[data-theme="light"] .piece-core { stroke: #ffffff; stroke-width: 4px; }
 :root[data-theme="light"] .geo-line,
 :root[data-theme="light"] .target-distractor { stroke: #52647b; }
 :root[data-theme="light"] .geo-secondary { stroke: #8292a7; }
