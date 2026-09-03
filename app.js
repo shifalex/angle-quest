@@ -657,9 +657,9 @@ function updatePlayerButton() {
 function applyTheme() {
   document.documentElement.dataset.theme = state.theme;
   const labels = {
-    he: state.theme === "dark" ? "☀ מצב בהיר · ניסויי" : "☾ מצב כהה",
-    en: state.theme === "dark" ? "☀ Light · Experimental" : "☾ Dark mode",
-    ru: state.theme === "dark" ? "☀ Светлая · эксперимент" : "☾ Тёмная тема"
+    he: state.theme === "dark" ? "☀ מצב בהיר" : "☾ מצב כהה",
+    en: state.theme === "dark" ? "☀ Light mode" : "☾ Dark mode",
+    ru: state.theme === "dark" ? "☀ Светлая тема" : "☾ Тёмная тема"
   };
   const button = $("theme-toggle");
   button.textContent = labels[state.language] || labels.he;
