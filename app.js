@@ -807,8 +807,8 @@ function restartControlTutorial() {
 function showEqualTutorial(markSeen = false) {
   document.querySelector(".equal-tutorial-card .eyebrow").textContent = "הדרכת שליטה";
   $("equal-tutorial-title").textContent = "נסו עם האצבעות";
-  $("equal-tutorial-steps").innerHTML = "<li>גרירה</li><li>סיבוב</li><li>דאבל־טאפ: פליפ</li><li>זריקה</li>";
-  $("equal-tutorial-tip").textContent = "אצבע אחת מזיזה. שתי אצבעות מסובבות ומשנות גודל. שתי לחיצות מהירות הופכות את הכלי.";
+  $("equal-tutorial-steps").innerHTML = "<li>גרירה</li><li>הגדלה/הקטנה</li><li>סיבוב</li><li>דאבל־טאפ</li><li>זריקה</li>";
+  $("equal-tutorial-tip").textContent = "עיגול קבוע מציין לחיצה מוחזקת. שתי פעימות של עיגול מציינות דאבל־טאפ ופליפ.";
   $("equal-tutorial").hidden = false;
   if (markSeen) {
     try { localStorage.setItem("angleQuestControlTutorialV3Seen", "true"); } catch { /* The tutorial can appear again next session. */ }
