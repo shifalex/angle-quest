@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Angle Quest">
   <title>Angle Quest — משימת הזוויות</title>
-  <link rel="stylesheet" href="styles.css?v=65">
+  <link rel="stylesheet" href="styles.css?v=66">
 </head>
 <body>
   <main class="app-shell">
@@ -30,6 +30,7 @@
         <button id="player-menu-button" class="course-menu-button player-menu-button" type="button">שחקן: — ▾</button>
         <button id="course-menu-button" class="course-menu-button" type="button">בחירת רמה</button>
         <span class="hud-item"><b id="score">0</b> XP</span>
+        <span id="speed-timer" class="hud-item speed-timer" hidden>⏱ <b>00:00</b></span>
         <span class="hud-item">שלב <b id="level-number">1</b>/<span id="level-count">1</span></span>
       </div>
     </header>
@@ -170,6 +171,25 @@
         <button type="button" data-course-start="equal">זוויות שוות</button>
         <button type="button" data-course-start="180">180°</button>
         <button type="button" data-course-start="master">MASTER — זוויות מעורבבות</button>
+        <button id="speed-mode-start" type="button" class="speed-mode-start">⚡ מצב מהיר</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="speed-results" class="speed-results" hidden>
+    <section class="speed-results-card" role="dialog" aria-modal="true" aria-labelledby="speed-results-title">
+      <p class="eyebrow">QUICK MODE</p>
+      <h2 id="speed-results-title">תוצאות מצב מהיר</h2>
+      <div class="speed-result-metrics">
+        <div><strong id="speed-result-score">0</strong><span>ציון</span></div>
+        <div><strong id="speed-result-time">00:00</strong><span>זמן</span></div>
+        <div><strong id="speed-result-accuracy">100%</strong><span>דיוק</span></div>
+      </div>
+      <h3>טבלת שיאים</h3>
+      <ol id="speed-leaderboard" class="speed-leaderboard"></ol>
+      <div class="speed-results-actions">
+        <button id="speed-retry" class="secondary-button" type="button">נסו שוב</button>
+        <button id="speed-results-close" class="primary-button compact" type="button">בחירת רמה</button>
       </div>
     </section>
   </div>
@@ -198,6 +218,6 @@
     </section>
   </div>
 
-  <script src="app.js?v=127"></script>
+  <script src="app.js?v=128"></script>
 </body>
 </html>

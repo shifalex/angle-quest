@@ -322,7 +322,13 @@ const state = {
   quadDimensions: { width: 120, height: 120 },
   quadVertices: null,
   dragOffset: { x: 0, y: 0 },
-  levelLoadToken: 0
+  levelLoadToken: 0,
+  speedMode: false,
+  speedStartedAt: 0,
+  speedElapsedMs: 0,
+  speedAttempts: 0,
+  speedCorrect: 0,
+  speedTimerId: null
 };
 
 const speechState = { voices: [], utterance: null, timer: null, audio: null, preloaded: [] };
@@ -439,6 +445,7 @@ function courseSectionForLevel(level) {
 }
 
 function courseSectionLabel(section) {
+  if (section === "speed") return "מצב מהיר";
   if (section === "quadrilaterals") return "שלב מרובעים";
   if (section === "triangle-lines") return state.language === "en" ? "Triangle lines" : state.language === "ru" ? "Линии треугольника" : "קווים מיוחדים במשולש";
   if (section === "equal") return t("startEqual");
@@ -2888,6 +2895,7 @@ function discardPiece() {
 function check() {
   if (!state.equipped || state.solved) return;
   playCheckShot();
+  if (state.speedMode) state.speedAttempts += 1;
   const level = levels[state.levelIndex];
   if (level.phase === "triangle-lines") { checkTriangleLine(level); return; }
   const calculatedTarget = currentTarget(level);
@@ -2922,6 +2930,7 @@ function check() {
     }
     state.snappedToTarget = true;
     state.solved = true;
+    recordSpeedCorrect();
     $("check-button").disabled = true;
     const baseXP = level.xpBase || 100;
     const firstChoiceBonus = state.firstChoiceCorrect ? Math.round(baseXP * .5) : 0;
@@ -2966,6 +2975,7 @@ function checkTriangleLine(level) {
     return;
   }
   state.solved = true;
+  recordSpeedCorrect();
   $("check-button").disabled = true;
   const earnedXP = level.xpBase + (state.firstChoiceCorrect ? Math.round(level.xpBase * .5) : 0);
   state.score += earnedXP;
@@ -3102,7 +3112,7 @@ function checkQuadrilateral(level) {
   else {
     state.piece.rotation = bestQuadrilateralSnapRotation(level);
     alignQuadrilateralCenterToTarget(level);
-    state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
+    state.solved = true; recordSpeedCorrect(); state.score += level.xpBase; $("score").textContent = state.score;
     $("check-button").disabled = true;
     renderPiece();
     flashTargetSnap();
@@ -3153,6 +3163,11 @@ function handleWhatElseChoice(level, button) {
 }
 
 function nextLevel() {
+  const speedLevel = levels[state.levelIndex];
+  if (state.speedMode && speedLevel.exerciseNumber === speedLevel.exerciseCount) {
+    showSpeedResults();
+    return;
+  }
   if (state.levelIndex === levels.length - 1) {
     feedback(t("complete", { score: state.score, count: levels.length }), true);
     $("mission-title").textContent = "MISSION COMPLETE — ANGLE MASTER";
@@ -3215,12 +3230,78 @@ function startCourseAt(section) {
   if (!Number.isInteger(selectedIndex) || selectedIndex < 0) return;
   $("course-menu").hidden = true;
   $("stage-transition").hidden = true;
+  stopSpeedTimer();
+  state.speedMode = false;
+  $("speed-timer").hidden = true;
   state.levelIndex = selectedIndex;
   state.score = 0;
   $("score").textContent = "0";
   beginPlayerRun(section);
   loadLevel();
   updateTouchInterface(true);
+}
+
+function formatSpeedTime(milliseconds) {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+  return `${String(Math.floor(totalSeconds / 60)).padStart(2, "0")}:${String(totalSeconds % 60).padStart(2, "0")}`;
+}
+
+function updateSpeedTimer() {
+  if (!state.speedMode) return;
+  state.speedElapsedMs = performance.now() - state.speedStartedAt;
+  $("speed-timer").querySelector("b").textContent = formatSpeedTime(state.speedElapsedMs);
+}
+
+function stopSpeedTimer() {
+  if (state.speedTimerId) window.clearInterval(state.speedTimerId);
+  state.speedTimerId = null;
+}
+
+function startSpeedMode() {
+  if (!activePlayer()) {
+    $("course-menu").hidden = true;
+    showPlayerMenu();
+    return;
+  }
+  stopSpeedTimer();
+  Object.assign(state, { speedMode: true, speedStartedAt: performance.now(), speedElapsedMs: 0, speedAttempts: 0, speedCorrect: 0 });
+  state.levelIndex = levels.findIndex(level => level.mode === "master");
+  state.score = 0;
+  $("score").textContent = "0";
+  $("course-menu").hidden = true;
+  $("stage-transition").hidden = true;
+  $("speed-results").hidden = true;
+  $("speed-timer").hidden = false;
+  updateSpeedTimer();
+  state.speedTimerId = window.setInterval(updateSpeedTimer, 250);
+  beginPlayerRun("speed");
+  loadLevel();
+}
+
+function recordSpeedCorrect() {
+  if (state.speedMode) state.speedCorrect += 1;
+}
+
+function speedRecords() {
+  try { return JSON.parse(localStorage.getItem("angleQuestSpeedRecordsV1")) || []; } catch { return []; }
+}
+
+function showSpeedResults() {
+  updateSpeedTimer();
+  stopSpeedTimer();
+  const accuracy = state.speedAttempts ? state.speedCorrect / state.speedAttempts : 1;
+  const seconds = state.speedElapsedMs / 1000;
+  const finalScore = Math.max(0, Math.round(accuracy * 1000 + Math.max(0, 600 - seconds * 5)));
+  const record = { id: makeLocalId("speed"), player: activePlayer()?.name || "שחקן", score: finalScore, time: state.speedElapsedMs, accuracy: Math.round(accuracy * 100), date: new Date().toISOString() };
+  const records = [...speedRecords(), record].sort((a, b) => b.score - a.score || a.time - b.time).slice(0, 10);
+  try { localStorage.setItem("angleQuestSpeedRecordsV1", JSON.stringify(records)); } catch { /* Results still display for this session. */ }
+  $("speed-result-score").textContent = finalScore;
+  $("speed-result-time").textContent = formatSpeedTime(state.speedElapsedMs);
+  $("speed-result-accuracy").textContent = `${Math.round(accuracy * 100)}%`;
+  $("speed-leaderboard").innerHTML = records.map(item => `<li class="${item.id === record.id ? "current-record" : ""}"><strong>${item.player}</strong> — ${item.score} נק׳ · ${formatSpeedTime(item.time)} · ${item.accuracy}%</li>`).join("");
+  $("speed-results").hidden = false;
+  $("speed-timer").hidden = true;
+  $("speed-retry").focus();
 }
 
 function feedback(message, success) {
@@ -3370,7 +3451,7 @@ function loadLevel() {
   updateCourseMenuButton(level);
   syncShareUrl(courseSectionForLevel(level));
   updatePlayerButton();
-  $("mission-title").textContent = `${localizedStageName(level.stageName)} • ${level.exerciseNumber}/${level.exerciseCount}`;
+  $("mission-title").textContent = `${state.speedMode ? "⚡ מצב מהיר" : localizedStageName(level.stageName)} • ${level.exerciseNumber}/${level.exerciseCount}`;
   $("mission-hint").textContent = level.phase === "triangle-lines"
     ? "זהו את הקו המודגש לפי הסימונים: אמצע צלע, זווית ישרה או שתי זוויות שוות."
     : level.phase === "beginner"
@@ -3557,6 +3638,13 @@ $("touch-tutorial-try").addEventListener("click", () => {
 });
 $("stage-transition-next").addEventListener("click", advanceToNextStage);
 $("course-menu-button").addEventListener("click", showCourseMenu);
+$("speed-mode-start").addEventListener("click", startSpeedMode);
+$("speed-retry").addEventListener("click", startSpeedMode);
+$("speed-results-close").addEventListener("click", () => {
+  $("speed-results").hidden = true;
+  state.speedMode = false;
+  showCourseMenu();
+});
 document.querySelectorAll("[data-course-start]").forEach(button => button.addEventListener("click", () => startCourseAt(button.dataset.courseStart)));
 $("player-menu-button").addEventListener("click", showPlayerMenu);
 $("player-menu-close").addEventListener("click", closePlayerMenu);
