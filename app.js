@@ -867,6 +867,17 @@ function arcPath(degrees, radius = 48) {
   return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${degrees > 180 ? 1 : 0} 1 ${end.x} ${end.y}`;
 }
 
+function arcBetweenPath(center, radius, startDegrees, endDegrees) {
+  const start = polar(radius, startDegrees);
+  const end = polar(radius, endDegrees);
+  return `M ${center.x + start.x} ${center.y + start.y} A ${radius} ${radius} 0 0 1 ${center.x + end.x} ${center.y + end.y}`;
+}
+
+function angleToHorizontal(from, to) {
+  const angle = Math.abs(Math.atan2(to.y - from.y, to.x - from.x) * 180 / Math.PI);
+  return Math.min(angle, 180 - angle);
+}
+
 function renderScene(level) {
   sceneLayer.replaceChildren();
   targetLayer.replaceChildren();
@@ -881,7 +892,9 @@ function renderScene(level) {
     return;
   }
   if (level.scene === "triangle-line") {
-    const a = { x: 170, y: 355 }, b = { x: 570, y: 355 }, c = { x: 330, y: 75 };
+    // A deliberately scalene triangle keeps the median and angle bisector
+    // visually distinct. Neither may accidentally look perpendicular.
+    const a = { x: 140, y: 355 }, b = { x: 600, y: 355 }, c = { x: 240, y: 75 };
     line(sceneLayer, a.x, a.y, b.x, b.y);
     line(sceneLayer, b.x, b.y, c.x, c.y);
     line(sceneLayer, c.x, c.y, a.x, a.y);
@@ -892,17 +905,25 @@ function renderScene(level) {
       const ca = Math.hypot(a.x - c.x, a.y - c.y), cb = Math.hypot(b.x - c.x, b.y - c.y);
       end = { x: (cb * a.x + ca * b.x) / (ca + cb), y: a.y };
     }
+    if (level.correctCategory !== "גובה" && angleToHorizontal(c, end) >= 85) {
+      // Defensive fallback if future triangle coordinates are randomized.
+      end.x += end.x >= c.x ? 55 : -55;
+    }
     sceneLayer.append(svgEl("line", { x1: c.x, y1: c.y, x2: end.x, y2: end.y, class: "triangle-special-line" }));
     sceneLayer.append(svgEl("circle", { cx: end.x, cy: end.y, r: 7, class: "target-dot" }));
     if (level.correctCategory === "תיכון") {
-      const mark = 12;
-      line(sceneLayer, end.x - 35, end.y - mark, end.x - 25, end.y + mark, "triangle-guide");
-      line(sceneLayer, end.x + 25, end.y - mark, end.x + 35, end.y + mark, "triangle-guide");
+      const leftMid = (a.x + end.x) / 2;
+      const rightMid = (end.x + b.x) / 2;
+      line(sceneLayer, leftMid - 7, a.y - 12, leftMid + 7, a.y + 12, "triangle-proof-mark");
+      line(sceneLayer, rightMid - 7, a.y - 12, rightMid + 7, a.y + 12, "triangle-proof-mark");
     } else if (level.correctCategory === "גובה") {
-      sceneLayer.append(svgEl("path", { d: `M ${end.x} ${end.y - 18} h 18 v 18`, class: "triangle-guide" }));
+      sceneLayer.append(svgEl("path", { d: `M ${end.x} ${end.y - 22} h 22 v 22`, class: "triangle-proof-mark" }));
     } else {
-      const mid = (Math.atan2(a.y - c.y, a.x - c.x) + Math.atan2(b.y - c.y, b.x - c.x)) / 2;
-      sceneLayer.append(svgEl("path", { d: arcPath(26, 42), class: "given-arc", transform: `translate(${c.x} ${c.y}) rotate(${mid * 180 / Math.PI})` }));
+      const sideA = Math.atan2(a.y - c.y, a.x - c.x) * 180 / Math.PI;
+      const sideB = Math.atan2(b.y - c.y, b.x - c.x) * 180 / Math.PI;
+      const bisector = Math.atan2(end.y - c.y, end.x - c.x) * 180 / Math.PI;
+      sceneLayer.append(svgEl("path", { d: arcBetweenPath(c, 48, sideA, bisector), class: "triangle-proof-mark" }));
+      sceneLayer.append(svgEl("path", { d: arcBetweenPath(c, 48, bisector, sideB), class: "triangle-proof-mark" }));
     }
     return;
   }
