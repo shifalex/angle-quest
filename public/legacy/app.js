@@ -172,7 +172,7 @@ const makePracticeSet = (templates, count, stageName, xpBase, phaseOverride, exe
 })).map((level, index) => Object.assign(level, { exerciseNumber: exerciseOffset + index + 1 }));
 
 const tutorialLevels = [
-  ...shuffle(primitiveTemplates.map((level, index) => cloneLevel(level, `tutorial-primitives-${index + 1}`, { mode: "tutorial", stageName: "טוטוריאל פרימיטיבים", xpBase: 40 }))).map((level, index) => Object.assign(level, { exerciseNumber: index + 1, exerciseCount: 10 })),
+  ...primitiveTemplates.map((level, index) => cloneLevel(level, `tutorial-primitives-${index + 1}`, { mode: "tutorial", stageName: "טוטוריאל פרימיטיבים", xpBase: 40, exerciseNumber: index + 1, exerciseCount: 10 })),
   ...shuffle(equalityTemplates.map((level, index) => cloneLevel(level, `tutorial-equality-${index + 1}`, { mode: "tutorial", stageName: "טוטוריאל זוויות שוות", xpBase: 60 }))).map((level, index) => Object.assign(level, { exerciseNumber: index + 1, exerciseCount: 10 })),
   ...shuffle(supplementaryTemplates.map((level, index) => cloneLevel(level, `tutorial-180-${index + 1}`, { mode: "tutorial", stageName: "טוטוריאל 180°", xpBase: 70 }))).map((level, index) => Object.assign(level, { exerciseNumber: index + 1, exerciseCount: 10 }))
 ];
@@ -789,34 +789,30 @@ function closeTouchTutorial() {
   try { localStorage.setItem("angleQuestTouchTutorialV2Seen", "true"); } catch { /* The tutorial can appear again next session. */ }
 }
 
-function tutorialCopyForSection(section) {
-  const copies = {
-    primitives: ["פרימיטיבים", "מזהים אם הזווית חדה, ישרה, שטוחה או קהה.", "בוחרים את הסוג, גוררים לנקודה הכחולה ומתאימים את הפתיחה והסיבוב."],
-    equal: ["זוויות שוות", "מזהים את הקשר: קודקודיות זו מול זו, מתאימות באותו מיקום, ומתחלפות משני צדי החותך.", "בוחרים כלי, גוררים לנקודה הכחולה, מסובבים ומשתמשים במראה כשצריך."],
-    "180": ["זוויות וסכום 180°", "בזוויות צמודות ובמשולש מחשבים קודם כמה חסר עד 180°.", "בוחרים את הכלי, מכוונים את גודל הזווית ומניחים אותה במקום החסר."],
-    quadrilaterals: ["מרובעים", "מזהים את הצורה לפי צלעות מקבילות ושוות ולפי הזוויות.", "בוחרים מרובע ומתאימים אותו למסגרת בעזרת גרירה, סיבוב ושינוי הקודקודים."],
-    "triangle-lines": ["קווים מיוחדים במשולש", "תיכון — או חוצה צלע — מגיע לאמצע הצלע. גובה — או אנך — יוצר 90°. חוצה זווית מחלק זווית לשתיים שוות.", "מתבוננים בסימונים שבשרטוט, בוחרים את שם הקו ולוחצים בדיקה."],
-    master: ["MASTER", "כל סוגי הכלים מעורבבים. קודם מזהים את המשפחה, ורק אז את הכלי המדויק.", "מתעלמים מקווי הסחה ומתאימים מיקום, סיבוב, גודל ומראה לפני הבדיקה."]
-  };
-  return copies[section] || copies.primitives;
+function restartControlTutorial() {
+  const demo = $("control-tutorial-demo");
+  demo.getAnimations({ subtree: true }).forEach(animation => {
+    animation.cancel();
+    animation.play();
+  });
 }
 
-function showEqualTutorial(markSeen = false, section = courseSectionForLevel(levels[state.levelIndex])) {
-  const [heading, explanation, action] = tutorialCopyForSection(section);
-  document.querySelector(".equal-tutorial-card .eyebrow").textContent = heading;
-  $("equal-tutorial-title").textContent = "איך פותרים?";
-  $("equal-tutorial-steps").innerHTML = `<li>${explanation}</li><li>${action}</li>`;
-  $("equal-tutorial-tip").textContent = "אפשר לפתוח את ההדרכה שוב בכל רגע דרך הכפתור „איך פותרים?”.";
+function showEqualTutorial(markSeen = false) {
+  document.querySelector(".equal-tutorial-card .eyebrow").textContent = "הדרכת שליטה";
+  $("equal-tutorial-title").textContent = "נסו עם האצבעות";
+  $("equal-tutorial-steps").innerHTML = "<li>גרירה</li><li>סיבוב</li><li>דאבל־טאפ: פליפ</li><li>זריקה</li>";
+  $("equal-tutorial-tip").textContent = "אצבע אחת מזיזה. שתי אצבעות מסובבות ומשנות גודל. שתי לחיצות מהירות הופכות את הכלי.";
   $("equal-tutorial").hidden = false;
   if (markSeen) {
-    try { localStorage.setItem(`angleQuestTutorialV2Seen:${section}`, "true"); } catch { /* The tutorial can appear again next session. */ }
+    try { localStorage.setItem("angleQuestControlTutorialV3Seen", "true"); } catch { /* The tutorial can appear again next session. */ }
   }
+  window.requestAnimationFrame(restartControlTutorial);
   $("equal-tutorial-close").focus();
 }
 
 function closeEqualTutorial() {
   $("equal-tutorial").hidden = true;
-  try { localStorage.setItem(`angleQuestTutorialV2Seen:${courseSectionForLevel(levels[state.levelIndex])}`, "true"); } catch { /* The tutorial can appear again next session. */ }
+  try { localStorage.setItem("angleQuestControlTutorialV3Seen", "true"); } catch { /* The tutorial can appear again next session. */ }
 }
 
 function updateTouchInterface(showFirstTutorial = false) {
@@ -3396,10 +3392,10 @@ function loadLevel() {
   renderChoices(level);
   renderScene(level);
   renderPiece();
-  if (level.exerciseNumber === 1) {
+  if (level.id === "tutorial-primitives-1") {
     let seen = false;
-    try { seen = localStorage.getItem(`angleQuestTutorialV2Seen:${section}`) === "true"; } catch { /* Show the tutorial. */ }
-    if (!seen) window.setTimeout(() => showEqualTutorial(true, section), 0);
+    try { seen = localStorage.getItem("angleQuestControlTutorialV3Seen") === "true"; } catch { /* Show the tutorial. */ }
+    if (!seen) window.setTimeout(() => showEqualTutorial(true), 0);
   }
 }
 
@@ -3549,6 +3545,7 @@ document.querySelectorAll("[data-language]").forEach(button => button.addEventLi
 $("mirror-help").addEventListener("click", showTouchTutorial);
 $("equal-tutorial-open").addEventListener("click", () => showEqualTutorial(false));
 $("equal-tutorial-close").addEventListener("click", closeEqualTutorial);
+$("equal-tutorial-replay").addEventListener("click", restartControlTutorial);
 $("touch-tutorial-close").addEventListener("click", closeTouchTutorial);
 $("touch-tutorial-try").addEventListener("click", () => {
   document.querySelectorAll(".mirror-demo-shape, .tap-ring").forEach(element => {

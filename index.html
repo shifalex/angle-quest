@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Angle Quest">
   <title>Angle Quest — משימת הזוויות</title>
-  <link rel="stylesheet" href="styles.css?v=64">
+  <link rel="stylesheet" href="styles.css?v=65">
 </head>
 <body>
   <main class="app-shell">
@@ -125,15 +125,24 @@
 
   <div id="equal-tutorial" class="equal-tutorial" hidden>
     <section class="equal-tutorial-card" role="dialog" aria-modal="true" aria-labelledby="equal-tutorial-title">
-      <p class="eyebrow">זוויות שוות</p>
-      <h2 id="equal-tutorial-title">איך פותרים?</h2>
-      <ol id="equal-tutorial-steps">
-        <li><strong>מזהים את הקשר:</strong> קודקודיות נמצאות זו מול זו; מתאימות באותו צד ובאותו מיקום; מתחלפות משני צדי החותך.</li>
-        <li><strong>בוחרים כלי</strong> מהמשפחה „זוויות שוות”.</li>
-        <li><strong>מתאימים לשרטוט:</strong> גוררים לנקודה הכחולה, מסובבים, משנים את מפתח הזווית ובמידת הצורך משתמשים במראה.</li>
+      <p class="eyebrow">הדרכת שליטה</p>
+      <h2 id="equal-tutorial-title">נסו עם האצבעות</h2>
+      <div id="control-tutorial-demo" class="control-tutorial-demo" aria-hidden="true">
+        <div class="tutorial-target-angle"></div>
+        <div class="tutorial-demo-tool">∠</div>
+        <span class="tutorial-finger tutorial-finger-one">☝</span>
+        <span class="tutorial-finger tutorial-finger-two">☝</span>
+        <span class="tutorial-double-tap">••</span>
+        <span class="tutorial-trash">⌫</span>
+      </div>
+      <ol id="equal-tutorial-steps" class="control-tutorial-steps">
+        <li>גרירה</li><li>סיבוב</li><li>דאבל־טאפ: פליפ</li><li>זריקה</li>
       </ol>
-      <p id="equal-tutorial-tip" class="tutorial-tip">רק כשהכלי יושב על שתי השוקיים לחצו „בדיקה”.</p>
-      <button id="equal-tutorial-close" class="primary-button compact" type="button">הבנתי, מתחילים</button>
+      <p id="equal-tutorial-tip" class="tutorial-tip">צפו בהדגמה ואז נסו בעצמכם.</p>
+      <div class="equal-tutorial-actions">
+        <button id="equal-tutorial-replay" class="secondary-button" type="button">הציגו שוב</button>
+        <button id="equal-tutorial-close" class="primary-button compact" type="button">הבנתי, מתחילים</button>
+      </div>
     </section>
   </div>
 
@@ -189,6 +198,6 @@
     </section>
   </div>
 
-  <script src="app.js?v=126"></script>
+  <script src="app.js?v=127"></script>
 </body>
 </html>
