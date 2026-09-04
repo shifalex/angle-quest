@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Angle Quest">
   <title>Angle Quest — משימת הזוויות</title>
-  <link rel="stylesheet" href="styles.css?v=62">
+  <link rel="stylesheet" href="styles.css?v=64">
 </head>
 <body>
   <main class="app-shell">
@@ -40,6 +40,7 @@
         <h2 id="mission-title">טוען משימה…</h2>
         <p id="mission-hint" class="mission-hint"></p>
       </div>
+      <button id="equal-tutorial-open" class="course-menu-button tutorial-help-button" type="button" hidden>איך פותרים?</button>
       <button id="sound-toggle" class="icon-button" type="button" aria-pressed="true" aria-label="כיבוי הקראה">🔊</button>
     </section>
 
@@ -122,6 +123,20 @@
     </section>
   </div>
 
+  <div id="equal-tutorial" class="equal-tutorial" hidden>
+    <section class="equal-tutorial-card" role="dialog" aria-modal="true" aria-labelledby="equal-tutorial-title">
+      <p class="eyebrow">זוויות שוות</p>
+      <h2 id="equal-tutorial-title">איך פותרים?</h2>
+      <ol id="equal-tutorial-steps">
+        <li><strong>מזהים את הקשר:</strong> קודקודיות נמצאות זו מול זו; מתאימות באותו צד ובאותו מיקום; מתחלפות משני צדי החותך.</li>
+        <li><strong>בוחרים כלי</strong> מהמשפחה „זוויות שוות”.</li>
+        <li><strong>מתאימים לשרטוט:</strong> גוררים לנקודה הכחולה, מסובבים, משנים את מפתח הזווית ובמידת הצורך משתמשים במראה.</li>
+      </ol>
+      <p id="equal-tutorial-tip" class="tutorial-tip">רק כשהכלי יושב על שתי השוקיים לחצו „בדיקה”.</p>
+      <button id="equal-tutorial-close" class="primary-button compact" type="button">הבנתי, מתחילים</button>
+    </section>
+  </div>
+
   <div id="stage-transition" class="stage-transition" hidden>
     <section class="stage-transition-card" role="dialog" aria-modal="true" aria-labelledby="stage-transition-title">
       <div class="mini-confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -140,6 +155,7 @@
       <p id="course-menu-body">אפשר להתחיל מכל משפחה או לעבור ישר לשלב המעורבב.</p>
       <div class="course-menu-grid">
         <button type="button" class="quadrilateral-course" data-course-start="quadrilaterals">שלב מרובעים</button>
+        <button type="button" data-course-start="triangle-lines">קווים מיוחדים במשולש</button>
         <span class="quadrilateral-course-spacer" aria-hidden="true"></span>
         <button type="button" data-course-start="primitives">פרימיטיבים</button>
         <button type="button" data-course-start="equal">זוויות שוות</button>
@@ -173,6 +189,6 @@
     </section>
   </div>
 
-  <script src="app.js?v=124"></script>
+  <script src="app.js?v=126"></script>
 </body>
 </html>

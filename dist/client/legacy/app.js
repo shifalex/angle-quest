@@ -6,6 +6,7 @@ const families = {
 };
 const primitiveTools = ["חדה", "ישרה", "שטוחה", "קהה"];
 const quadrilateralTools = ["ריבוע", "מעוין", "מלבן", "מקבילית", "טרפז", "דלתון"];
+const triangleLineTools = ["תיכון", "גובה", "חוצה זווית"];
 
 function validQuadrilateralNames(shape) {
   if (shape === "ריבוע") return ["ריבוע", "מלבן", "מעוין", "מקבילית", "דלתון"];
@@ -232,8 +233,24 @@ const quadrilateralLevels = Array.from({ length: 12 }, (_, index) => {
 });
 levels.splice(0, 0, ...quadrilateralLevels);
 
+const triangleLineLevels = Array.from({ length: 10 }, (_, index) => {
+  const correctCategory = triangleLineTools[index % triangleLineTools.length];
+  return {
+    id: `triangle-line-${index + 1}`, phase: "triangle-lines", family: "קווים מיוחדים במשולש",
+    mode: "tutorial", stageName: "קווים מיוחדים במשולש", exerciseNumber: index + 1,
+    exerciseCount: 10, correctCategory, categories: triangleLineTools,
+    scene: "triangle-line", xpBase: 90,
+    termLabels: {
+      "תיכון": index % 2 ? "חוצה צלע" : "תיכון",
+      "גובה": index % 2 ? "אנך" : "גובה",
+      "חוצה זווית": "חוצה זווית"
+    }
+  };
+});
+levels.splice(quadrilateralLevels.length, 0, ...triangleLineLevels);
+
 const supportedLanguages = ["he", "en", "ru"];
-const supportedCourseSections = ["primitives", "equal", "180", "quadrilaterals", "master"];
+const supportedCourseSections = ["primitives", "equal", "180", "quadrilaterals", "triangle-lines", "master"];
 const initialLinkSettings = (() => {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -304,7 +321,8 @@ const state = {
   adjacentRays: null,
   quadDimensions: { width: 120, height: 120 },
   quadVertices: null,
-  dragOffset: { x: 0, y: 0 }
+  dragOffset: { x: 0, y: 0 },
+  levelLoadToken: 0
 };
 
 const speechState = { voices: [], utterance: null, timer: null, audio: null, preloaded: [] };
@@ -336,6 +354,9 @@ Object.assign(categoryLabels.he, { "ריבוע": "ריבוע", "מעוין": "מ
 Object.assign(categoryLabels.he, { "מקבילית": "מקבילית", "טרפז": "טרפז", "דלתון": "דלתון" });
 Object.assign(categoryLabels.en, { "ריבוע": "Square", "מעוין": "Rhombus", "מלבן": "Rectangle", "מקבילית": "Parallelogram", "טרפז": "Trapezoid", "דלתון": "Kite" });
 Object.assign(categoryLabels.ru, { "ריבוע": "Квадрат", "מעוין": "Ромб", "מלבן": "Прямоугольник", "מקבילית": "Параллелограмм", "טרפז": "Трапеция", "דלתון": "Дельтоид" });
+Object.assign(categoryLabels.he, { "תיכון": "תיכון", "גובה": "גובה", "חוצה זווית": "חוצה זווית" });
+Object.assign(categoryLabels.en, { "תיכון": "Median", "גובה": "Altitude", "חוצה זווית": "Angle bisector" });
+Object.assign(categoryLabels.ru, { "תיכון": "Медиана", "גובה": "Высота", "חוצה זווית": "Биссектриса" });
 
 const uiText = {
   he: {
@@ -410,6 +431,7 @@ function localizedStageName(name) {
 
 function courseSectionForLevel(level) {
   if (level.phase === "quadrilateral") return "quadrilaterals";
+  if (level.phase === "triangle-lines") return "triangle-lines";
   if (level.mode === "master") return "master";
   if (level.family === "שוות") return "equal";
   if (level.family === "180°") return "180";
@@ -418,6 +440,7 @@ function courseSectionForLevel(level) {
 
 function courseSectionLabel(section) {
   if (section === "quadrilaterals") return "שלב מרובעים";
+  if (section === "triangle-lines") return state.language === "en" ? "Triangle lines" : state.language === "ru" ? "Линии треугольника" : "קווים מיוחדים במשולש";
   if (section === "equal") return t("startEqual");
   if (section === "180") return "180°";
   if (section === "master") return t("startMaster");
@@ -456,6 +479,7 @@ function mostRecentPlayerId() {
 
 function sectionStartIndex(section) {
   if (section === "quadrilaterals") return levels.findIndex(level => level.phase === "quadrilateral");
+  if (section === "triangle-lines") return levels.findIndex(level => level.phase === "triangle-lines");
   if (section === "equal") return levels.findIndex(level => level.family === "שוות");
   if (section === "180") return levels.findIndex(level => level.family === "180°");
   if (section === "master") return levels.findIndex(level => level.mode === "master");
@@ -544,7 +568,7 @@ function renderPlayerMenu() {
   $("player-menu-close").hidden = !player;
   if (!player) return;
 
-  const sections = ["primitives", "equal", "180", "master"];
+  const sections = ["primitives", "equal", "180", "triangle-lines", "master"];
   const records = $("level-records");
   records.replaceChildren();
   sections.forEach(section => {
@@ -668,9 +692,10 @@ function applyTheme() {
 
 function updateArenaInstructions(level = levels[state.levelIndex]) {
   const isQuadrilateral = level?.phase === "quadrilateral";
+  const isTriangleLines = level?.phase === "triangle-lines";
   const isPrimitive = level?.phase === "beginner";
-  document.querySelector(".arena-heading .eyebrow").textContent = t(isQuadrilateral ? "placeShape" : "placeAngle").toUpperCase();
-  $("arena-title").textContent = t(isQuadrilateral ? "quadrilateralArena" : isPrimitive ? "beginnerArena" : "advancedArena");
+  document.querySelector(".arena-heading .eyebrow").textContent = isTriangleLines ? "זהו את הקו המסומן" : t(isQuadrilateral ? "placeShape" : "placeAngle").toUpperCase();
+  $("arena-title").textContent = isTriangleLines ? "איזה קו מיוחד מסומן במשולש?" : t(isQuadrilateral ? "quadrilateralArena" : isPrimitive ? "beginnerArena" : "advancedArena");
 }
 
 function applyLanguage(reload = true) {
@@ -704,6 +729,17 @@ function applyLanguage(reload = true) {
   $("portrait-body").textContent = portraitCopy[1];
   $("sound-toggle").setAttribute("aria-label", $("sound-toggle").getAttribute("aria-pressed") === "true" ? t("soundOff") : t("soundOn"));
   $("mirror-help").setAttribute("aria-label", t("mirrorHelp"));
+  const equalTutorialCopy = {
+    he: { button: "איך פותרים?", title: "איך פותרים?", eyebrow: "זוויות שוות", steps: ["מזהים את הקשר: קודקודיות נמצאות זו מול זו; מתאימות באותו צד ובאותו מיקום; מתחלפות משני צדי החותך.", "בוחרים כלי מהמשפחה „זוויות שוות”.", "מתאימים לשרטוט: גוררים לנקודה הכחולה, מסובבים, משנים את מפתח הזווית ובמידת הצורך משתמשים במראה."], tip: "רק כשהכלי יושב על שתי השוקיים לחצו „בדיקה”.", close: "הבנתי, מתחילים" },
+    en: { button: "How do I solve it?", title: "How do I solve it?", eyebrow: "Equal angles", steps: ["Identify the relationship: vertical angles face each other; corresponding angles occupy the same position; alternate angles lie on opposite sides of the transversal.", "Choose a tool from the Equal angles family.", "Match the diagram: drag to the blue point, rotate, resize the angle, and mirror it when needed."], tip: "Press Check only when both rays align with the diagram.", close: "Got it — start" },
+    ru: { button: "Как решать?", title: "Как решать?", eyebrow: "Равные углы", steps: ["Определите связь: вертикальные углы находятся напротив; соответственные — в одинаковом положении; накрест лежащие — по разные стороны секущей.", "Выберите инструмент из группы равных углов.", "Совместите с чертежом: перетащите к синей точке, поверните, измените угол и при необходимости отразите."], tip: "Нажимайте «Проверить», когда обе стороны совпали с чертежом.", close: "Понятно — начать" }
+  }[state.language];
+  $("equal-tutorial-open").textContent = equalTutorialCopy.button;
+  document.querySelector(".equal-tutorial-card .eyebrow").textContent = equalTutorialCopy.eyebrow;
+  $("equal-tutorial-title").textContent = equalTutorialCopy.title;
+  $("equal-tutorial-steps").innerHTML = equalTutorialCopy.steps.map(step => `<li>${step}</li>`).join("");
+  $("equal-tutorial-tip").textContent = equalTutorialCopy.tip;
+  $("equal-tutorial-close").textContent = equalTutorialCopy.close;
   $("touch-tutorial-title").textContent = t("mirrorTutorialTitle");
   $("touch-tutorial-body").textContent = t("mirrorTutorialBody");
   $("touch-tutorial-try").textContent = t("replayTutorial");
@@ -717,6 +753,7 @@ function applyLanguage(reload = true) {
   document.querySelector(".course-menu-card .eyebrow").textContent = t("chooseLevel").toUpperCase();
   $("course-menu-body").textContent = t("chooseStartBody");
   document.querySelector('[data-course-start="primitives"]').textContent = t("primitives");
+  document.querySelector('[data-course-start="triangle-lines"]').textContent = courseSectionLabel("triangle-lines");
   document.querySelector('[data-course-start="equal"]').textContent = t("startEqual");
   document.querySelector('[data-course-start="180"]').textContent = "180°";
   document.querySelector('[data-course-start="master"]').textContent = t("startMaster");
@@ -750,6 +787,36 @@ function showTouchTutorial() {
 function closeTouchTutorial() {
   $("touch-tutorial").hidden = true;
   try { localStorage.setItem("angleQuestTouchTutorialV2Seen", "true"); } catch { /* The tutorial can appear again next session. */ }
+}
+
+function tutorialCopyForSection(section) {
+  const copies = {
+    primitives: ["פרימיטיבים", "מזהים אם הזווית חדה, ישרה, שטוחה או קהה.", "בוחרים את הסוג, גוררים לנקודה הכחולה ומתאימים את הפתיחה והסיבוב."],
+    equal: ["זוויות שוות", "מזהים את הקשר: קודקודיות זו מול זו, מתאימות באותו מיקום, ומתחלפות משני צדי החותך.", "בוחרים כלי, גוררים לנקודה הכחולה, מסובבים ומשתמשים במראה כשצריך."],
+    "180": ["זוויות וסכום 180°", "בזוויות צמודות ובמשולש מחשבים קודם כמה חסר עד 180°.", "בוחרים את הכלי, מכוונים את גודל הזווית ומניחים אותה במקום החסר."],
+    quadrilaterals: ["מרובעים", "מזהים את הצורה לפי צלעות מקבילות ושוות ולפי הזוויות.", "בוחרים מרובע ומתאימים אותו למסגרת בעזרת גרירה, סיבוב ושינוי הקודקודים."],
+    "triangle-lines": ["קווים מיוחדים במשולש", "תיכון — או חוצה צלע — מגיע לאמצע הצלע. גובה — או אנך — יוצר 90°. חוצה זווית מחלק זווית לשתיים שוות.", "מתבוננים בסימונים שבשרטוט, בוחרים את שם הקו ולוחצים בדיקה."],
+    master: ["MASTER", "כל סוגי הכלים מעורבבים. קודם מזהים את המשפחה, ורק אז את הכלי המדויק.", "מתעלמים מקווי הסחה ומתאימים מיקום, סיבוב, גודל ומראה לפני הבדיקה."]
+  };
+  return copies[section] || copies.primitives;
+}
+
+function showEqualTutorial(markSeen = false, section = courseSectionForLevel(levels[state.levelIndex])) {
+  const [heading, explanation, action] = tutorialCopyForSection(section);
+  document.querySelector(".equal-tutorial-card .eyebrow").textContent = heading;
+  $("equal-tutorial-title").textContent = "איך פותרים?";
+  $("equal-tutorial-steps").innerHTML = `<li>${explanation}</li><li>${action}</li>`;
+  $("equal-tutorial-tip").textContent = "אפשר לפתוח את ההדרכה שוב בכל רגע דרך הכפתור „איך פותרים?”.";
+  $("equal-tutorial").hidden = false;
+  if (markSeen) {
+    try { localStorage.setItem(`angleQuestTutorialV2Seen:${section}`, "true"); } catch { /* The tutorial can appear again next session. */ }
+  }
+  $("equal-tutorial-close").focus();
+}
+
+function closeEqualTutorial() {
+  $("equal-tutorial").hidden = true;
+  try { localStorage.setItem(`angleQuestTutorialV2Seen:${courseSectionForLevel(levels[state.levelIndex])}`, "true"); } catch { /* The tutorial can appear again next session. */ }
 }
 
 function updateTouchInterface(showFirstTutorial = false) {
@@ -808,6 +875,32 @@ function renderScene(level) {
     const target = svgEl("g", { transform: `translate(${level.target.x} ${level.target.y}) rotate(${level.target.rotation})` });
     target.append(svgEl("polygon", { points: quadrilateralPoints(level.correctCategory, width, height), class: "quad-target" }));
     sceneLayer.append(target);
+    return;
+  }
+  if (level.scene === "triangle-line") {
+    const a = { x: 170, y: 355 }, b = { x: 570, y: 355 }, c = { x: 330, y: 75 };
+    line(sceneLayer, a.x, a.y, b.x, b.y);
+    line(sceneLayer, b.x, b.y, c.x, c.y);
+    line(sceneLayer, c.x, c.y, a.x, a.y);
+    let end;
+    if (level.correctCategory === "תיכון") end = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    else if (level.correctCategory === "גובה") end = { x: c.x, y: a.y };
+    else {
+      const ca = Math.hypot(a.x - c.x, a.y - c.y), cb = Math.hypot(b.x - c.x, b.y - c.y);
+      end = { x: (cb * a.x + ca * b.x) / (ca + cb), y: a.y };
+    }
+    sceneLayer.append(svgEl("line", { x1: c.x, y1: c.y, x2: end.x, y2: end.y, class: "triangle-special-line" }));
+    sceneLayer.append(svgEl("circle", { cx: end.x, cy: end.y, r: 7, class: "target-dot" }));
+    if (level.correctCategory === "תיכון") {
+      const mark = 12;
+      line(sceneLayer, end.x - 35, end.y - mark, end.x - 25, end.y + mark, "triangle-guide");
+      line(sceneLayer, end.x + 25, end.y - mark, end.x + 35, end.y + mark, "triangle-guide");
+    } else if (level.correctCategory === "גובה") {
+      sceneLayer.append(svgEl("path", { d: `M ${end.x} ${end.y - 18} h 18 v 18`, class: "triangle-guide" }));
+    } else {
+      const mid = (Math.atan2(a.y - c.y, a.x - c.x) + Math.atan2(b.y - c.y, b.x - c.x)) / 2;
+      sceneLayer.append(svgEl("path", { d: arcPath(26, 42), class: "given-arc", transform: `translate(${c.x} ${c.y}) rotate(${mid * 180 / Math.PI})` }));
+    }
     return;
   }
   if (level.scene === "primitive") {
@@ -940,6 +1033,20 @@ function currentTarget(level) {
 }
 
 function renderChoices(level) {
+  if (level.phase === "triangle-lines") {
+    $("category-list").innerHTML = `<legend>בחרו שם לקו</legend><section class="tool-family"><h3 class="tool-family-title">קווים מיוחדים במשולש</h3><div class="choice-grid">${shuffle([...triangleLineTools]).map(value => `<button type="button" class="choice-button" data-category="${value}" aria-pressed="false">${level.termLabels[value]}</button>`).join("")}</div></section>`;
+    document.querySelectorAll("[data-category]").forEach(button => button.addEventListener("click", () => {
+      if (state.solved) return;
+      if (!state.firstChoiceMade) { state.firstChoiceMade = true; state.firstChoiceCorrect = button.dataset.category === level.correctCategory; }
+      state.category = button.dataset.category;
+      state.equipped = true;
+      document.querySelectorAll("[data-category]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+      $("check-button").disabled = false;
+      $("angle-readout").textContent = level.termLabels[state.category];
+      feedback(`בחרתם: ${level.termLabels[state.category]}`, true);
+    }));
+    return;
+  }
   if (level.phase === "quadrilateral") {
     $("category-list").innerHTML = `<legend>בחרו צורה</legend><section class="tool-family"><h3 class="tool-family-title">מרובעים</h3><div class="choice-grid">${shuffle([...quadrilateralTools]).map(value => `<button type="button" class="choice-button" data-category="${value}" aria-pressed="false" ${(level.scaffold && value !== level.correctCategory) || level.disabledCategories?.includes(value) ? "disabled" : ""}>${categoryLabel(value)}</button>`).join("")}</div></section>`;
     document.querySelectorAll("[data-category]").forEach(button => button.addEventListener("click", () => {
@@ -1155,12 +1262,14 @@ function speakText(text, englishFallback = text, russianFallback = englishFallba
   });
 }
 
-function continueAfterCorrectSpeech(category, continuation) {
+function continueAfterCorrectSpeech(category, continuation, levelToken = state.levelLoadToken) {
   const startedAt = performance.now();
   window.setTimeout(() => {
     Promise.resolve(speakSelection(category)).finally(() => {
       const remainingSuccessTime = Math.max(180, 900 - (performance.now() - startedAt));
-      window.setTimeout(continuation, remainingSuccessTime);
+      window.setTimeout(() => {
+        if (state.levelLoadToken === levelToken && state.solved) continuation();
+      }, remainingSuccessTime);
     });
   }, 220);
 }
@@ -1460,11 +1569,14 @@ function resizeQuadrilateral(axis, delta) {
 
 function updateShapeControls(level) {
   const isQuad = level.phase === "quadrilateral";
+  const isTriangleLines = level.phase === "triangle-lines";
   document.querySelectorAll(".shape-control").forEach(button => {
     button.hidden = !isQuad;
     button.toggleAttribute("hidden", !isQuad);
   });
-  document.querySelectorAll(".angle-size-button").forEach(button => button.hidden = isQuad);
+  document.querySelectorAll(".angle-size-button").forEach(button => button.hidden = isQuad || isTriangleLines);
+  ["rotate-left", "rotate-right", "mirror-button", "discard-button"].forEach(id => $(id).hidden = isTriangleLines);
+  if (!isTriangleLines) ["rotate-left", "rotate-right", "mirror-button", "discard-button"].forEach(id => $(id).hidden = false);
   if (!isQuad) return;
   const square = state.category === "ריבוע";
   const parallelogram = state.category === "מקבילית";
@@ -2778,9 +2890,10 @@ function discardPiece() {
 }
 
 function check() {
-  if (!state.equipped) return;
+  if (!state.equipped || state.solved) return;
   playCheckShot();
   const level = levels[state.levelIndex];
+  if (level.phase === "triangle-lines") { checkTriangleLine(level); return; }
   const calculatedTarget = currentTarget(level);
   const visibleTarget = renderedTargetPosition();
   const target = visibleTarget ? { ...calculatedTarget, x: visibleTarget.x, y: visibleTarget.y } : calculatedTarget;
@@ -2813,6 +2926,7 @@ function check() {
     }
     state.snappedToTarget = true;
     state.solved = true;
+    $("check-button").disabled = true;
     const baseXP = level.xpBase || 100;
     const firstChoiceBonus = state.firstChoiceCorrect ? Math.round(baseXP * .5) : 0;
     const earnedXP = baseXP + firstChoiceBonus;
@@ -2824,7 +2938,7 @@ function check() {
       ? t("correctBonus", { xp: baseXP, bonus: firstChoiceBonus })
       : t("correct", { xp: baseXP }), true);
     pulse([50, 40, 90]);
-    continueAfterCorrectSpeech(state.category, nextLevel);
+    continueAfterCorrectSpeech(state.category, nextLevel, state.levelLoadToken);
   } else if (mirrorMismatch) {
     feedback(t("mirrorNeeded"), false);
     flashMirrorHint(target);
@@ -2847,6 +2961,24 @@ function check() {
     playMissSound();
     pulse(80);
   }
+}
+
+function checkTriangleLine(level) {
+  if (state.category !== level.correctCategory) {
+    feedback("לא בדיוק. בדקו מה הקו מחלק או איזו זווית הוא יוצר.", false);
+    playMissSound();
+    return;
+  }
+  state.solved = true;
+  $("check-button").disabled = true;
+  const earnedXP = level.xpBase + (state.firstChoiceCorrect ? Math.round(level.xpBase * .5) : 0);
+  state.score += earnedXP;
+  $("score").textContent = state.score;
+  updatePlayerRun(level.exerciseNumber, earnedXP, state.firstChoiceCorrect);
+  const synonym = level.correctCategory === "תיכון" ? "תיכון נקרא גם חוצה צלע" : level.correctCategory === "גובה" ? "גובה הוא גם אנך לצלע" : "חוצה זווית מחלק את הזווית לשתי זוויות שוות";
+  feedback(`נכון! ${synonym}. +${earnedXP} XP`, true);
+  pulse([50, 40, 90]);
+  continueAfterCorrectSpeech(level.correctCategory, nextLevel, state.levelLoadToken);
 }
 
 function transformedQuadrilateralVertices(vertices, piece) {
@@ -2975,11 +3107,12 @@ function checkQuadrilateral(level) {
     state.piece.rotation = bestQuadrilateralSnapRotation(level);
     alignQuadrilateralCenterToTarget(level);
     state.solved = true; state.score += level.xpBase; $("score").textContent = state.score;
+    $("check-button").disabled = true;
     renderPiece();
     flashTargetSnap();
     feedback(`מצוין! זיהיתם וכיוונתם ${categoryLabel(state.category)}. +${level.xpBase} XP`, true);
     updateShapeControls(level);
-    continueAfterCorrectSpeech(state.category, () => level.askWhatElse ? beginWhatElse(level) : nextLevel());
+    continueAfterCorrectSpeech(state.category, () => level.askWhatElse ? beginWhatElse(level) : nextLevel(), state.levelLoadToken);
   }
 }
 
@@ -3079,6 +3212,7 @@ function startCourseAt(section) {
     equal: levels.findIndex(level => level.family === "שוות"),
     "180": levels.findIndex(level => level.family === "180°"),
     quadrilaterals: levels.findIndex(level => level.phase === "quadrilateral"),
+    "triangle-lines": levels.findIndex(level => level.phase === "triangle-lines"),
     master: levels.findIndex(level => level.mode === "master")
   };
   const selectedIndex = indexBySection[section];
@@ -3223,6 +3357,7 @@ function pulse(pattern) {
 
 function loadLevel() {
   const level = levels[state.levelIndex];
+  state.levelLoadToken += 1;
   document.querySelector(".loadout").classList.remove("follow-up-attention");
   pieceLayer.classList.remove("follow-up-locked");
   document.documentElement.classList.toggle("master-mode", level.mode === "master");
@@ -3240,13 +3375,17 @@ function loadLevel() {
   syncShareUrl(courseSectionForLevel(level));
   updatePlayerButton();
   $("mission-title").textContent = `${localizedStageName(level.stageName)} • ${level.exerciseNumber}/${level.exerciseCount}`;
-  $("mission-hint").textContent = level.phase === "beginner"
+  $("mission-hint").textContent = level.phase === "triangle-lines"
+    ? "זהו את הקו המודגש לפי הסימונים: אמצע צלע, זווית ישרה או שתי זוויות שוות."
+    : level.phase === "beginner"
     ? t("beginnerHint")
     : level.mode === "master"
       ? t("masterHint")
       : level.phase === "quadrilateral"
         ? "בחרו את המרובע המתאים, גררו למסגרת וכוונו רק בעזרת הפעולות שמתאימות לצורה."
         : t("advancedHint");
+  const section = courseSectionForLevel(level);
+  $("equal-tutorial-open").hidden = false;
   updateArenaInstructions(level);
   $("angle-readout").textContent = level.mode === "tutorial" ? t("tutorialMode") : level.mode === "master" ? t("masterMode") : t("practiceMode");
   $("feedback").textContent = "";
@@ -3257,6 +3396,11 @@ function loadLevel() {
   renderChoices(level);
   renderScene(level);
   renderPiece();
+  if (level.exerciseNumber === 1) {
+    let seen = false;
+    try { seen = localStorage.getItem(`angleQuestTutorialV2Seen:${section}`) === "true"; } catch { /* Show the tutorial. */ }
+    if (!seen) window.setTimeout(() => showEqualTutorial(true, section), 0);
+  }
 }
 
 function prepareQuadrilateralLevel(level) {
@@ -3403,6 +3547,8 @@ document.querySelectorAll("[data-language]").forEach(button => button.addEventLi
 }));
 
 $("mirror-help").addEventListener("click", showTouchTutorial);
+$("equal-tutorial-open").addEventListener("click", () => showEqualTutorial(false));
+$("equal-tutorial-close").addEventListener("click", closeEqualTutorial);
 $("touch-tutorial-close").addEventListener("click", closeTouchTutorial);
 $("touch-tutorial-try").addEventListener("click", () => {
   document.querySelectorAll(".mirror-demo-shape, .tap-ring").forEach(element => {

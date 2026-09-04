@@ -167,6 +167,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .piece-rays { stroke: var(--lime); stroke-width: 7; stroke-linecap: round; fill: none; }
 .piece-opposite { stroke: var(--lime); stroke-width: 7; stroke-linecap: round; opacity: .68; }
 .triangle-guide { stroke: var(--lime); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 8 7; opacity: .28; pointer-events: none; }
+.triangle-special-line { stroke: var(--cyan); stroke-width: 7; stroke-linecap: round; filter: drop-shadow(0 0 8px rgba(34,211,238,.55)); }
 .piece-arc { stroke: var(--lime); stroke-width: 5; fill: rgba(185,242,39,.12); pointer-events: none; }
 .piece-core { fill: var(--lime); }
 .piece-180 .piece-rays, .piece-180 .piece-opposite { stroke: var(--orange); }
@@ -211,10 +212,17 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 @keyframes follow-up-prompt { 0% { opacity: 0; transform: scale(.94); } 55% { opacity: 1; transform: scale(1.025); } 100% { transform: scale(1); } }
 @keyframes follow-up-attention { 0%,100% { box-shadow: none; } 50% { border-color: var(--cyan); box-shadow: 0 0 0 4px rgba(49,215,245,.16), 0 0 24px rgba(49,215,245,.18); } }
 
-.touch-tutorial[hidden] { display: none; }
+.touch-tutorial[hidden], .equal-tutorial[hidden] { display: none; }
 .stage-transition[hidden], .course-menu[hidden], .player-menu[hidden] { display: none; }
-.touch-tutorial, .stage-transition, .course-menu, .player-menu { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; padding: 18px; background: rgba(3,8,17,.82); backdrop-filter: blur(8px); }
+.touch-tutorial, .equal-tutorial, .stage-transition, .course-menu, .player-menu { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; padding: 18px; background: rgba(3,8,17,.82); backdrop-filter: blur(8px); }
 .touch-tutorial-card { width: min(420px, 100%); padding: 22px; border: 1px solid var(--cyan-dark); border-radius: 22px; background: #111b2c; box-shadow: 0 22px 70px rgba(0,0,0,.5); text-align: center; }
+.equal-tutorial-card { width: min(560px, 100%); padding: 24px; border: 1px solid var(--cyan-dark); border-radius: 22px; background: #111b2c; box-shadow: 0 22px 70px rgba(0,0,0,.5); }
+.equal-tutorial-card h2 { margin: 5px 0 14px; }
+.equal-tutorial-card ol { margin: 0; padding-inline-start: 24px; color: var(--text); line-height: 1.65; }
+.equal-tutorial-card li + li { margin-top: 8px; }
+.equal-tutorial-card .tutorial-tip { margin: 16px 0; padding: 10px 12px; border-radius: 12px; color: var(--lime); background: rgba(185,242,39,.08); }
+.equal-tutorial-card .primary-button { width: 100%; }
+.tutorial-help-button { margin-inline-start: auto; white-space: nowrap; }
 .stage-transition-card, .course-menu-card, .player-menu-card { width: min(560px, 100%); max-height: min(760px, calc(100vh - 36px)); overflow: auto; padding: 24px; border: 1px solid var(--cyan-dark); border-radius: 22px; background: #111b2c; box-shadow: 0 22px 70px rgba(0,0,0,.5); }
 .stage-transition-card, .course-menu-card { text-align: center; }
 .stage-transition-card h2, .course-menu-card h2 { margin: 6px 0 9px; }
