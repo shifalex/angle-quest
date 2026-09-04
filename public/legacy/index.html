@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Angle Quest">
   <title>Angle Quest — משימת הזוויות</title>
-  <link rel="stylesheet" href="styles.css?v=69">
+  <link rel="stylesheet" href="styles.css?v=70">
 </head>
 <body>
   <main class="app-shell">
@@ -130,11 +130,13 @@
       <h2 id="equal-tutorial-title">נסו עם האצבעות</h2>
       <div id="control-tutorial-demo" class="control-tutorial-demo" aria-hidden="true">
         <div class="tutorial-target-angle"></div>
-        <div class="tutorial-demo-tool">∠</div>
-        <span class="tutorial-finger tutorial-finger-one"><i></i></span>
-        <span class="tutorial-finger tutorial-finger-two"><i></i></span>
-        <span class="tutorial-hold-ring"></span>
-        <span class="tutorial-double-tap"></span>
+        <div class="tutorial-motion-group">
+          <div class="tutorial-demo-tool">∠</div>
+          <span class="tutorial-finger tutorial-finger-one"><i></i></span>
+          <span class="tutorial-finger tutorial-finger-two"><i></i></span>
+          <span class="tutorial-hold-ring"></span>
+          <span class="tutorial-double-tap"></span>
+        </div>
         <span class="tutorial-trash">⌫</span>
       </div>
       <ol id="equal-tutorial-steps" class="control-tutorial-steps">
@@ -219,6 +221,6 @@
     </section>
   </div>
 
-  <script src="app.js?v=130"></script>
+  <script src="app.js?v=131"></script>
 </body>
 </html>
