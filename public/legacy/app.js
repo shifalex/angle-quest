@@ -180,8 +180,15 @@ const primitivePractice = makePracticeSet(primitiveTemplates, 6, "תרגול פ�
 const equalityPractice = makePracticeSet(equalityTemplates, 7, "תרגול זוויות שוות", 100, null, 3, 10);
 const supplementaryPractice = makePracticeSet(supplementaryTemplates, 8, "תרגול 180°", 120, null, 2, 10);
 const allTemplates = [...primitiveTemplates, ...equalityTemplates, ...supplementaryTemplates];
+function chooseMasterTemplate(random = Math.random) {
+  const bucket = Math.min(9, Math.floor(random() * 10));
+  const category = [null, "משולש", "מתאימות", "מתאימות", "מתחלפות", "מתחלפות", "קודקודיות", "קודקודיות", "צמודות", "צמודות"][bucket];
+  const candidates = category === null ? primitiveTemplates : allTemplates.filter(level => level.correctCategory === category);
+  return candidates[Math.floor(random() * candidates.length)];
+}
+
 const masterPractice = shuffle(Array.from({ length: 10 }, (_, index) => {
-  const level = cloneLevel(allTemplates[index % allTemplates.length], `master-${index + 1}`, {
+  const level = cloneLevel(chooseMasterTemplate(), `master-${index + 1}`, {
     mode: "master",
     phase: "master",
     stageName: "MASTER — הכול מעורבב",
@@ -3625,7 +3632,16 @@ function pulse(pattern) {
 }
 
 function loadLevel() {
-  const level = levels[state.levelIndex];
+  let level = levels[state.levelIndex];
+  if (level.mode === "master") {
+    level = cloneLevel(chooseMasterTemplate(), level.id, {
+      mode: "master", phase: "master", stageName: level.stageName,
+      exerciseNumber: level.exerciseNumber, exerciseCount: level.exerciseCount, xpBase: level.xpBase
+    });
+    if (level.scene === "primitive") configurePrimitiveLevel(level);
+    if (level.correctCategory === "מתחלפות" || level.correctCategory === "מתאימות") level.requiredMirrored = Math.random() < .5;
+    levels[state.levelIndex] = level;
+  }
   if (level.exerciseNumber === 1 && (state.speedMode || level.phase === "triangle-lines")) {
     Object.assign(state, { speedFirstCorrect: 0, speedCorrect: 0, speedAttempts: 0, speedResultsShown: false, speedStartedAt: performance.now(), speedElapsedMs: 0 });
   }

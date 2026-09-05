@@ -45,6 +45,21 @@ test('manual placement and check are no-ops in speed mode', () => {
   context.check();
 });
 
+test('master probabilities are 10% primitives, 10% triangle, 20% each relationship', () => {
+  const primitiveTemplates = ['acute', 'right', 'flat', 'obtuse'].map(correctCategory => ({ correctCategory }));
+  const allTemplates = [...primitiveTemplates, ...['משולש', 'מתאימות', 'מתחלפות', 'קודקודיות', 'צמודות'].map(correctCategory => ({ correctCategory }))];
+  const context = vm.createContext({ primitiveTemplates, allTemplates });
+  vm.runInContext(extract('chooseMasterTemplate').split('\nconst masterPractice')[0], context);
+  const counts = {};
+  for (let i = 0; i < 1000; i++) {
+    let draw = 0;
+    const result = context.chooseMasterTemplate(() => draw++ === 0 ? (i + .5) / 1000 : .5);
+    const key = primitiveTemplates.includes(result) ? 'primitives' : result.correctCategory;
+    counts[key] = (counts[key] || 0) + 1;
+  }
+  assert.deepEqual(counts, { primitives: 100, 'משולש': 100, 'מתאימות': 200, 'מתחלפות': 200, 'קודקודיות': 200, 'צמודות': 200 });
+});
+
 test('mechanical sounds follow actual movement, stay silent on redraw and solved state', () => {
   const calls = [];
   const state = { equipped: true, solved: false, piece: { x: 0, y: 0, rotation: 0, mirrored: false }, degrees: 45, dimensions: { arm: 100 }, quadDimensions: { width: 100, height: 100 }, category: 'acute', levelLoadToken: 1 };
