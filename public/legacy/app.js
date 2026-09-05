@@ -865,7 +865,7 @@ function restartMouseFTutorial() {
     $("mouse-f-height").setAttribute("visibility", "hidden");
     $("mouse-f-rotate").setAttribute("visibility", "hidden");
   }
-  const names = ["גרירה", touch ? "הגדלה" : "הגדלת המרחק", touch ? "הקטנה" : "הקטנת המרחק", "סיבוב", "שינוי הזווית", touch ? "דאבל־טאפ" : "דאבל־קליק", "זריקה"];
+  const names = ["גרירה", touch ? "הגדלה" : "הגדלת המרחק", touch ? "הקטנה" : "הקטנת המרחק", "סיבוב", "שינוי הזווית", "שיקוף", "זריקה"];
   const instructions = ["גוררים בתוך הצורה", "גוררים את הריבוע הכתום", "גוררים את הריבוע הכתום", "גוררים את העיגול עם חץ הסיבוב", "גוררים את הנקודה הכחולה", "לוחצים פעמיים בתוך הצורה", "לוחצים על זריקה"];
   $("equal-tutorial-steps").innerHTML = names.map(name => `<li>${name}</li>`).join("");
   const started = performance.now();
