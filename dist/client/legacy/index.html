@@ -28,7 +28,7 @@
           <button type="button" data-language="he" aria-pressed="true">עברית</button>
         </div>
         <button id="player-menu-button" class="course-menu-button player-menu-button" type="button">שחקן: — ▾</button>
-        <button id="course-menu-button" class="course-menu-button" type="button">בחירת רמה</button>
+        <button id="course-menu-button" class="course-menu-button" type="button">בחירת שלב</button>
         <span class="hud-item"><b id="score">0</b> XP</span>
         <span id="speed-timer" class="hud-item speed-timer" hidden>⏱ <b>00:00</b></span>
         <span class="hud-item">שלב <b id="level-number">1</b>/<span id="level-count">1</span></span>
@@ -155,9 +155,9 @@
       <div class="mini-confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="stage-complete-icon" aria-hidden="true">✓</div>
       <p class="eyebrow">LEVEL COMPLETE</p>
-      <h2 id="stage-transition-title">הרמה הושלמה</h2>
-      <p id="stage-transition-body">סיימתם 10 שאלות. אפשר לעבור לרמה הבאה.</p>
-      <button id="stage-transition-next" class="primary-button compact" type="button">לרמה הבאה</button>
+      <h2 id="stage-transition-title">השלב הושלם</h2>
+      <p id="stage-transition-body">סיימתם 10 שאלות. אפשר לעבור לשלב הבא.</p>
+      <button id="stage-transition-next" class="primary-button compact" type="button">לשלב הבא</button>
     </section>
   </div>
 
@@ -193,7 +193,7 @@
       <ol id="speed-leaderboard" class="speed-leaderboard"></ol>
       <div class="speed-results-actions">
         <button id="speed-retry" class="secondary-button" type="button">נסו שוב</button>
-        <button id="speed-results-close" class="primary-button compact" type="button">בחירת רמה</button>
+        <button id="speed-results-close" class="primary-button compact" type="button">בחירת שלב</button>
       </div>
     </section>
   </div>
@@ -222,6 +222,6 @@
     </section>
   </div>
 
-  <script src="app.js?v=147"></script>
+  <script src="app.js?v=148"></script>
 </body>
 </html>
