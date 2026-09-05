@@ -1288,7 +1288,7 @@ function speakSelection(category) {
   };
   const primitiveSpoken = { "חדה": "זווית חדה", "ישרה": "זווית ישרה", "שטוחה": "זָוִית שְׁטוּחָה", "קהה": "זָוִית קֵהָה" };
   const complexSpoken = { "מתאימות": "זָוִיּוֹת מַתְאִימוֹת", "מתחלפות": "זָוִיּוֹת מִתְחַלְּפוֹת", "קודקודיות": "זָוִיּוֹת קוֹדְקוֹדִיּוֹת", "צמודות": "זָוִיּוֹת צְמוּדוֹת" };
-  const triangleSpoken = { "גובה": "גֹּ֫בַהּ", "חוצה זווית": "חוֹצֵה זָוִית", "תיכון": "תִּיכוֹן", "אנך": "אֲנָךְ", "חוצה צלע": "חוֹצֵה צֶלַע" };
+  const triangleSpoken = { "גובה": "גּוֹבַהּ", "חוצה זווית": "חוֹצֵה זָוִית", "תיכון": "תִּיכוֹן", "אנך": "אֲנָךְ", "חוצה צלע": "חוֹצֵה צֶלַע" };
   const spokenText = primitiveSpoken[category] || complexSpoken[category] || triangleSpoken[category]
     || (category === "טרפז" ? "טְרַפֵּז." : category === "מלבן" ? "מַלְבֵּן." : category === "דלתון" ? "דַלְטוֹן." : category);
   return playRecordedSpeech(category, spokenText, englishNames[category], russianNames[category]);
@@ -1359,14 +1359,18 @@ function speakText(text, englishFallback = text, russianFallback = englishFallba
   }
   if (window.speechSynthesis.speaking || window.speechSynthesis.pending) window.speechSynthesis.cancel();
   if (window.speechSynthesis.paused) window.speechSynthesis.resume();
-  const hebrewVoice = speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("he") && voice.localService);
+  const isHebrewVoice = voice => /^(he|iw)(-|_|$)/i.test(voice.lang || "");
+  const hebrewVoice = speechState.voices.find(voice => isHebrewVoice(voice) && voice.localService)
+    || speechState.voices.find(isHebrewVoice);
   const russianVoice = speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("ru") && voice.localService)
     || speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("ru"));
   const englishVoice = speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("en-us") && voice.localService)
     || speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("en") && voice.localService)
     || speechState.voices.find(voice => voice.lang?.toLowerCase().startsWith("en"));
   const requestedVoice = state.language === "ru" ? russianVoice : state.language === "en" ? englishVoice : hebrewVoice;
-  const selectedVoice = requestedVoice || englishVoice || hebrewVoice || russianVoice;
+  // Keep the requested language even if its voice list has not loaded yet.
+  // Assigning an English voice to Hebrew text produces incorrect pronunciation.
+  const selectedVoice = requestedVoice;
   const requestedText = state.language === "ru" ? (russianFallback || englishFallback || text)
     : state.language === "en" ? (englishFallback || text) : text;
   return new Promise(resolve => {
@@ -1383,9 +1387,9 @@ function speakText(text, englishFallback = text, russianFallback = englishFallba
       if (speechState.utterance === message) speechState.utterance = null;
       resolve();
     }
-    message.lang = selectedVoice?.lang || (state.language === "ru" ? "ru-RU" : state.language === "he" ? "he-IL" : "en-US");
+    message.lang = state.language === "ru" ? "ru-RU" : state.language === "he" ? "he-IL" : "en-US";
     message.rate = .92;
-    message.pitch = 1.05;
+    message.pitch = 1;
     message.volume = 1;
     if (selectedVoice) message.voice = selectedVoice;
     message.onstart = () => {
