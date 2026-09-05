@@ -1295,8 +1295,25 @@ function speakSelection(category) {
 }
 
 function recordedSpeechFile(key, language) {
-  const hebrewTerms = { "גובה": "altitude.mp3", "חוצה צלע": "side-bisector.mp3" };
+  const hebrewTerms = { "גובה": "altitude-ready.mp3", "חוצה צלע": "side-bisector-ready.mp3" };
   return (language === "he" && hebrewTerms[key]) || recordedSpeechFiles[key];
+}
+
+function cachedSpeechAudio(filename) {
+  const url = `audio/${state.language}/${filename}?v=13`;
+  speechState.clipCache ||= new Map();
+  if (!speechState.clipCache.has(url)) {
+    const audio = new Audio(url);
+    audio.preload = "auto";
+    audio.load();
+    speechState.clipCache.set(url, audio);
+  }
+  return speechState.clipCache.get(url);
+}
+
+function preloadTriangleSpeech() {
+  if (state.language !== "he") return;
+  ["גובה", "חוצה צלע"].forEach(key => cachedSpeechAudio(recordedSpeechFile(key, "he")));
 }
 
 function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallback) {
@@ -1311,7 +1328,8 @@ function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallbac
   }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   return new Promise(resolve => {
-    const audio = new Audio(`audio/${state.language}/${filename}?v=12`);
+    const audio = cachedSpeechAudio(filename);
+    audio.currentTime = 0;
     let usedFallback = false;
     let completed = false;
     const safetyTimer = window.setTimeout(() => finish(), 7000);
@@ -3695,6 +3713,7 @@ function loadLevel() {
   document.documentElement.classList.toggle("master-mode", level.mode === "master");
   document.documentElement.classList.toggle("speed-mode", state.speedMode || level.phase === "triangle-lines");
   if (level.phase === "quadrilateral") preloadQuadrilateralSpeech();
+  if (level.phase === "triangle-lines") preloadTriangleSpeech();
   prepareQuadrilateralLevel(level);
   prepareDynamicLevel(level);
   prepareProLevel(level);
