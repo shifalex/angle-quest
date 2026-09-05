@@ -558,6 +558,70 @@ function updatePlayerRun(completed, earnedXP, firstTryCorrect) {
   persistPlayerStore();
 }
 
+function recordPracticeChoice(button) {
+  const player = activePlayer();
+  if (!player || button.disabled || state.solved || state.followUp || state.heatmapRecorded) return;
+  const level = levels[state.levelIndex];
+  const section = state.speedMode ? "speed" : courseSectionForLevel(level);
+  const concept = level.termLabels?.[level.correctCategory] || level.correctCategory;
+  const correct = level.phase === "quadrilateral"
+    ? !!level.offeredValidNames?.includes(button.dataset.category)
+    : button.dataset.category === level.correctCategory;
+  player.practiceHeatmap ||= {};
+  player.practiceHeatmap[section] ||= {};
+  const record = player.practiceHeatmap[section][concept] ||= { practiced: 0, correct: 0 };
+  record.practiced += 1;
+  record.correct += correct ? 1 : 0;
+  state.heatmapRecorded = true;
+  persistPlayerStore();
+}
+
+function renderPracticeHeatmap(player) {
+  const copy = {
+    he: ["מפת דיוק לפי תשובה", "דיוק בבחירה הראשונה בלבד, לא במיקום הכלי. אדום: 0% · ירוק: 100%. נתונים חדשים נשמרים במכשיר הזה.", "טרם תורגל", "נכון מתוך", "מצב מהיר"],
+    en: ["Accuracy by answer", "First-choice accuracy, not tool placement. Red: 0% · green: 100%. New practice is saved on this device.", "Not practiced", "correct out of", "Quick mode"],
+    ru: ["Точность по ответам", "Точность первого выбора, не размещения. Красный: 0% · зелёный: 100%. Новые данные сохраняются на этом устройстве.", "Нет практики", "верно из", "Быстрый режим"]
+  }[state.language];
+  $("practice-heatmap-title").textContent = copy[0];
+  $("practice-heatmap-note").textContent = copy[1];
+  const container = $("practice-heatmap");
+  container.replaceChildren();
+  const groups = {
+    primitives: primitiveTools, equal: families["שוות"], "180": families["180°"],
+    quadrilaterals: quadrilateralTools, "triangle-lines": [...triangleLineTools, "חוצה צלע", "אנך"],
+    master: [...primitiveTools, ...families["שוות"], ...families["180°"]],
+    speed: [...primitiveTools, ...families["שוות"], ...families["180°"]]
+  };
+  Object.entries(groups).forEach(([section, concepts]) => {
+    const group = document.createElement("section");
+    const heading = document.createElement("h4");
+    heading.textContent = section === "speed" ? copy[4] : courseSectionLabel(section);
+    const grid = document.createElement("div");
+    grid.className = "practice-heatmap-grid";
+    [...new Set(concepts)].forEach(concept => {
+      const record = player.practiceHeatmap?.[section]?.[concept];
+      const count = record?.practiced || 0;
+      const accuracy = count ? Math.round(record.correct / count * 100) : null;
+      const cell = document.createElement("div");
+      cell.className = "practice-heatmap-cell";
+      const name = document.createElement("strong");
+      const aliases = { en: { "חוצה צלע": "Side bisector", "אנך": "Perpendicular" }, ru: { "חוצה צלע": "Делит сторону пополам", "אנך": "Перпендикуляр" } };
+      name.textContent = aliases[state.language]?.[concept] || categoryLabel(concept);
+      const detail = document.createElement("span");
+      detail.textContent = count ? `${accuracy}% · ${record.correct} ${copy[3]} ${count}` : copy[2];
+      if (count) {
+        cell.style.backgroundColor = `hsl(${accuracy * 1.2} 55% 84%)`;
+        cell.style.color = "#172033";
+        cell.style.borderColor = `hsl(${accuracy * 1.2} 45% 45%)`;
+      }
+      cell.append(name, detail);
+      grid.append(cell);
+    });
+    group.append(heading, grid);
+    container.append(group);
+  });
+}
+
 function formatLocalDate(value) {
   if (!value) return "—";
   const locales = { he: "he-IL", en: "en-US", ru: "ru-RU" };
@@ -583,6 +647,7 @@ function renderPlayerMenu() {
   $("player-records").hidden = !player;
   $("player-menu-close").hidden = !player;
   if (!player) return;
+  renderPracticeHeatmap(player);
 
   const sections = ["primitives", "equal", "180", "triangle-lines", "master"];
   const records = $("level-records");
@@ -3695,6 +3760,7 @@ function pulse(pattern) {
 }
 
 function loadLevel() {
+  state.heatmapRecorded = false;
   let level = levels[state.levelIndex];
   if (level.mode === "master") {
     level = cloneLevel(chooseMasterTemplate(), level.id, {
@@ -3852,9 +3918,10 @@ function prepareProLevel(level) {
 }
 
 $("category-list").addEventListener("click", event => {
-  if (!state.speedMode) return;
   const button = event.target.closest("[data-category]");
   if (!button) return;
+  recordPracticeChoice(button);
+  if (!state.speedMode) return;
   event.stopImmediatePropagation();
   answerSpeedChoice(button);
 }, true);

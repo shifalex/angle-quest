@@ -45,6 +45,35 @@ test('manual placement and check are no-ops in speed mode', () => {
   context.check();
 });
 
+test('heatmap records first-choice accuracy per player, stage and practiced concept', () => {
+  let player = {};
+  let saves = 0;
+  const state = { levelIndex: 0, speedMode: false };
+  const level = { correctCategory: 'acute' };
+  const context = vm.createContext({ state, levels: [level], activePlayer: () => player,
+    courseSectionForLevel: () => 'primitives', persistPlayerStore: () => saves++ });
+  vm.runInContext(extract('recordPracticeChoice'), context);
+  context.recordPracticeChoice({ disabled: true, dataset: { category: 'acute' } });
+  assert.equal(saves, 0);
+  context.recordPracticeChoice({ dataset: { category: 'obtuse' } });
+  context.recordPracticeChoice({ dataset: { category: 'acute' } });
+  assert.equal(player.practiceHeatmap.primitives.acute.practiced, 1);
+  assert.equal(player.practiceHeatmap.primitives.acute.correct, 0);
+  state.heatmapRecorded = false;
+  context.recordPracticeChoice({ dataset: { category: 'acute' } });
+  assert.equal(player.practiceHeatmap.primitives.acute.correct, 1);
+  assert.equal(player.practiceHeatmap.primitives.acute.practiced, 2);
+  state.heatmapRecorded = false;
+  state.speedMode = true;
+  context.recordPracticeChoice({ dataset: { category: 'acute' } });
+  assert.equal(player.practiceHeatmap.speed.acute.correct, 1);
+  player = {};
+  state.heatmapRecorded = false;
+  context.recordPracticeChoice({ dataset: { category: 'acute' } });
+  assert.equal(player.practiceHeatmap.speed.acute.practiced, 1);
+  assert.ok(!player.practiceHeatmap.primitives);
+});
+
 test('Hebrew problem terms use fixed synthesized audio, not iPad speech', () => {
   const context = vm.createContext({ recordedSpeechFiles: { 'חדה': 'acute.mp3' } });
   vm.runInContext(extract('recordedSpeechFile'), context);
