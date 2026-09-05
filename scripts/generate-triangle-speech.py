@@ -3,17 +3,20 @@
 Requires edge-tts. Run from the repository root.
 """
 import asyncio
+import sys
 from pathlib import Path
 import edge_tts
 
 ROOT = Path(__file__).resolve().parents[1]
 WORDS = {
-    "altitude.mp3": "גּוֹבַהּ",
+    "altitude.mp3": "גובה",
     "side-bisector.mp3": "חוֹצֵה צֶלַע",
 }
 
 async def main():
     for filename, text in WORDS.items():
+        if len(sys.argv) > 1 and filename not in sys.argv[1:]:
+            continue
         speech = edge_tts.Communicate(text, "he-IL-AvriNeural", rate="-8%")
         data = bytearray()
         async for chunk in speech.stream():
