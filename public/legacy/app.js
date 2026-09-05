@@ -1294,9 +1294,14 @@ function speakSelection(category) {
   return playRecordedSpeech(category, spokenText, englishNames[category], russianNames[category]);
 }
 
+function recordedSpeechFile(key, language) {
+  const hebrewTerms = { "גובה": "altitude.mp3", "חוצה צלע": "side-bisector.mp3" };
+  return (language === "he" && hebrewTerms[key]) || recordedSpeechFiles[key];
+}
+
 function playRecordedSpeech(key, hebrewFallback, englishFallback, russianFallback) {
   if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return Promise.resolve();
-  const filename = recordedSpeechFiles[key];
+  const filename = recordedSpeechFile(key, state.language);
   if (!filename) {
     return speakText(hebrewFallback, englishFallback, russianFallback);
   }

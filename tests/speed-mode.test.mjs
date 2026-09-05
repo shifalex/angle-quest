@@ -45,6 +45,20 @@ test('manual placement and check are no-ops in speed mode', () => {
   context.check();
 });
 
+test('Hebrew problem terms use fixed synthesized audio, not iPad speech', () => {
+  const context = vm.createContext({ recordedSpeechFiles: { 'חדה': 'acute.mp3' } });
+  vm.runInContext(extract('recordedSpeechFile'), context);
+  assert.equal(context.recordedSpeechFile('גובה', 'he'), 'altitude.mp3');
+  assert.equal(context.recordedSpeechFile('חוצה צלע', 'he'), 'side-bisector.mp3');
+  assert.equal(context.recordedSpeechFile('גובה', 'en'), undefined);
+  assert.equal(context.recordedSpeechFile('חדה', 'he'), 'acute.mp3');
+  for (const name of ['altitude.mp3', 'side-bisector.mp3']) {
+    const original = readFileSync(new URL(`../audio/he/${name}`, import.meta.url));
+    assert.ok(original.length > 1000);
+    assert.deepEqual(original, readFileSync(new URL(`../public/legacy/audio/he/${name}`, import.meta.url)));
+  }
+});
+
 test('given angle label follows its arc bisector rather than a fixed location', () => {
   const nodes = [];
   const context = vm.createContext({ sceneLayer: { append: node => nodes.push(node) },
