@@ -88,7 +88,7 @@ button { touch-action: manipulation; }
 h1, h2, p { margin: 0; }
 h1 { font-size: clamp(1.25rem, 3vw, 1.65rem); }
 h2 { font-size: clamp(1.05rem, 2.5vw, 1.35rem); }
-.eyebrow { color: var(--cyan); font-size: .9rem; line-height: 1.25; letter-spacing: 0; font-weight: 650; direction: inherit; text-align: start; }
+.eyebrow { color: var(--cyan); font-size: .9rem; line-height: 1.25; letter-spacing: 0; font-weight: 500; direction: inherit; text-align: start; }
 .brand .eyebrow { font-size: .75rem; letter-spacing: .06em; }
 .brand h1 { font-size: clamp(1.15rem, 2.6vw, 1.45rem); }
 .mission h2, .panel-heading h2 { font-size: clamp(1rem, 2.2vw, 1.2rem); line-height: 1.25; }
@@ -102,6 +102,7 @@ h2 { font-size: clamp(1.05rem, 2.5vw, 1.35rem); }
 .portrait-blocker { display: none; }
 .course-menu-button { min-height: 38px; padding: 6px 11px; border: 1px solid var(--cyan-dark); border-radius: 10px; background: var(--panel); color: var(--cyan); cursor: pointer; font-weight: 800; transition: border-color .15s, background .15s; }
 .course-menu-button:hover { border-color: var(--cyan); background: rgba(49,215,245,.1); }
+.course-menu-button { font-weight: 500; }
 .theme-toggle { white-space: nowrap; }
 
 .mission { justify-content: space-between; gap: 16px; min-height: 108px; background: linear-gradient(110deg, rgba(22,32,51,.94), rgba(11,128,157,.18)); border: 1px solid var(--line); border-inline-end: 4px solid var(--cyan); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px; }
@@ -121,7 +122,7 @@ legend { width: 100%; margin-bottom: 9px; color: var(--muted); font-size: .85rem
 .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
 .tool-family + .tool-family { margin-top: 16px; }
 .tool-family-reserved { visibility: hidden; }
-.tool-family-title { margin-bottom: 8px; color: var(--cyan); font-size: .95rem; font-weight: 650; }
+.tool-family-title { margin-bottom: 8px; color: var(--cyan); font-size: .95rem; font-weight: 500; }
 .choice-button { min-height: 54px; padding: 9px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); color: var(--ink); cursor: pointer; transition: border-color .15s, transform .15s, background .15s; }
 .choice-button:hover { border-color: var(--cyan-dark); transform: translateY(-1px); }
 .choice-button[aria-pressed="true"] { border-color: var(--cyan); background: rgba(49,215,245,.13); box-shadow: inset 0 0 0 1px var(--cyan); color: var(--cyan); }
