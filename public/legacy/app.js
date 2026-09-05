@@ -863,7 +863,7 @@ function restartMouseFTutorial() {
     second.querySelector("circle").removeAttribute("id");
     demo.querySelector("svg").append(second);
     $("mouse-f-height").setAttribute("visibility", "hidden");
-    $("mouse-f-rotate").setAttribute("visibility", "hidden");
+    $("mouse-f-rotate").remove();
   }
   const names = ["גרירה", touch ? "הגדלה" : "הגדלת המרחק", touch ? "הקטנה" : "הקטנת המרחק", "סיבוב", "שינוי הזווית", "שיקוף", "זריקה"];
   const instructions = ["גוררים בתוך הצורה", "גוררים את הריבוע הכתום", "גוררים את הריבוע הכתום", "גוררים את העיגול עם חץ הסיבוב", "גוררים את הנקודה הכחולה", "לוחצים פעמיים בתוך הצורה", "לוחצים על זריקה"];
@@ -883,8 +883,10 @@ function restartMouseFTutorial() {
     $("mouse-f-angle").setAttribute("cx", geometry.angle.x);
     $("mouse-f-angle").setAttribute("cy", geometry.angle.y);
     const rotate = tutorialContact({ ...transform, flip: 1 }, geometry.rotation);
-    $("mouse-f-rotate").setAttribute("transform", `translate(${rotate.x} ${rotate.y}) rotate(${pose.rotation})`);
-    $("mouse-f-rotate").setAttribute("opacity", pose.opacity);
+    if (!touch) {
+      $("mouse-f-rotate").setAttribute("transform", `translate(${rotate.x} ${rotate.y}) rotate(${pose.rotation})`);
+      $("mouse-f-rotate").setAttribute("opacity", pose.opacity);
+    }
     const multi = touch && pose.step >= 1 && pose.step <= 3;
     const point = multi ? tutorialContact(transform, { x: 85, y: 0 }) : pose.step === 6 ? { x: 460, y: 230 } : pose.step === 3 ? rotate : tutorialContact(pose.step === 5 ? { ...transform, flip: 1 } : transform, pose.step === 1 || pose.step === 2 ? geometry.height : pose.step === 4 ? geometry.angle : { x: 35, y: -25 });
     $("mouse-f-cursor").setAttribute("transform", `translate(${point.x} ${point.y})`);
