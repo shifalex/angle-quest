@@ -45,6 +45,29 @@ test('manual placement and check are no-ops in speed mode', () => {
   context.check();
 });
 
+test('supplementary and triangle targets cover acute, right, and obtuse geometry', () => {
+  const context = vm.createContext({ classifyAngle: d => d < 90 ? 'acute' : d === 90 ? 'right' : 'obtuse' });
+  vm.runInContext(extract('prepareDynamicLevel'), context);
+  for (const scene of ['adjacent', 'triangle']) {
+    const types = new Set();
+    for (let i = 0; i < 300; i++) {
+      vm.runInContext(`Math.random = () => ${(i + .5) / 300}`, context);
+      const level = { scene };
+      context.prepareDynamicLevel(level);
+      const target = level.choices[0];
+      types.add(target.subtitle);
+      assert.equal(target.id, level.correctChoice);
+      assert.ok(target.degrees >= 20 && target.degrees <= 160);
+      if (scene === 'triangle') {
+        assert.equal(level.triangleAngles.reduce((a, b) => a + b, 0), 180);
+        assert.equal(level.triangleAngles[2], target.degrees);
+        assert.ok(level.triangleAngles.every(degrees => degrees > 0 && degrees < 180));
+      }
+    }
+    assert.deepEqual([...types].sort(), ['acute', 'obtuse', 'right']);
+  }
+});
+
 test('vertical-angle snapping keeps the nearest half-turn orientation', () => {
   const state = { piece: { rotation: 178 } };
   const normalizeAngle = angle => (angle % 360 + 360) % 360;

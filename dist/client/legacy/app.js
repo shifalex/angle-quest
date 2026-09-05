@@ -1072,7 +1072,7 @@ function renderScene(level) {
     const givenDegrees = 180 - missingDegrees;
     level.target.rotation = normalizeAngle(-missingDegrees / 2);
     line(sceneLayer, 95, 220, 635, 220);
-    const diagonalEnd = polar(258, -missingDegrees);
+    const diagonalEnd = polar(180, -missingDegrees);
     line(sceneLayer, level.target.x, level.target.y, level.target.x + diagonalEnd.x, level.target.y + diagonalEnd.y);
     const givenLabel = polar(86, -90 - missingDegrees / 2);
     label(sceneLayer, level.target.x + givenLabel.x, level.target.y + givenLabel.y, `${givenDegrees}°`, "given-label");
@@ -1081,8 +1081,7 @@ function renderScene(level) {
   } else if (level.scene === "triangle") {
     const left = { x: 220, y: 365 };
     const right = { x: 520, y: 365 };
-    const leftDegrees = 60;
-    const rightDegrees = 50;
+    const [leftDegrees, rightDegrees] = level.triangleAngles || [60, 50];
     const base = right.x - left.x;
     const height = base / (1 / Math.tan(leftDegrees * Math.PI / 180) + 1 / Math.tan(rightDegrees * Math.PI / 180));
     const top = { x: left.x + height / Math.tan(leftDegrees * Math.PI / 180), y: left.y - height };
@@ -1092,8 +1091,8 @@ function renderScene(level) {
     line(sceneLayer, left.x, left.y, right.x, right.y);
     line(sceneLayer, left.x, left.y, top.x, top.y);
     line(sceneLayer, top.x, top.y, right.x, right.y);
-    label(sceneLayer, 255, 339, "60°", "given-label");
-    label(sceneLayer, 481, 339, "50°", "given-label");
+    label(sceneLayer, 255, 339, `${leftDegrees}°`, "given-label");
+    label(sceneLayer, 481, 339, `${rightDegrees}°`, "given-label");
   }
 
   renderDistractorLines(level);
@@ -3736,6 +3735,22 @@ function prepareQuadrilateralLevel(level) {
 }
 
 function prepareDynamicLevel(level) {
+  if (level.scene === "adjacent" || level.scene === "triangle") {
+    let degrees;
+    if (level.scene === "adjacent") {
+      degrees = 20 + Math.floor(Math.random() * 29) * 5;
+    } else {
+      // Equal chance of an acute, right, or obtuse triangle; all angles sum to 180.
+      const kind = Math.floor(Math.random() * 3);
+      degrees = kind === 0 ? 50 + Math.floor(Math.random() * 7) * 5 : kind === 1 ? 90 : 100 + Math.floor(Math.random() * 7) * 5;
+      const remaining = 180 - degrees;
+      const offset = (Math.floor(Math.random() * 3) - 1) * 5;
+      level.triangleAngles = [remaining / 2 + offset, remaining / 2 - offset, degrees];
+    }
+    level.choices = [{ id: "dynamic-180", label: `${degrees}°`, subtitle: classifyAngle(degrees), degrees, type: "flexible" }];
+    level.correctChoice = "dynamic-180";
+    return;
+  }
   if (level.scene !== "alternate" && level.scene !== "corresponding") return;
   const degrees = 40 + Math.floor(Math.random() * 21) * 5;
   const type = degrees < 90 ? "acute" : degrees === 90 ? "right" : "obtuse";
