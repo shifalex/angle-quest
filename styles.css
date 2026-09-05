@@ -252,6 +252,9 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 :root[data-theme="light"] #mouse-f-height { fill: #e67e13; }
 :root[data-theme="light"] .equal-tutorial-card .tutorial-tip { color: #315e13; background: #edf5e5; }
 :root[data-theme="light"] #equal-tutorial-steps { color: #334155; }
+:root[data-theme="light"] #equal-tutorial-steps li { background: #e8eef5; border: 1px solid #c5d3e1; border-radius: 9px; }
+:root[data-theme="light"] .gesture-demo-svg > rect { fill: #fff0f2; stroke: #c72d50; }
+:root[data-theme="light"] .gesture-demo-svg > text { fill: #b52043; }
 :root[data-theme="light"] #equal-tutorial-steps li.active { color: #315e13; background: #e6f1da; }
 .tutorial-target-angle { position: absolute; right: 18%; top: 60px; width: 78px; height: 78px; border-right: 4px solid rgba(34,211,238,.38); border-bottom: 4px solid rgba(34,211,238,.38); transform: skew(-18deg); }
 .tutorial-demo-tool { position: absolute; left: 16%; top: 92px; color: var(--lime); font: 900 78px/1 Arial,sans-serif; transform-origin: 14px 55px; filter: drop-shadow(0 0 9px rgba(185,242,39,.5)); animation: control-tool-tour 9s ease-in-out infinite; }
