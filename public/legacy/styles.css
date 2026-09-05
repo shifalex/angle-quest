@@ -248,8 +248,9 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 :root[data-theme="light"] .control-tutorial-demo { background: #f1f6fa; border-color: #b3ccd9; }
 :root[data-theme="light"] #mouse-f-path { stroke: #427c16; }
 :root[data-theme="light"] #mouse-f-angle,
-:root[data-theme="light"] #mouse-f-rotate circle { fill: #0795bb; }
-:root[data-theme="light"] #mouse-f-height { fill: #e67e13; }
+:root[data-theme="light"] #mouse-f-rotate circle { fill: var(--cyan); stroke: #fff; stroke-width: 3px; }
+:root[data-theme="light"] #mouse-f-height { fill: var(--orange); stroke: #fff; stroke-width: 3px; }
+:root[data-theme="light"] #mouse-f-rotate path { stroke: var(--cyan); stroke-dasharray: 4 3; }
 :root[data-theme="light"] .equal-tutorial-card .tutorial-tip { color: #315e13; background: #edf5e5; }
 :root[data-theme="light"] #equal-tutorial-steps { color: #334155; }
 :root[data-theme="light"] #equal-tutorial-steps li { background: #e8eef5; border: 1px solid #c5d3e1; border-radius: 9px; }
