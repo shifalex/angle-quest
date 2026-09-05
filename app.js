@@ -698,6 +698,11 @@ function applyTheme() {
 }
 
 function updateArenaInstructions(level = levels[state.levelIndex]) {
+  if (state.speedMode) {
+    document.querySelector(".arena-heading .eyebrow").textContent = "זיהוי מהיר";
+    $("arena-title").textContent = "מה מסומן בשרטוט?";
+    return;
+  }
   const isQuadrilateral = level?.phase === "quadrilateral";
   const isTriangleLines = level?.phase === "triangle-lines";
   const isPrimitive = level?.phase === "beginner";
@@ -1355,6 +1360,7 @@ function shuffle(items) {
 }
 
 function placeSelected(point) {
+  if (state.speedMode) return;
   const level = levels[state.levelIndex];
   const target = currentTarget(level);
   if (!state.category || state.solved) return;
@@ -2962,6 +2968,7 @@ function discardPiece() {
 }
 
 function check() {
+  if (state.speedMode) return;
   if (!state.equipped || state.solved) return;
   playCheckShot();
   if (state.speedMode) state.speedAttempts += 1;
@@ -3351,6 +3358,35 @@ function recordSpeedCorrect() {
   if (state.speedMode) state.speedCorrect += 1;
 }
 
+function answerSpeedChoice(button) {
+  if (state.solved || button.disabled) return;
+  const level = levels[state.levelIndex];
+  const correct = button.dataset.category === level.correctCategory;
+  state.speedAttempts += 1;
+  if (!state.firstChoiceMade) {
+    state.firstChoiceMade = true;
+    state.firstChoiceCorrect = correct;
+  }
+  document.querySelectorAll("[data-category]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+  playCheckShot();
+  if (!correct) {
+    feedback(t("wrongTool"), false);
+    playMissSound();
+    pulse(100);
+    return;
+  }
+  state.solved = true;
+  recordSpeedCorrect();
+  document.querySelectorAll("[data-category]").forEach(item => { item.disabled = true; });
+  const earnedXP = (level.xpBase || 100) * (state.firstChoiceCorrect ? 1.5 : 1);
+  state.score += earnedXP;
+  $("score").textContent = state.score;
+  updatePlayerRun(level.exerciseNumber, earnedXP, state.firstChoiceCorrect);
+  feedback(t("correct", { xp: earnedXP }), true);
+  pulse([50, 40, 90]);
+  continueAfterCorrectSpeech(button.dataset.category, nextLevel, state.levelLoadToken);
+}
+
 function speedRecords() {
   try { return JSON.parse(localStorage.getItem("angleQuestSpeedRecordsV1")) || []; } catch { return []; }
 }
@@ -3507,6 +3543,7 @@ function loadLevel() {
   document.querySelector(".loadout").classList.remove("follow-up-attention");
   pieceLayer.classList.remove("follow-up-locked");
   document.documentElement.classList.toggle("master-mode", level.mode === "master");
+  document.documentElement.classList.toggle("speed-mode", state.speedMode);
   if (level.phase === "quadrilateral") preloadQuadrilateralSpeech();
   prepareQuadrilateralLevel(level);
   prepareDynamicLevel(level);
@@ -3531,6 +3568,7 @@ function loadLevel() {
         ? "בחרו את המרובע המתאים, גררו למסגרת וכוונו רק בעזרת הפעולות שמתאימות לצורה."
         : t("advancedHint");
   const section = courseSectionForLevel(level);
+  if (state.speedMode) $("mission-hint").textContent = "לחצו על התשובה המתאימה. טעיתם? נסו שוב. תשובה נכונה מעבירה לתרגיל הבא.";
   $("equal-tutorial-open").hidden = false;
   updateArenaInstructions(level);
   $("angle-readout").textContent = level.mode === "tutorial" ? t("tutorialMode") : level.mode === "master" ? t("masterMode") : t("practiceMode");
@@ -3627,7 +3665,16 @@ function prepareProLevel(level) {
   level.distractors = throughVertex;
 }
 
+$("category-list").addEventListener("click", event => {
+  if (!state.speedMode) return;
+  const button = event.target.closest("[data-category]");
+  if (!button) return;
+  event.stopImmediatePropagation();
+  answerSpeedChoice(button);
+}, true);
+
 svg.addEventListener("pointerdown", event => {
+  if (state.speedMode) return;
   if (state.dragging || state.solved || event.target.closest(".piece")) return;
   if (!state.category) {
     feedback(t("chooseFirst"), false);

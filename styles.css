@@ -482,3 +482,9 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+.speed-mode .arena-actions,
+.speed-mode #arena-tip,
+.speed-mode #mirror-help,
+.speed-mode #angle-readout {
+  display: none !important;
+}
