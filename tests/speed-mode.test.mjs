@@ -45,6 +45,22 @@ test('manual placement and check are no-ops in speed mode', () => {
   context.check();
 });
 
+test('given angle label follows its arc bisector rather than a fixed location', () => {
+  const nodes = [];
+  const context = vm.createContext({ sceneLayer: { append: node => nodes.push(node) },
+    svgEl: (tag, attrs, text) => ({ tag, attrs, text }),
+    normalizeSignedAngle: angle => ((angle + 540) % 360) - 180 });
+  vm.runInContext(extract('polar') + extract('arcBetweenPath') + extract('drawGivenAngle'), context);
+  for (const missing of [20, 90, 160]) {
+    nodes.length = 0;
+    context.drawGivenAngle({x: 360, y: 220}, -180, -missing, 180 - missing, 52);
+    assert.equal(nodes[0].attrs.class, 'given-arc');
+    assert.equal(nodes[1].text, `${180 - missing}°`);
+    const actual = Math.atan2(nodes[1].attrs.y - 220, nodes[1].attrs.x - 360) * 180 / Math.PI;
+    assert.ok(Math.abs(actual - (-180 - missing) / 2) < 1e-8);
+  }
+});
+
 test('F tutorial preserves parallel arms and attaches controls to geometry', () => {
   const context = vm.createContext({});
   vm.runInContext(extract('polar') + extract('tutorialPose') + extract('mouseFTutorialGeometry'), context);

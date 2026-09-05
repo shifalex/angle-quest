@@ -987,6 +987,16 @@ function arcBetweenPath(center, radius, startDegrees, endDegrees) {
   return `M ${center.x + start.x} ${center.y + start.y} A ${radius} ${radius} 0 0 ${delta >= 0 ? 1 : 0} ${center.x + end.x} ${center.y + end.y}`;
 }
 
+function drawGivenAngle(center, startDegrees, endDegrees, degrees, radius = 42) {
+  const sweep = normalizeSignedAngle(endDegrees - startDegrees);
+  sceneLayer.append(svgEl("path", { d: arcBetweenPath(center, radius, startDegrees, endDegrees), class: "given-arc" }));
+  const position = polar(radius + 28, startDegrees + sweep / 2);
+  sceneLayer.append(svgEl("text", {
+    x: center.x + position.x, y: center.y + position.y,
+    class: "given-label", "text-anchor": "middle", "dominant-baseline": "middle"
+  }, `${degrees}°`));
+}
+
 function angleToHorizontal(from, to) {
   const angle = Math.abs(Math.atan2(to.y - from.y, to.x - from.x) * 180 / Math.PI);
   return Math.min(angle, 180 - angle);
@@ -1098,8 +1108,7 @@ function renderScene(level) {
     line(sceneLayer, 95, 220, 635, 220);
     const diagonalEnd = polar(180, -missingDegrees);
     line(sceneLayer, level.target.x, level.target.y, level.target.x + diagonalEnd.x, level.target.y + diagonalEnd.y);
-    const givenLabel = polar(86, -90 - missingDegrees / 2);
-    label(sceneLayer, level.target.x + givenLabel.x, level.target.y + givenLabel.y, `${givenDegrees}°`, "given-label");
+    drawGivenAngle(level.target, -180, -missingDegrees, givenDegrees, 52);
     label(sceneLayer, 80, 241, "A");
     label(sceneLayer, 650, 241, "B");
   } else if (level.scene === "triangle") {
@@ -1115,8 +1124,8 @@ function renderScene(level) {
     line(sceneLayer, left.x, left.y, right.x, right.y);
     line(sceneLayer, left.x, left.y, top.x, top.y);
     line(sceneLayer, top.x, top.y, right.x, right.y);
-    label(sceneLayer, 255, 339, `${leftDegrees}°`, "given-label");
-    label(sceneLayer, 481, 339, `${rightDegrees}°`, "given-label");
+    drawGivenAngle(left, -leftDegrees, 0, leftDegrees, 38);
+    drawGivenAngle(right, -180, -180 + rightDegrees, rightDegrees, 38);
   }
 
   renderDistractorLines(level);
