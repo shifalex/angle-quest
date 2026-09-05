@@ -45,6 +45,20 @@ test('manual placement and check are no-ops in speed mode', () => {
   context.check();
 });
 
+test('vertical-angle snapping keeps the nearest half-turn orientation', () => {
+  const state = { piece: { rotation: 178 } };
+  const normalizeAngle = angle => (angle % 360 + 360) % 360;
+  const context = vm.createContext({ state, normalizeAngle, toolMarkerRotation: () => 0,
+    angleDistance: (a, b) => Math.abs(((a - b + 540) % 360) - 180) });
+  vm.runInContext(extract('placementRotationForTarget'), context);
+  assert.equal(context.placementRotationForTarget('קודקודיות', 60, 0, false), 180);
+  state.piece.rotation = 358;
+  assert.equal(context.placementRotationForTarget('קודקודיות', 60, 0, false), 0);
+  assert.equal(context.placementRotationForTarget('קודקודיות', 60, 0, true), 0);
+  state.piece.rotation = 178;
+  assert.equal(context.placementRotationForTarget('מתאימות', 60, 0, false), 0);
+});
+
 test('master probabilities are 10% primitives, 10% triangle, 20% each relationship', () => {
   const primitiveTemplates = ['acute', 'right', 'flat', 'obtuse'].map(correctCategory => ({ correctCategory }));
   const allTemplates = [...primitiveTemplates, ...['משולש', 'מתאימות', 'מתחלפות', 'קודקודיות', 'צמודות'].map(correctCategory => ({ correctCategory }))];

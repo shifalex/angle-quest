@@ -1981,7 +1981,12 @@ function placementRotationForTarget(category, degrees, targetRotation, mirrored)
     : category === "מתחלפות" ? markerRotation
       : category === "מתאימות" ? normalizeAngle(180 - markerRotation - degrees)
       : 180 - markerRotation;
-  return normalizeAngle(targetRotation - mirroredMarkerRotation);
+  const rotation = normalizeAngle(targetRotation - mirroredMarkerRotation);
+  if (category === "קודקודיות") {
+    const opposite = normalizeAngle(rotation + 180);
+    return angleDistance(state.piece.rotation, opposite) < angleDistance(state.piece.rotation, rotation) ? opposite : rotation;
+  }
+  return rotation;
 }
 
 function toolRotationDistance(category, actual, target) {
