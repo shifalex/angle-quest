@@ -68,15 +68,18 @@ test('supplementary and triangle targets cover acute, right, and obtuse geometry
   }
 });
 
-test('vertical-angle snapping keeps the nearest half-turn orientation', () => {
+test('vertical and alternate-angle snapping keeps the nearest half-turn orientation', () => {
   const state = { piece: { rotation: 178 } };
   const normalizeAngle = angle => (angle % 360 + 360) % 360;
   const context = vm.createContext({ state, normalizeAngle, toolMarkerRotation: () => 0,
     angleDistance: (a, b) => Math.abs(((a - b + 540) % 360) - 180) });
   vm.runInContext(extract('placementRotationForTarget'), context);
   assert.equal(context.placementRotationForTarget('קודקודיות', 60, 0, false), 180);
+  assert.equal(context.placementRotationForTarget('מתחלפות', 60, 0, false), 180);
+  assert.equal(context.placementRotationForTarget('מתחלפות', 60, 0, true), 180);
   state.piece.rotation = 358;
   assert.equal(context.placementRotationForTarget('קודקודיות', 60, 0, false), 0);
+  assert.equal(context.placementRotationForTarget('מתחלפות', 60, 0, false), 0);
   assert.equal(context.placementRotationForTarget('קודקודיות', 60, 0, true), 0);
   state.piece.rotation = 178;
   assert.equal(context.placementRotationForTarget('מתאימות', 60, 0, false), 0);
