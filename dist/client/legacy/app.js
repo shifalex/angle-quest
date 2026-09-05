@@ -772,6 +772,7 @@ function applyLanguage(reload = true) {
   $("stage-transition-next").textContent = t("nextLevel");
   $("course-menu-title").textContent = t("chooseStart");
   $("speed-results-close").textContent = t("chooseLevel");
+  $("speed-results-eyebrow").textContent = state.language === "he" ? "מצב מהיר" : state.language === "ru" ? "Быстрый режим" : "QUICK MODE";
   document.querySelector(".course-menu-card .eyebrow").textContent = t("chooseLevel").toUpperCase();
   $("course-menu-body").textContent = t("chooseStartBody");
   document.querySelector('[data-course-start="primitives"]').textContent = t("primitives");
