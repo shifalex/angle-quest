@@ -45,6 +45,32 @@ test('manual placement and check are no-ops in speed mode', () => {
   context.check();
 });
 
+test('first-attempt tally counts exercises, not retries', () => {
+  const state = { speedMode: true, speedCorrect: 0, speedFirstCorrect: 0, firstChoiceCorrect: false };
+  const context = vm.createContext({ state });
+  vm.runInContext(extract('recordSpeedCorrect'), context);
+  context.recordSpeedCorrect();
+  state.firstChoiceCorrect = true;
+  context.recordSpeedCorrect();
+  assert.equal(state.speedFirstCorrect, 1);
+  assert.equal(state.speedCorrect, 2);
+});
+
+test('both quick stages stop at results without advancing the level', () => {
+  for (const speedMode of [true, false]) {
+    let summaries = 0;
+    const state = { speedMode, levelIndex: 0 };
+    const context = vm.createContext({ state,
+      levels: [{ phase: speedMode ? 'master' : 'triangle-lines', exerciseNumber: 10, exerciseCount: 10 }],
+      showSpeedResults() { summaries++; }
+    });
+    vm.runInContext(extract('nextLevel'), context);
+    context.nextLevel();
+    assert.equal(summaries, 1);
+    assert.equal(state.levelIndex, 0);
+  }
+});
+
 test('bisector arcs follow the short interior angle in either direction', () => {
   const context = vm.createContext({});
   vm.runInContext(extract('polar') + extract('arcBetweenPath'), context);

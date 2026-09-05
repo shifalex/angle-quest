@@ -328,6 +328,8 @@ const state = {
   speedElapsedMs: 0,
   speedAttempts: 0,
   speedCorrect: 0,
+  speedFirstCorrect: 0,
+  speedResultsShown: false,
   speedTimerId: null
 };
 
@@ -3054,6 +3056,7 @@ function check() {
 }
 
 function checkTriangleLine(level) {
+  state.speedAttempts += 1;
   if (state.category !== level.correctCategory) {
     feedback("לא בדיוק. בדקו מה הקו מחלק או איזו זווית הוא יוצר.", false);
     playMissSound();
@@ -3249,7 +3252,7 @@ function handleWhatElseChoice(level, button) {
 
 function nextLevel() {
   const speedLevel = levels[state.levelIndex];
-  if (state.speedMode && speedLevel.exerciseNumber === speedLevel.exerciseCount) {
+  if ((state.speedMode || speedLevel.phase === "triangle-lines") && speedLevel.exerciseNumber === speedLevel.exerciseCount) {
     showSpeedResults();
     return;
   }
@@ -3332,7 +3335,7 @@ function formatSpeedTime(milliseconds) {
 }
 
 function updateSpeedTimer() {
-  if (!state.speedMode) return;
+  if (!state.speedMode && levels[state.levelIndex].phase !== "triangle-lines") return;
   state.speedElapsedMs = performance.now() - state.speedStartedAt;
   $("speed-timer").querySelector("b").textContent = formatSpeedTime(state.speedElapsedMs);
 }
@@ -3364,7 +3367,10 @@ function startSpeedMode() {
 }
 
 function recordSpeedCorrect() {
-  if (state.speedMode) state.speedCorrect += 1;
+  if (state.speedMode || levels[state.levelIndex].phase === "triangle-lines") {
+    state.speedCorrect += 1;
+    if (state.firstChoiceCorrect) state.speedFirstCorrect += 1;
+  }
 }
 
 function answerSpeedChoice(button) {
@@ -3401,14 +3407,23 @@ function speedRecords() {
 }
 
 function showSpeedResults() {
+  if (state.speedResultsShown) return;
+  state.speedResultsShown = true;
   updateSpeedTimer();
   stopSpeedTimer();
+  const triangleStage = levels[state.levelIndex].phase === "triangle-lines";
   const accuracy = state.speedAttempts ? state.speedCorrect / state.speedAttempts : 1;
   const seconds = state.speedElapsedMs / 1000;
   const finalScore = Math.max(0, Math.round(accuracy * 1000 + Math.max(0, 600 - seconds * 5)));
   const record = { id: makeLocalId("speed"), player: activePlayer()?.name || "שחקן", score: finalScore, time: state.speedElapsedMs, accuracy: Math.round(accuracy * 100), date: new Date().toISOString() };
   const records = [...speedRecords(), record].sort((a, b) => b.score - a.score || a.time - b.time).slice(0, 10);
-  try { localStorage.setItem("angleQuestSpeedRecordsV1", JSON.stringify(records)); } catch { /* Results still display for this session. */ }
+  if (!triangleStage) {
+    try { localStorage.setItem("angleQuestSpeedRecordsV1", JSON.stringify(records)); } catch { /* Results still display for this session. */ }
+  }
+  $("speed-results-title").textContent = triangleStage ? "סיכום קווים מיוחדים במשולש" : "תוצאות מצב מהיר";
+  $("speed-result-first").textContent = `${state.speedFirstCorrect} מתוך ${state.speedCorrect}`;
+  $("speed-leaderboard").hidden = triangleStage;
+  $("speed-leaderboard-title").hidden = triangleStage;
   $("speed-result-score").textContent = finalScore;
   $("speed-result-time").textContent = formatSpeedTime(state.speedElapsedMs);
   $("speed-result-accuracy").textContent = `${Math.round(accuracy * 100)}%`;
@@ -3548,6 +3563,9 @@ function pulse(pattern) {
 
 function loadLevel() {
   const level = levels[state.levelIndex];
+  if (level.exerciseNumber === 1 && (state.speedMode || level.phase === "triangle-lines")) {
+    Object.assign(state, { speedFirstCorrect: 0, speedCorrect: 0, speedAttempts: 0, speedResultsShown: false, speedStartedAt: performance.now(), speedElapsedMs: 0 });
+  }
   state.levelLoadToken += 1;
   document.querySelector(".loadout").classList.remove("follow-up-attention");
   pieceLayer.classList.remove("follow-up-locked");
@@ -3764,7 +3782,12 @@ $("touch-tutorial-try").addEventListener("click", () => {
 $("stage-transition-next").addEventListener("click", advanceToNextStage);
 $("course-menu-button").addEventListener("click", showCourseMenu);
 $("speed-mode-start").addEventListener("click", startSpeedMode);
-$("speed-retry").addEventListener("click", startSpeedMode);
+$("speed-retry").addEventListener("click", () => {
+  if (levels[state.levelIndex].phase === "triangle-lines") {
+    $("speed-results").hidden = true;
+    startCourseAt("triangle-lines");
+  } else startSpeedMode();
+});
 $("speed-results-close").addEventListener("click", () => {
   $("speed-results").hidden = true;
   state.speedMode = false;

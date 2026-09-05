@@ -183,12 +183,13 @@
     <section class="speed-results-card" role="dialog" aria-modal="true" aria-labelledby="speed-results-title">
       <p class="eyebrow">QUICK MODE</p>
       <h2 id="speed-results-title">תוצאות מצב מהיר</h2>
+      <p>נכון בניסיון הראשון: <strong id="speed-result-first">0 מתוך 0</strong></p>
       <div class="speed-result-metrics">
         <div><strong id="speed-result-score">0</strong><span>ציון</span></div>
         <div><strong id="speed-result-time">00:00</strong><span>זמן</span></div>
         <div><strong id="speed-result-accuracy">100%</strong><span>דיוק</span></div>
       </div>
-      <h3>טבלת שיאים</h3>
+      <h3 id="speed-leaderboard-title">טבלת שיאים</h3>
       <ol id="speed-leaderboard" class="speed-leaderboard"></ol>
       <div class="speed-results-actions">
         <button id="speed-retry" class="secondary-button" type="button">נסו שוב</button>
@@ -221,6 +222,6 @@
     </section>
   </div>
 
-  <script src="app.js?v=134"></script>
+  <script src="app.js?v=135"></script>
 </body>
 </html>
