@@ -803,19 +803,21 @@ let tutorialFrame = null;
 
 // Geometry and contacts use the SAME transform, in SVG viewBox units.
 function tutorialPose(time) {
-  const step = Math.min(5, Math.floor(time / 4000));
+  const step = Math.min(6, Math.floor(time / 4000));
   const local = time - step * 4000;
   const u = Math.max(0, Math.min(1, (local - 650) / 1800));
   const p = u * u * (3 - 2 * u);
-  const pose = { x: 150, y: 155, scale: 1, rotation: 0, flip: 1, opacity: 1, step, active: local >= 650 && local <= 2450 };
+  const pose = { x: 150, y: 155, scale: 1, rotation: 0, degrees: 45, flip: 1, opacity: 1, step, active: local >= 650 && local <= 2450 };
   if (step === 0) pose.x += 125 * p;
   else pose.x = 275;
   if (step === 1) pose.scale = 1 + .35 * p;
   if (step === 2) pose.scale = 1.35 - .35 * p;
   if (step === 3) pose.rotation = 50 * p;
   if (step >= 4) pose.rotation = 50;
-  if (step === 4) { pose.flip = local >= 1650 ? -1 : 1; pose.active = (local >= 1000 && local < 1150) || (local >= 1500 && local < 1650); }
-  if (step === 5) { pose.flip = -1; pose.opacity = 1 - p; }
+  if (step === 4) pose.degrees = 45 + 60 * p;
+  if (step >= 5) pose.degrees = 105;
+  if (step === 5) { pose.flip = local >= 1650 ? -1 : 1; pose.active = (local >= 1000 && local < 1150) || (local >= 1500 && local < 1650); }
+  if (step === 6) { pose.flip = -1; pose.opacity = 1 - p; }
   return pose;
 }
 
@@ -830,26 +832,33 @@ function restartControlTutorial() {
   const touch = isTouchInterface();
   const demo = $("control-tutorial-demo");
   demo.innerHTML = `<svg viewBox="0 0 520 270" class="gesture-demo-svg" aria-hidden="true"><path id="demo-angle" d="M 100 0 L 0 0 L 70 -70" fill="none" stroke="#b9f227" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><rect x="420" y="208" width="80" height="42" rx="12" fill="#182537" stroke="#fb7185"/><text x="460" y="235" text-anchor="middle" fill="#fb7185" font-size="17">⌫</text><g id="demo-contact-one"></g><g id="demo-contact-two"></g></svg>`;
-  const names = ["גרירה", "הגדלה", "הקטנה", "סיבוב", touch ? "דאבל־טאפ" : "דאבל־קליק", "זריקה"];
+  $("demo-angle").after(svgEl("circle", { id: "demo-angle-handle", r: 7, fill: "#31d7f5" }));
+  const names = ["גרירה", "הגדלה", "הקטנה", "סיבוב", "שינוי מפתח הזווית", touch ? "דאבל־טאפ" : "דאבל־קליק", "זריקה"];
   $("equal-tutorial-steps").innerHTML = names.map(name => `<li>${name}</li>`).join("");
   const drawPointer = (id, point, visible, held) => {
     const el = $(id);
     el.setAttribute("transform", `translate(${point.x} ${point.y})`);
     el.setAttribute("opacity", visible ? "1" : "0");
     el.innerHTML = `<circle r="17" fill="${held ? "#31d7f533" : "none"}" stroke="#31d7f5" stroke-width="2" opacity="${held ? 1 : 0}"/>` + (touch
-      ? '<ellipse cx="0" cy="15" rx="12" ry="19" fill="#e9bd9f" stroke="#bc8e71" stroke-width="1.2"/><path d="M -6 14 Q -7 4 0 4 Q 7 4 6 14" fill="none" stroke="#b78d76" stroke-width="1"/>'
+      ? '<ellipse cx="0" cy="17" rx="8" ry="19" fill="#e9bd9f" stroke="#bc8e71" stroke-width="1.2"/><rect x="-5" y="3" width="10" height="13" rx="4" fill="#f6dce5" stroke="#c18d9e" stroke-width=".8"/>'
       : '<path d="M 0 0 L 0 28 L 7 21 L 13 33 L 18 30 L 12 19 L 22 19 Z" fill="white" stroke="#172234" stroke-width="2"/>');
   };
   const started = performance.now();
   const frame = now => {
     if ($("equal-tutorial").hidden) { tutorialFrame = null; return; }
-    const pose = tutorialPose((now - started) % 24000);
+    const pose = tutorialPose((now - started) % 28000);
+    const ray = polar(100, -pose.degrees);
+    $("demo-angle").setAttribute("d", `M 100 0 L 0 0 L ${ray.x} ${ray.y}`);
     $("demo-angle").setAttribute("transform", `translate(${pose.x} ${pose.y}) rotate(${pose.rotation}) scale(${pose.scale * pose.flip} ${pose.scale})`);
     $("demo-angle").setAttribute("opacity", pose.opacity);
     const multi = pose.step >= 1 && pose.step <= 3;
-    const first = pose.step === 5 ? { x: 460, y: 230 } : tutorialContact(pose, multi ? { x: 90, y: 0 } : { x: 0, y: 0 });
+    const handle = tutorialContact(pose, polar(62, -pose.degrees));
+    $("demo-angle-handle").setAttribute("cx", handle.x);
+    $("demo-angle-handle").setAttribute("cy", handle.y);
+    $("demo-angle-handle").setAttribute("opacity", pose.step === 4 ? 1 : 0);
+    const first = pose.step === 6 ? { x: 460, y: 230 } : pose.step === 4 ? handle : tutorialContact(pose, multi ? { x: 44, y: 0 } : { x: 0, y: 0 });
     drawPointer("demo-contact-one", first, true, pose.active);
-    drawPointer("demo-contact-two", tutorialContact(pose, { x: 63, y: -63 }), touch && multi, pose.active);
+    drawPointer("demo-contact-two", tutorialContact(pose, polar(44, -pose.degrees)), touch && multi, pose.active);
     [...$("equal-tutorial-steps").children].forEach((el, index) => el.classList.toggle("active", index === pose.step));
     $("equal-tutorial-tip").textContent = `${names[pose.step]} — ${pose.active ? (touch ? "העיגול מסמן מגע" : "העיגול מסמן לחיצה") : "עצירה לפני הפעולה הבאה"}`;
     tutorialFrame = requestAnimationFrame(frame);
@@ -923,7 +932,8 @@ function arcPath(degrees, radius = 48) {
 function arcBetweenPath(center, radius, startDegrees, endDegrees) {
   const start = polar(radius, startDegrees);
   const end = polar(radius, endDegrees);
-  return `M ${center.x + start.x} ${center.y + start.y} A ${radius} ${radius} 0 0 1 ${center.x + end.x} ${center.y + end.y}`;
+  const delta = ((endDegrees - startDegrees + 540) % 360) - 180;
+  return `M ${center.x + start.x} ${center.y + start.y} A ${radius} ${radius} 0 0 ${delta >= 0 ? 1 : 0} ${center.x + end.x} ${center.y + end.y}`;
 }
 
 function angleToHorizontal(from, to) {
@@ -1118,9 +1128,7 @@ function renderChoices(level) {
       state.category = button.dataset.category;
       state.equipped = true;
       document.querySelectorAll("[data-category]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
-      $("check-button").disabled = false;
-      $("angle-readout").textContent = level.termLabels[state.category];
-      feedback(`בחרתם: ${level.termLabels[state.category]}`, true);
+      checkTriangleLine(level);
     }));
     return;
   }
@@ -1221,7 +1229,8 @@ function speakSelection(category) {
   };
   const primitiveSpoken = { "חדה": "זווית חדה", "ישרה": "זווית ישרה", "שטוחה": "זָוִית שְׁטוּחָה", "קהה": "זָוִית קֵהָה" };
   const complexSpoken = { "מתאימות": "זָוִיּוֹת מַתְאִימוֹת", "מתחלפות": "זָוִיּוֹת מִתְחַלְּפוֹת", "קודקודיות": "זָוִיּוֹת קוֹדְקוֹדִיּוֹת", "צמודות": "זָוִיּוֹת צְמוּדוֹת" };
-  const spokenText = primitiveSpoken[category] || complexSpoken[category]
+  const triangleSpoken = { "גובה": "גֹּ֫בַהּ", "חוצה זווית": "חוֹצֵה זָוִית", "תיכון": "תִּיכוֹן", "אנך": "אֲנָךְ", "חוצה צלע": "חוֹצֵה צֶלַע" };
+  const spokenText = primitiveSpoken[category] || complexSpoken[category] || triangleSpoken[category]
     || (category === "טרפז" ? "טְרַפֵּז." : category === "מלבן" ? "מַלְבֵּן." : category === "דלתון" ? "דַלְטוֹן." : category);
   return playRecordedSpeech(category, spokenText, englishNames[category], russianNames[category]);
 }
@@ -3060,7 +3069,7 @@ function checkTriangleLine(level) {
   const synonym = level.correctCategory === "תיכון" ? "תיכון נקרא גם חוצה צלע" : level.correctCategory === "גובה" ? "גובה הוא גם אנך לצלע" : "חוצה זווית מחלק את הזווית לשתי זוויות שוות";
   feedback(`נכון! ${synonym}. +${earnedXP} XP`, true);
   pulse([50, 40, 90]);
-  continueAfterCorrectSpeech(level.correctCategory, nextLevel, state.levelLoadToken);
+  continueAfterCorrectSpeech(level.termLabels[level.correctCategory], nextLevel, state.levelLoadToken);
 }
 
 function transformedQuadrilateralVertices(vertices, piece) {
@@ -3370,7 +3379,7 @@ function answerSpeedChoice(button) {
   document.querySelectorAll("[data-category]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
   playCheckShot();
   if (!correct) {
-    feedback(t("wrongTool"), false);
+    feedback("לא בדיוק. נסו תשובה אחרת.", false);
     playMissSound();
     pulse(100);
     return;
@@ -3543,7 +3552,7 @@ function loadLevel() {
   document.querySelector(".loadout").classList.remove("follow-up-attention");
   pieceLayer.classList.remove("follow-up-locked");
   document.documentElement.classList.toggle("master-mode", level.mode === "master");
-  document.documentElement.classList.toggle("speed-mode", state.speedMode);
+  document.documentElement.classList.toggle("speed-mode", state.speedMode || level.phase === "triangle-lines");
   if (level.phase === "quadrilateral") preloadQuadrilateralSpeech();
   prepareQuadrilateralLevel(level);
   prepareDynamicLevel(level);

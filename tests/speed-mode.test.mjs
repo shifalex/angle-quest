@@ -44,3 +44,25 @@ test('manual placement and check are no-ops in speed mode', () => {
   context.placeSelected({ x: 10, y: 10 });
   context.check();
 });
+
+test('bisector arcs follow the short interior angle in either direction', () => {
+  const context = vm.createContext({});
+  vm.runInContext(extract('polar') + extract('arcBetweenPath'), context);
+  assert.match(context.arcBetweenPath({x: 0, y: 0}, 48, 130, 90), /A 48 48 0 0 0 /);
+  assert.match(context.arcBetweenPath({x: 0, y: 0}, 48, 90, 130), /A 48 48 0 0 1 /);
+});
+
+test('tutorial changes aperture without changing ray length and preserves pauses', () => {
+  const context = vm.createContext({});
+  vm.runInContext(extract('polar') + extract('tutorialPose') + extract('tutorialContact'), context);
+  const before = context.tutorialPose(16000);
+  const after = context.tutorialPose(19000);
+  assert.equal(before.degrees, 45);
+  assert.equal(after.degrees, 105);
+  assert.equal(before.active, false);
+  assert.equal(after.active, false);
+  for (const pose of [before, after]) {
+    const contact = context.tutorialContact(pose, context.polar(62, -pose.degrees));
+    assert.ok(Math.abs(Math.hypot(contact.x - pose.x, contact.y - pose.y) - 62) < 1e-8);
+  }
+});
