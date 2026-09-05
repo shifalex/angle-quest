@@ -206,7 +206,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .mirror-button[aria-pressed="true"] { border-color: var(--orange); background: rgba(255,159,67,.12); }
 .discard-button { color: var(--danger); }
 .gesture-control { display: none !important; }
-.feedback { height: 64px; display: grid; place-items: center; overflow: hidden; text-align: center; margin-top: 10px; padding-inline: 8px; font-weight: 750; line-height: 1.35; }
+.feedback { min-height: 32px; height: auto; display: grid; place-items: center; text-align: center; margin: 4px 0 0; padding: 2px 6px; font-size: .85rem; font-weight: 750; line-height: 1.2; overflow-wrap: anywhere; }
 .feedback.success { color: var(--lime); }
 .feedback.error { color: var(--danger); }
 .feedback.follow-up-prompt { color: var(--cyan); border: 1px solid var(--cyan-dark); border-radius: 12px; background: rgba(49,215,245,.10); animation: follow-up-prompt .75s ease-out; }
@@ -406,7 +406,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
   .touch-ui .loadout .choice-button { min-width: 0; }
   .touch-ui .arena { height: clamp(288px, 42vh, 378px); min-height: 0; }
   .touch-ui #geometry { height: 100%; min-height: 0; }
-  .touch-ui .feedback { min-height: 58px; height: auto; margin-top: 6px; }
+  .touch-ui .feedback { min-height: 32px; height: auto; margin-top: 4px; }
 }
 
 @media (orientation: portrait) and (pointer: coarse) {
@@ -456,7 +456,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
   .arena-actions .secondary-button { min-width: 72px; padding-inline: 9px; }
   .primary-button.compact { min-width: 105px; padding: 0 14px; }
   .arena-tip { font-size: .68rem; }
-  .feedback { height: 76px; }
+  .feedback { min-height: 32px; height: auto; }
   .player-form, .level-records { grid-template-columns: 1fr; }
   .history-row { grid-template-columns: 1fr; gap: 3px; }
 }
