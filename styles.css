@@ -236,7 +236,12 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .speed-leaderboard li { padding: 7px 5px; border-bottom: 1px solid rgba(255,255,255,.08); }
 .speed-leaderboard li.current-record { color: var(--lime); font-weight: 800; }
 .speed-results-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.control-tutorial-demo { position: relative; height: 210px; overflow: hidden; margin: 12px 0; border: 1px solid rgba(34,211,238,.28); border-radius: 18px; background: radial-gradient(circle at 68% 47%, rgba(34,211,238,.12), transparent 25%), #091220; }
+.control-tutorial-demo { position: relative; height: auto; aspect-ratio: 520 / 270; overflow: hidden; margin: 12px 0; border: 1px solid rgba(34,211,238,.28); border-radius: 18px; background: #091220; }
+.gesture-demo-svg { display:block; width:100%; height:100%; }
+.control-tutorial-steps li.active { color:#b9f227; background:#b9f22718; }
+#equal-tutorial-steps { grid-template-columns:repeat(3,1fr); padding:0; }
+#equal-tutorial-steps li { margin:0; }
+.equal-tutorial-card { max-height:calc(100dvh - 24px); overflow:auto; }
 .tutorial-target-angle { position: absolute; right: 18%; top: 60px; width: 78px; height: 78px; border-right: 4px solid rgba(34,211,238,.38); border-bottom: 4px solid rgba(34,211,238,.38); transform: skew(-18deg); }
 .tutorial-demo-tool { position: absolute; left: 16%; top: 92px; color: var(--lime); font: 900 78px/1 Arial,sans-serif; transform-origin: 14px 55px; filter: drop-shadow(0 0 9px rgba(185,242,39,.5)); animation: control-tool-tour 9s ease-in-out infinite; }
 .tutorial-finger { position: absolute; z-index: 4; width: 38px; height: 48px; border: 2px solid #ffd4b6; border-radius: 52% 52% 44% 44%; background: radial-gradient(circle at 50% 24%,#ffe6d4 0 27%,#f2b287 64%,#d88861 100%); box-shadow: 0 5px 10px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.15); transform-origin: 50% 78%; }

@@ -786,9 +786,7 @@ function isTouchInterface() {
 }
 
 function showTouchTutorial() {
-  if (!isTouchInterface()) return;
-  $("touch-tutorial").hidden = false;
-  $("touch-tutorial-close").focus();
+  showEqualTutorial();
 }
 
 function closeTouchTutorial() {
@@ -796,17 +794,67 @@ function closeTouchTutorial() {
   try { localStorage.setItem("angleQuestTouchTutorialV2Seen", "true"); } catch { /* The tutorial can appear again next session. */ }
 }
 
+let tutorialFrame = null;
+
+// Geometry and contacts use the SAME transform, in SVG viewBox units.
+function tutorialPose(time) {
+  const step = Math.min(5, Math.floor(time / 4000));
+  const local = time - step * 4000;
+  const u = Math.max(0, Math.min(1, (local - 650) / 1800));
+  const p = u * u * (3 - 2 * u);
+  const pose = { x: 150, y: 155, scale: 1, rotation: 0, flip: 1, opacity: 1, step, active: local >= 650 && local <= 2450 };
+  if (step === 0) pose.x += 125 * p;
+  else pose.x = 275;
+  if (step === 1) pose.scale = 1 + .35 * p;
+  if (step === 2) pose.scale = 1.35 - .35 * p;
+  if (step === 3) pose.rotation = 50 * p;
+  if (step >= 4) pose.rotation = 50;
+  if (step === 4) { pose.flip = local >= 1650 ? -1 : 1; pose.active = (local >= 1000 && local < 1150) || (local >= 1500 && local < 1650); }
+  if (step === 5) { pose.flip = -1; pose.opacity = 1 - p; }
+  return pose;
+}
+
+function tutorialContact(pose, point) {
+  const angle = pose.rotation * Math.PI / 180;
+  const x = point.x * pose.scale * pose.flip, y = point.y * pose.scale;
+  return { x: pose.x + x * Math.cos(angle) - y * Math.sin(angle), y: pose.y + x * Math.sin(angle) + y * Math.cos(angle) };
+}
+
 function restartControlTutorial() {
+  if (tutorialFrame !== null) cancelAnimationFrame(tutorialFrame);
+  const touch = isTouchInterface();
   const demo = $("control-tutorial-demo");
-  demo.getAnimations({ subtree: true }).forEach(animation => {
-    animation.cancel();
-    animation.play();
-  });
+  demo.innerHTML = `<svg viewBox="0 0 520 270" class="gesture-demo-svg" aria-hidden="true"><path id="demo-angle" d="M 100 0 L 0 0 L 70 -70" fill="none" stroke="#b9f227" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><rect x="420" y="208" width="80" height="42" rx="12" fill="#182537" stroke="#fb7185"/><text x="460" y="235" text-anchor="middle" fill="#fb7185" font-size="17">⌫</text><g id="demo-contact-one"></g><g id="demo-contact-two"></g></svg>`;
+  const names = ["גרירה", "הגדלה", "הקטנה", "סיבוב", touch ? "דאבל־טאפ" : "דאבל־קליק", "זריקה"];
+  $("equal-tutorial-steps").innerHTML = names.map(name => `<li>${name}</li>`).join("");
+  const drawPointer = (id, point, visible, held) => {
+    const el = $(id);
+    el.setAttribute("transform", `translate(${point.x} ${point.y})`);
+    el.setAttribute("opacity", visible ? "1" : "0");
+    el.innerHTML = `<circle r="17" fill="${held ? "#31d7f533" : "none"}" stroke="#31d7f5" stroke-width="2" opacity="${held ? 1 : 0}"/>` + (touch
+      ? '<ellipse cx="0" cy="15" rx="12" ry="19" fill="#e9bd9f" stroke="#bc8e71" stroke-width="1.2"/><path d="M -6 14 Q -7 4 0 4 Q 7 4 6 14" fill="none" stroke="#b78d76" stroke-width="1"/>'
+      : '<path d="M 0 0 L 0 28 L 7 21 L 13 33 L 18 30 L 12 19 L 22 19 Z" fill="white" stroke="#172234" stroke-width="2"/>');
+  };
+  const started = performance.now();
+  const frame = now => {
+    if ($("equal-tutorial").hidden) { tutorialFrame = null; return; }
+    const pose = tutorialPose((now - started) % 24000);
+    $("demo-angle").setAttribute("transform", `translate(${pose.x} ${pose.y}) rotate(${pose.rotation}) scale(${pose.scale * pose.flip} ${pose.scale})`);
+    $("demo-angle").setAttribute("opacity", pose.opacity);
+    const multi = pose.step >= 1 && pose.step <= 3;
+    const first = pose.step === 5 ? { x: 460, y: 230 } : tutorialContact(pose, multi ? { x: 90, y: 0 } : { x: 0, y: 0 });
+    drawPointer("demo-contact-one", first, true, pose.active);
+    drawPointer("demo-contact-two", tutorialContact(pose, { x: 63, y: -63 }), touch && multi, pose.active);
+    [...$("equal-tutorial-steps").children].forEach((el, index) => el.classList.toggle("active", index === pose.step));
+    $("equal-tutorial-tip").textContent = `${names[pose.step]} — ${pose.active ? (touch ? "העיגול מסמן מגע" : "העיגול מסמן לחיצה") : "עצירה לפני הפעולה הבאה"}`;
+    tutorialFrame = requestAnimationFrame(frame);
+  };
+  tutorialFrame = requestAnimationFrame(frame);
 }
 
 function showEqualTutorial(markSeen = false) {
   document.querySelector(".equal-tutorial-card .eyebrow").textContent = "הדרכת שליטה";
-  $("equal-tutorial-title").textContent = "נסו עם האצבעות";
+  $("equal-tutorial-title").textContent = isTouchInterface() ? "שליטה במגע" : "שליטה בעכבר";
   $("equal-tutorial-steps").innerHTML = "<li>גרירה</li><li>הגדלה/הקטנה</li><li>סיבוב</li><li>דאבל־טאפ</li><li>זריקה</li>";
   $("equal-tutorial-tip").textContent = "עיגול קבוע מציין לחיצה מוחזקת. שתי פעימות של עיגול מציינות דאבל־טאפ ופליפ.";
   $("equal-tutorial").hidden = false;
@@ -830,7 +878,7 @@ function updateTouchInterface(showFirstTutorial = false) {
   if (active && showFirstTutorial) {
     let seen = false;
     try { seen = localStorage.getItem("angleQuestTouchTutorialV2Seen") === "true"; } catch { /* Show the tutorial. */ }
-    if (!seen) showTouchTutorial();
+    // The first-exercise tutorial owns onboarding for both input modes.
   }
 }
 
