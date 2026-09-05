@@ -305,6 +305,7 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .course-menu-grid button { min-height: 58px; padding: 10px; border: 1px solid var(--line); border-radius: 13px; background: var(--panel-2); color: var(--ink); cursor: pointer; font-weight: 850; }
 .course-menu-grid button:hover { border-color: var(--cyan); color: var(--cyan); }
 .course-menu-grid .quadrilateral-course { grid-column: 1; margin-bottom: 14px; }
+.course-menu-grid [data-course-start="triangle-lines"] { margin-bottom: 14px; }
 .course-menu-grid .quadrilateral-course-spacer { grid-column: 2; margin-bottom: 14px; }
 .shape-control[hidden] { display: none; }
 .shape-control:disabled { opacity: .34; cursor: not-allowed; }

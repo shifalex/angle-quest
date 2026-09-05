@@ -223,7 +223,7 @@ const quadrilateralLevels = Array.from({ length: 12 }, (_, index) => {
       : { width: 150 - (index % 3) * 10, height: 112 + (index % 3) * 14 };
   return {
     id: `quadrilateral-${index + 1}`, phase: "quadrilateral", family: "מרובעים",
-    mode: "quadrilateral", stageName: "שלב מרובעים", exerciseNumber: index + 1,
+    mode: "quadrilateral", stageName: "מרובעים", exerciseNumber: index + 1,
     exerciseCount: 12, correctCategory: shape, categories: quadrilateralTools,
     choices: [{ id: "quad-target", degrees: 0, type: "right" }], correctChoice: "quad-target",
     target: { x: 390, y: 218, rotation: (index % 3) * 15 - 15, tolerance: 42, rotationTolerance: 20 },
@@ -448,7 +448,7 @@ function courseSectionForLevel(level) {
 
 function courseSectionLabel(section) {
   if (section === "speed") return "מצב מהיר";
-  if (section === "quadrilaterals") return "שלב מרובעים";
+  if (section === "quadrilaterals") return "מרובעים";
   if (section === "triangle-lines") return state.language === "en" ? "Triangle lines" : state.language === "ru" ? "Линии треугольника" : "קווים מיוחדים במשולש";
   if (section === "equal") return t("startEqual");
   if (section === "180") return "180°";
