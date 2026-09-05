@@ -45,6 +45,48 @@ test('manual placement and check are no-ops in speed mode', () => {
   context.check();
 });
 
+test('mechanical sounds follow actual movement, stay silent on redraw and solved state', () => {
+  const calls = [];
+  const state = { equipped: true, solved: false, piece: { x: 0, y: 0, rotation: 0, mirrored: false }, degrees: 45, dimensions: { arm: 100 }, quadDimensions: { width: 100, height: 100 }, category: 'acute', levelLoadToken: 1 };
+  const context = vm.createContext({ state, playMotionSound: (...args) => calls.push(args) });
+  vm.runInContext('let previousPieceSound = null;\n' + extract('trackPieceMotionSound'), context);
+  context.trackPieceMotionSound();
+  context.trackPieceMotionSound();
+  assert.equal(calls.length, 0);
+  state.piece.x = 12;
+  context.trackPieceMotionSound();
+  state.piece.rotation = 15;
+  context.trackPieceMotionSound();
+  state.dimensions.arm = 110;
+  context.trackPieceMotionSound();
+  state.degrees = 60;
+  context.trackPieceMotionSound();
+  state.piece.mirrored = true;
+  context.trackPieceMotionSound();
+  assert.deepEqual(calls.map(call => call[0]), ['move', 'rotate', 'size', 'angle', 'flip']);
+  state.solved = true;
+  state.piece.x = 80;
+  context.trackPieceMotionSound();
+  assert.equal(calls.length, 5);
+});
+
+test('mechanical sound respects mute and limits repeated audio bursts', () => {
+  const calls = [];
+  const audio = { state: 'running', currentTime: 1, destination: {}, createGain: () => ({ connect() {}, gain: { setValueAtTime() {} } }) };
+  let muted = true;
+  const context = vm.createContext({ activeEffectsContext: () => muted ? null : audio, document: { hidden: false }, speechState: {}, window: {}, noiseBurst: () => calls.push('noise'), toneHit: () => calls.push('tone') });
+  vm.runInContext('let motionGain = null; let lastMotionSoundAt = -Infinity;\n' + extract('playMotionSound'), context);
+  context.playMotionSound('move');
+  assert.equal(calls.length, 0);
+  muted = false;
+  context.playMotionSound('move');
+  context.playMotionSound('move');
+  assert.equal(calls.length, 2);
+  audio.currentTime += .06;
+  context.playMotionSound('move');
+  assert.equal(calls.length, 4);
+});
+
 test('first-attempt tally counts exercises, not retries', () => {
   const state = { speedMode: true, speedCorrect: 0, speedFirstCorrect: 0, firstChoiceCorrect: false };
   const context = vm.createContext({ state });

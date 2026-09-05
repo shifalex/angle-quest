@@ -846,9 +846,22 @@ function restartControlTutorial() {
       : '<path d="M 0 0 L 0 28 L 7 21 L 13 33 L 18 30 L 12 19 L 22 19 Z" fill="white" stroke="#172234" stroke-width="2"/>');
   };
   const started = performance.now();
+  let previousSoundPose = null;
   const frame = now => {
     if ($("equal-tutorial").hidden) { tutorialFrame = null; return; }
     const pose = tutorialPose((now - started) % 28000);
+    if (previousSoundPose?.step === pose.step && pose.active) {
+      const before = previousSoundPose;
+      if (pose.step === 5 && pose.flip !== before.flip) playMotionSound("flip", 1);
+      else if (pose.step === 6 && !before.active) playDiscardSound();
+      else if (pose.step < 5) {
+        const change = Math.abs(pose.x - before.x) + Math.abs(pose.scale - before.scale) * 100 + Math.abs(pose.rotation - before.rotation) + Math.abs(pose.degrees - before.degrees);
+        if (change > .001) playMotionSound(["move", "size", "size", "rotate", "angle"][pose.step], change / 2);
+      }
+    }
+    // Flip happens at release of the second tap, outside the held interval.
+    if (previousSoundPose?.step === 5 && pose.step === 5 && pose.flip !== previousSoundPose.flip && !pose.active) playMotionSound("flip", 1);
+    previousSoundPose = pose;
     const ray = polar(100, -pose.degrees);
     $("demo-angle").setAttribute("d", `M 100 0 L 0 0 L ${ray.x} ${ray.y}`);
     $("demo-angle").setAttribute("transform", `translate(${pose.x} ${pose.y}) rotate(${pose.rotation}) scale(${pose.scale * pose.flip} ${pose.scale})`);
@@ -872,6 +885,7 @@ function restartControlTutorial() {
 }
 
 function showEqualTutorial(markSeen = false) {
+  activeEffectsContext();
   document.querySelector(".equal-tutorial-card .eyebrow").textContent = "הדרכת שליטה";
   $("equal-tutorial-title").textContent = isTouchInterface() ? "שליטה במגע" : "שליטה בעכבר";
   $("equal-tutorial-steps").innerHTML = "<li>גרירה</li><li>הגדלה/הקטנה</li><li>סיבוב</li><li>דאבל־טאפ</li><li>זריקה</li>";
@@ -885,6 +899,7 @@ function showEqualTutorial(markSeen = false) {
 }
 
 function closeEqualTutorial() {
+  silenceMotionSound();
   $("equal-tutorial").hidden = true;
   try { localStorage.setItem("angleQuestControlTutorialV3Seen", "true"); } catch { /* The tutorial can appear again next session. */ }
 }
@@ -1438,6 +1453,7 @@ function defaultPlacementRotation(category, targetRotation, degrees) {
 }
 
 function renderPiece() {
+  trackPieceMotionSound();
   pieceLayer.replaceChildren();
   if (!state.equipped) return;
   const level = levels[state.levelIndex];
@@ -3448,6 +3464,48 @@ function clearAdjustmentFeedback() {
 }
 
 let effectsAudioContext = null;
+let motionGain = null;
+let lastMotionSoundAt = -Infinity;
+let previousPieceSound = null;
+
+function silenceMotionSound() {
+  if (motionGain && effectsAudioContext) motionGain.gain.setValueAtTime(0, effectsAudioContext.currentTime);
+}
+
+function playMotionSound(kind, intensity = 1) {
+  const context = activeEffectsContext();
+  if (!context || context.state !== "running" || document.hidden) return;
+  const now = context.currentTime;
+  if (kind !== "flip" && now - lastMotionSoundAt < .055) return;
+  lastMotionSoundAt = now;
+  if (!motionGain) { motionGain = context.createGain(); motionGain.connect(context.destination); }
+  motionGain.gain.setValueAtTime(speechState.audio || window.speechSynthesis?.speaking ? .3 : 1, now);
+  const strength = Math.max(.25, Math.min(1, intensity));
+  const settings = {
+    move: [650, 95, .06], size: [1800, 180, .045],
+    rotate: [2600, 280, .035], angle: [3400, 460, .028], flip: [2100, 620, .075]
+  }[kind] || [650, 95, .06];
+  const [frequency, pitch, duration] = settings;
+  noiseBurst(context, now, duration, .035 * strength, frequency, motionGain);
+  toneHit(context, now, { from: pitch * (1 + strength * .2), to: pitch * .65, duration, volume: .018 * strength, type: "triangle" }, motionGain);
+}
+
+function trackPieceMotionSound() {
+  if (!state.equipped || state.solved) { previousPieceSound = null; return; }
+  const current = { ...state.piece, degrees: state.degrees, size: Object.values(state.dimensions).reduce((a, b) => a + b, 0) + state.quadDimensions.width + state.quadDimensions.height, category: state.category, token: state.levelLoadToken };
+  const before = previousPieceSound;
+  previousPieceSound = current;
+  if (!before || before.category !== current.category || before.token !== current.token) return;
+  const distance = Math.hypot(current.x - before.x, current.y - before.y);
+  const turn = Math.abs(((current.rotation - before.rotation + 540) % 360) - 180);
+  const angle = Math.abs(current.degrees - before.degrees);
+  const size = Math.abs(current.size - before.size);
+  if (current.mirrored !== before.mirrored) playMotionSound("flip", 1);
+  else if (angle > .01) playMotionSound("angle", angle / 3);
+  else if (size > .01) playMotionSound("size", size / 5);
+  else if (turn > .01) playMotionSound("rotate", turn / 3);
+  else if (distance > .05) playMotionSound("move", distance / 8);
+}
 
 function activeEffectsContext() {
   if ($("sound-toggle").getAttribute("aria-pressed") !== "true") return null;
@@ -3458,7 +3516,7 @@ function activeEffectsContext() {
   return effectsAudioContext;
 }
 
-function noiseBurst(context, start, duration, volume, frequency) {
+function noiseBurst(context, start, duration, volume, frequency, output = context.destination) {
   const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
   const samples = buffer.getChannelData(0);
   for (let index = 0; index < samples.length; index += 1) samples[index] = Math.random() * 2 - 1;
@@ -3471,12 +3529,13 @@ function noiseBurst(context, start, duration, volume, frequency) {
   filter.Q.setValueAtTime(.7, start);
   gain.gain.setValueAtTime(volume, start);
   gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
-  source.connect(filter).connect(gain).connect(context.destination);
+  source.connect(filter).connect(gain).connect(output);
   source.start(start);
   source.stop(start + duration);
+  source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
 }
 
-function toneHit(context, start, { from, to = from, duration, volume, type = "sine" }) {
+function toneHit(context, start, { from, to = from, duration, volume, type = "sine" }, output = context.destination) {
   const oscillator = context.createOscillator();
   const gain = context.createGain();
   oscillator.type = type;
@@ -3484,9 +3543,10 @@ function toneHit(context, start, { from, to = from, duration, volume, type = "si
   oscillator.frequency.exponentialRampToValueAtTime(Math.max(20, to), start + duration);
   gain.gain.setValueAtTime(Math.max(.0001, volume), start);
   gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
-  oscillator.connect(gain).connect(context.destination);
+  oscillator.connect(gain).connect(output);
   oscillator.start(start);
   oscillator.stop(start + duration);
+  oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
 }
 
 function playEquipSound() {
@@ -3736,6 +3796,7 @@ $("sound-toggle").addEventListener("click", event => {
   event.currentTarget.textContent = active ? "🔇" : "🔊";
   event.currentTarget.setAttribute("aria-label", active ? t("soundOn") : t("soundOff"));
   if (active) {
+    silenceMotionSound();
     if (speechState.timer) clearTimeout(speechState.timer);
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
     if (speechState.audio) {
