@@ -834,7 +834,7 @@ function restartControlTutorial() {
   const touch = isTouchInterface();
   const demo = $("control-tutorial-demo");
   demo.innerHTML = `<svg viewBox="0 0 520 270" class="gesture-demo-svg" aria-hidden="true"><path id="demo-angle" d="M 100 0 L 0 0 L 70 -70" fill="none" stroke="#b9f227" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><rect x="420" y="208" width="80" height="42" rx="12" fill="#182537" stroke="#fb7185"/><text x="460" y="235" text-anchor="middle" fill="#fb7185" font-size="17">⌫</text><g id="demo-contact-one"></g><g id="demo-contact-two"></g></svg>`;
-  $("demo-angle").after(svgEl("circle", { id: "demo-angle-handle", r: 7, fill: "#31d7f5" }));
+  demo.querySelector("svg").append(svgEl("circle", { id: "demo-angle-handle", r: 6, fill: "#31d7f5", stroke: "#fff", "stroke-width": 1.5 }));
   const names = ["גרירה", "הגדלה", "הקטנה", "סיבוב", "שינוי מפתח הזווית", touch ? "דאבל־טאפ" : "דאבל־קליק", "זריקה"];
   $("equal-tutorial-steps").innerHTML = names.map(name => `<li>${name}</li>`).join("");
   const drawPointer = (id, point, visible, held) => {
@@ -858,11 +858,14 @@ function restartControlTutorial() {
     $("demo-angle-handle").setAttribute("cx", handle.x);
     $("demo-angle-handle").setAttribute("cy", handle.y);
     $("demo-angle-handle").setAttribute("opacity", pose.step === 4 ? 1 : 0);
-    const first = pose.step === 6 ? { x: 460, y: 230 } : pose.step === 4 ? handle : tutorialContact(pose, multi ? { x: 44, y: 0 } : { x: 0, y: 0 });
+    const radius = pose.step === 1 || pose.step === 2 ? 88 : 44;
+    // Flip is a stationary double-tap, not a contact attached to the reflected tool.
+    const contactPose = pose.step === 5 ? { ...pose, flip: 1 } : pose;
+    const first = pose.step === 6 ? { x: 460, y: 230 } : pose.step === 4 ? handle : tutorialContact(contactPose, multi ? { x: radius, y: 0 } : polar(48, -pose.degrees / 2));
     drawPointer("demo-contact-one", first, true, pose.active);
-    drawPointer("demo-contact-two", tutorialContact(pose, polar(44, -pose.degrees)), touch && multi, pose.active);
+    drawPointer("demo-contact-two", tutorialContact(pose, polar(radius, -pose.degrees)), touch && multi, pose.active);
     [...$("equal-tutorial-steps").children].forEach((el, index) => el.classList.toggle("active", index === pose.step));
-    $("equal-tutorial-tip").textContent = `${names[pose.step]} — ${pose.active ? (touch ? "העיגול מסמן מגע" : "העיגול מסמן לחיצה") : "עצירה לפני הפעולה הבאה"}`;
+    $("equal-tutorial-tip").textContent = `${names[pose.step]} — ${pose.active ? (pose.step === 4 ? "גוררים את הנקודה הכחולה כדי לשנות את הזווית" : touch ? "העיגול מסמן מגע" : "העיגול מסמן לחיצה") : "עצירה לפני הפעולה הבאה"}`;
     tutorialFrame = requestAnimationFrame(frame);
   };
   tutorialFrame = requestAnimationFrame(frame);
