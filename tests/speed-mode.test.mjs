@@ -45,6 +45,20 @@ test('manual placement and check are no-ops in speed mode', () => {
   context.check();
 });
 
+test('F tutorial preserves parallel arms and attaches controls to geometry', () => {
+  const context = vm.createContext({});
+  vm.runInContext(extract('polar') + extract('tutorialPose') + extract('mouseFTutorialGeometry'), context);
+  for (const time of [0, 6000, 10000, 14000, 18000, 20000]) {
+    const pose = context.tutorialPose(time);
+    const geometry = context.mouseFTutorialGeometry(pose);
+    assert.equal(geometry.top.y, geometry.topEnd.y);
+    assert.ok(Math.abs(geometry.topEnd.x - geometry.top.x - 100) < 1e-8);
+    assert.ok(Math.abs(Math.hypot(geometry.angle.x, geometry.angle.y) - 62) < 1e-8);
+    assert.equal(geometry.height.x, geometry.top.x * .72);
+    assert.equal(geometry.height.y, geometry.top.y * .72);
+  }
+});
+
 test('supplementary and triangle targets cover acute, right, and obtuse geometry', () => {
   const context = vm.createContext({ classifyAngle: d => d < 90 ? 'acute' : d === 90 ? 'right' : 'obtuse' });
   vm.runInContext(extract('prepareDynamicLevel'), context);

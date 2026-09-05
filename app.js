@@ -838,54 +838,74 @@ function tutorialContact(pose, point) {
 
 function restartControlTutorial() {
   if (tutorialFrame !== null) cancelAnimationFrame(tutorialFrame);
+  restartMouseFTutorial();
+}
+
+function mouseFTutorialGeometry(pose) {
+  const degrees = 90 + (pose.degrees - 45) * 2 / 3;
+  const gap = 70 * pose.scale;
+  const top = polar(-gap, degrees);
+  return {
+    top, topEnd: { x: top.x + 100, y: top.y }, bottom: polar(65, degrees),
+    angle: polar(62, degrees), height: { x: top.x * .72, y: top.y * .72 },
+    rotation: { x: 0, y: -110 }
+  };
+}
+
+function restartMouseFTutorial() {
   const touch = isTouchInterface();
   const demo = $("control-tutorial-demo");
-  demo.innerHTML = `<svg viewBox="0 0 520 270" class="gesture-demo-svg" aria-hidden="true"><path id="demo-angle" d="M 100 0 L 0 0 L 70 -70" fill="none" stroke="#b9f227" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><rect x="420" y="208" width="80" height="42" rx="12" fill="#182537" stroke="#fb7185"/><text x="460" y="235" text-anchor="middle" fill="#fb7185" font-size="17">⌫</text><g id="demo-contact-one"></g><g id="demo-contact-two"></g></svg>`;
-  demo.querySelector("svg").append(svgEl("circle", { id: "demo-angle-handle", r: 6, fill: "#31d7f5", stroke: "#fff", "stroke-width": 1.5 }));
-  const names = ["גרירה", "הגדלה", "הקטנה", "סיבוב", "שינוי מפתח הזווית", touch ? "דאבל־טאפ" : "דאבל־קליק", "זריקה"];
+  demo.innerHTML = `<svg viewBox="0 0 520 270" class="gesture-demo-svg" aria-hidden="true"><g id="mouse-f-shape"><path id="mouse-f-path" fill="none" stroke="#b9f227" stroke-width="6" stroke-linecap="round"/><rect id="mouse-f-height" width="14" height="14" rx="2" fill="#ff9f43" stroke="#071019" stroke-width="2"/><circle id="mouse-f-angle" r="9" fill="#31d7f5" stroke="#071019" stroke-width="2"/></g><g id="mouse-f-rotate"><path d="M 0 12 L 0 42" stroke="#31d7f5" stroke-width="2"/><circle r="12" fill="#31d7f5"/><text text-anchor="middle" dominant-baseline="middle" fill="#071019" font-size="17">↻</text></g><rect x="420" y="208" width="80" height="42" rx="12" fill="#182537" stroke="#fb7185"/><text x="460" y="235" text-anchor="middle" fill="#fb7185" font-size="17">⌫</text><g id="mouse-f-cursor"><circle id="mouse-f-held" r="16" fill="#31d7f533" stroke="#31d7f5"/><path d="M 0 0 L 0 28 L 7 21 L 13 33 L 18 30 L 12 19 L 22 19 Z" fill="white" stroke="#172234" stroke-width="2"/></g></svg>`;
+  if (touch) {
+    $("mouse-f-cursor").querySelector("path").outerHTML = '<ellipse cx="0" cy="17" rx="8" ry="19" fill="#e9bd9f" stroke="#bc8e71"/><rect x="-5" y="3" width="10" height="13" rx="4" fill="#f6dce5" stroke="#c18d9e"/>';
+    const second = $("mouse-f-cursor").cloneNode(true);
+    second.id = "mouse-f-second";
+    second.querySelector("circle").removeAttribute("id");
+    demo.querySelector("svg").append(second);
+    $("mouse-f-height").setAttribute("visibility", "hidden");
+  }
+  const names = ["גרירה", touch ? "הגדלה" : "הגדלת המרחק", touch ? "הקטנה" : "הקטנת המרחק", "סיבוב", "שינוי הזווית", touch ? "דאבל־טאפ" : "דאבל־קליק", "זריקה"];
+  const instructions = ["גוררים בתוך הצורה", "גוררים את הריבוע הכתום", "גוררים את הריבוע הכתום", "גוררים את העיגול עם חץ הסיבוב", "גוררים את הנקודה הכחולה", "לוחצים פעמיים בתוך הצורה", "לוחצים על זריקה"];
   $("equal-tutorial-steps").innerHTML = names.map(name => `<li>${name}</li>`).join("");
-  const drawPointer = (id, point, visible, held) => {
-    const el = $(id);
-    el.setAttribute("transform", `translate(${point.x} ${point.y})`);
-    el.setAttribute("opacity", visible ? "1" : "0");
-    el.innerHTML = `<circle r="17" fill="${held ? "#31d7f533" : "none"}" stroke="#31d7f5" stroke-width="2" opacity="${held ? 1 : 0}"/>` + (touch
-      ? '<ellipse cx="0" cy="17" rx="8" ry="19" fill="#e9bd9f" stroke="#bc8e71" stroke-width="1.2"/><rect x="-5" y="3" width="10" height="13" rx="4" fill="#f6dce5" stroke="#c18d9e" stroke-width=".8"/>'
-      : '<path d="M 0 0 L 0 28 L 7 21 L 13 33 L 18 30 L 12 19 L 22 19 Z" fill="white" stroke="#172234" stroke-width="2"/>');
-  };
   const started = performance.now();
-  let previousSoundPose = null;
+  let previous = null;
   const frame = now => {
     if ($("equal-tutorial").hidden) { tutorialFrame = null; return; }
     const pose = tutorialPose((now - started) % 28000);
-    if (previousSoundPose?.step === pose.step && pose.active) {
-      const before = previousSoundPose;
-      if (pose.step === 5 && pose.flip !== before.flip) playMotionSound("flip", 1);
-      else if (pose.step === 6 && !before.active) playDiscardSound();
-      else if (pose.step < 5) {
-        const change = Math.abs(pose.x - before.x) + Math.abs(pose.scale - before.scale) * 100 + Math.abs(pose.rotation - before.rotation) + Math.abs(pose.degrees - before.degrees);
+    const geometry = mouseFTutorialGeometry(touch ? { ...pose, scale: 1 } : pose);
+    const transform = { ...pose, scale: touch ? pose.scale : 1 };
+    $("mouse-f-shape").setAttribute("transform", `translate(${pose.x} ${pose.y}) rotate(${pose.rotation}) scale(${pose.flip * transform.scale} ${transform.scale})`);
+    $("mouse-f-shape").setAttribute("opacity", pose.opacity);
+    $("mouse-f-path").setAttribute("d", `M ${geometry.top.x} ${geometry.top.y} L ${geometry.bottom.x} ${geometry.bottom.y} M 0 0 L 100 0 M ${geometry.top.x} ${geometry.top.y} L ${geometry.topEnd.x} ${geometry.topEnd.y}`);
+    $("mouse-f-height").setAttribute("x", geometry.height.x - 7);
+    $("mouse-f-height").setAttribute("y", geometry.height.y - 7);
+    $("mouse-f-angle").setAttribute("cx", geometry.angle.x);
+    $("mouse-f-angle").setAttribute("cy", geometry.angle.y);
+    const rotate = tutorialContact({ ...transform, flip: 1 }, geometry.rotation);
+    $("mouse-f-rotate").setAttribute("transform", `translate(${rotate.x} ${rotate.y}) rotate(${pose.rotation})`);
+    $("mouse-f-rotate").setAttribute("opacity", pose.opacity);
+    const multi = touch && pose.step >= 1 && pose.step <= 3;
+    const point = multi ? tutorialContact(transform, { x: 85, y: 0 }) : pose.step === 6 ? { x: 460, y: 230 } : pose.step === 3 ? rotate : tutorialContact(pose.step === 5 ? { ...transform, flip: 1 } : transform, pose.step === 1 || pose.step === 2 ? geometry.height : pose.step === 4 ? geometry.angle : { x: 35, y: -25 });
+    $("mouse-f-cursor").setAttribute("transform", `translate(${point.x} ${point.y})`);
+    $("mouse-f-held").setAttribute("opacity", pose.active ? 1 : 0);
+    if (touch) {
+      const second = tutorialContact(transform, { x: geometry.topEnd.x - 15, y: geometry.topEnd.y });
+      $("mouse-f-second").setAttribute("transform", `translate(${second.x} ${second.y})`);
+      $("mouse-f-second").setAttribute("opacity", multi ? 1 : 0);
+      $("mouse-f-second").querySelector("circle").setAttribute("opacity", pose.active ? 1 : 0);
+    }
+    if (previous?.step === pose.step) {
+      if (pose.flip !== previous.flip) playMotionSound("flip", 1);
+      else if (pose.step === 6 && pose.active && !previous.active) playDiscardSound();
+      else if (pose.active && pose.step < 5) {
+        const change = Math.abs(pose.x - previous.x) + Math.abs(pose.scale - previous.scale) * 100 + Math.abs(pose.rotation - previous.rotation) + Math.abs(pose.degrees - previous.degrees);
         if (change > .001) playMotionSound(["move", "size", "size", "rotate", "angle"][pose.step], change / 2);
       }
     }
-    // Flip happens at release of the second tap, outside the held interval.
-    if (previousSoundPose?.step === 5 && pose.step === 5 && pose.flip !== previousSoundPose.flip && !pose.active) playMotionSound("flip", 1);
-    previousSoundPose = pose;
-    const ray = polar(100, -pose.degrees);
-    $("demo-angle").setAttribute("d", `M 100 0 L 0 0 L ${ray.x} ${ray.y}`);
-    $("demo-angle").setAttribute("transform", `translate(${pose.x} ${pose.y}) rotate(${pose.rotation}) scale(${pose.scale * pose.flip} ${pose.scale})`);
-    $("demo-angle").setAttribute("opacity", pose.opacity);
-    const multi = pose.step >= 1 && pose.step <= 3;
-    const handle = tutorialContact(pose, polar(62, -pose.degrees));
-    $("demo-angle-handle").setAttribute("cx", handle.x);
-    $("demo-angle-handle").setAttribute("cy", handle.y);
-    $("demo-angle-handle").setAttribute("opacity", pose.step === 4 ? 1 : 0);
-    const radius = pose.step === 1 || pose.step === 2 ? 88 : 44;
-    // Flip is a stationary double-tap, not a contact attached to the reflected tool.
-    const contactPose = pose.step === 5 ? { ...pose, flip: 1 } : pose;
-    const first = pose.step === 6 ? { x: 460, y: 230 } : pose.step === 4 ? handle : tutorialContact(contactPose, multi ? { x: radius, y: 0 } : polar(48, -pose.degrees / 2));
-    drawPointer("demo-contact-one", first, true, pose.active);
-    drawPointer("demo-contact-two", tutorialContact(pose, polar(radius, -pose.degrees)), touch && multi, pose.active);
+    previous = pose;
     [...$("equal-tutorial-steps").children].forEach((el, index) => el.classList.toggle("active", index === pose.step));
-    $("equal-tutorial-tip").textContent = `${names[pose.step]} — ${pose.active ? (pose.step === 4 ? "גוררים את הנקודה הכחולה כדי לשנות את הזווית" : touch ? "העיגול מסמן מגע" : "העיגול מסמן לחיצה") : "עצירה לפני הפעולה הבאה"}`;
+    const instruction = multi ? "שתי אצבעות נעות יחד עם הצורה" : touch && pose.step === 5 ? "מקישים פעמיים בתוך הצורה" : instructions[pose.step];
+    $("equal-tutorial-tip").textContent = `${names[pose.step]} — ${pose.active ? instruction : "עצירה לפני הפעולה הבאה"}`;
     tutorialFrame = requestAnimationFrame(frame);
   };
   tutorialFrame = requestAnimationFrame(frame);
