@@ -455,7 +455,7 @@ function courseSectionForLevel(level) {
 
 function courseSectionLabel(section) {
   if (section === "speed") return "מצב מהיר";
-  if (section === "quadrilaterals") return "מרובעים";
+  if (section === "quadrilaterals") return state.language === "en" ? "Quadrilaterals" : state.language === "ru" ? "Четырёхугольники" : "מרובעים";
   if (section === "triangle-lines") return state.language === "en" ? "Triangle lines" : state.language === "ru" ? "Линии треугольника" : "קווים מיוחדים במשולש";
   if (section === "equal") return t("startEqual");
   if (section === "180") return "180°";
@@ -840,6 +840,7 @@ function applyLanguage(reload = true) {
   $("speed-results-eyebrow").textContent = state.language === "he" ? "מצב מהיר" : state.language === "ru" ? "Быстрый режим" : "QUICK MODE";
   document.querySelector(".course-menu-card .eyebrow").textContent = t("chooseLevel").toUpperCase();
   $("course-menu-body").textContent = t("chooseStartBody");
+  document.querySelector('[data-course-start="quadrilaterals"]').textContent = courseSectionLabel("quadrilaterals");
   document.querySelector('[data-course-start="primitives"]').textContent = t("primitives");
   document.querySelector('[data-course-start="triangle-lines"]').textContent = courseSectionLabel("triangle-lines");
   document.querySelector('[data-course-start="equal"]').textContent = t("startEqual");
@@ -1258,7 +1259,7 @@ function renderChoices(level) {
     return;
   }
   if (level.phase === "quadrilateral") {
-    $("category-list").innerHTML = `<legend>בחרו צורה</legend><section class="tool-family"><h3 class="tool-family-title">מרובעים</h3><div class="choice-grid">${shuffle([...quadrilateralTools]).map(value => `<button type="button" class="choice-button" data-category="${value}" aria-pressed="false" ${(level.scaffold && value !== level.correctCategory) || level.disabledCategories?.includes(value) ? "disabled" : ""}>${categoryLabel(value)}</button>`).join("")}</div></section>`;
+    $("category-list").innerHTML = `<legend>בחרו צורה</legend><section class="tool-family"><h3 class="tool-family-title">${courseSectionLabel("quadrilaterals")}</h3><div class="choice-grid">${shuffle([...quadrilateralTools]).map(value => `<button type="button" class="choice-button" data-category="${value}" aria-pressed="false" ${(level.scaffold && value !== level.correctCategory) || level.disabledCategories?.includes(value) ? "disabled" : ""}>${categoryLabel(value)}</button>`).join("")}</div></section>`;
     document.querySelectorAll("[data-category]").forEach(button => button.addEventListener("click", () => {
       if (state.followUp) { handleWhatElseChoice(level, button); return; }
       if (button.disabled || state.solved) return;

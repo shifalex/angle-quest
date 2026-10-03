@@ -517,3 +517,5 @@ button:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 .practice-heatmap-cell strong, .practice-heatmap-cell span { display: block; }
 .practice-heatmap-cell strong { font-size: .9rem; font-weight: 600; }
 .practice-heatmap-cell span { font-size: .78rem; margin-top: 5px; }
+
+.course-menu-card > .dedication { margin: 18px 0 0; font-size: 12px; line-height: 1.6; }
