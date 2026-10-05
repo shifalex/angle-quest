@@ -1143,6 +1143,12 @@ function renderScene(level) {
       const direction = polar(halfLength, angle);
       line(sceneLayer, center.x - direction.x, center.y - direction.y, center.x + direction.x, center.y + direction.y);
     });
+    if (level.parallelContext) {
+      const offset = polar(-120, degrees / 2);
+      const direction = polar(halfLength, -degrees / 2);
+      line(sceneLayer, center.x + offset.x - direction.x, center.y + offset.y - direction.y,
+        center.x + offset.x + direction.x, center.y + offset.y + direction.y);
+    }
     const givenLabel = polar(78, 0);
     label(sceneLayer, center.x + givenLabel.x, center.y + givenLabel.y, `${degrees}°`, "given-label");
     label(sceneLayer, 82, 88, "A");
@@ -1174,7 +1180,13 @@ function renderScene(level) {
     level.target.rotation = normalizeAngle(-missingDegrees / 2);
     line(sceneLayer, 95, 220, 635, 220);
     const diagonalEnd = polar(180, -missingDegrees);
-    line(sceneLayer, level.target.x, level.target.y, level.target.x + diagonalEnd.x, level.target.y + diagonalEnd.y);
+    if (level.parallelContext) {
+      const upperY = level.target.y + polar(120, -missingDegrees).y;
+      line(sceneLayer, 95, upperY, 635, upperY);
+    }
+    const diagonalStart = level.parallelContext ? polar(100, 180 - missingDegrees) : { x: 0, y: 0 };
+    line(sceneLayer, level.target.x + diagonalStart.x, level.target.y + diagonalStart.y,
+      level.target.x + diagonalEnd.x, level.target.y + diagonalEnd.y);
     drawGivenAngle(level.target, -180, -missingDegrees, givenDegrees, 52);
     label(sceneLayer, 80, 241, "A");
     label(sceneLayer, 650, 241, "B");
@@ -1188,7 +1200,12 @@ function renderScene(level) {
     level.target.x = top.x;
     level.target.y = top.y;
     level.target.rotation = (180 - leftDegrees + rightDegrees) / 2;
-    line(sceneLayer, left.x, left.y, right.x, right.y);
+    if (level.parallelContext) {
+      line(sceneLayer, 80, left.y, 650, left.y);
+      line(sceneLayer, 80, top.y, 650, top.y);
+    } else {
+      line(sceneLayer, left.x, left.y, right.x, right.y);
+    }
     line(sceneLayer, left.x, left.y, top.x, top.y);
     line(sceneLayer, top.x, top.y, right.x, right.y);
     drawGivenAngle(left, -leftDegrees, 0, leftDegrees, 38);
@@ -3892,6 +3909,8 @@ function prepareDynamicLevel(level) {
 }
 
 function prepareProLevel(level) {
+  level.parallelContext = level.mode === "master"
+    && ["triangle", "vertical", "adjacent"].includes(level.scene);
   if (level.mode === "tutorial") {
     level.proRotation = 0;
     level.distractors = [];
@@ -3899,7 +3918,7 @@ function prepareProLevel(level) {
   }
   const rotations = [-45, -30, -15, 0, 15, 30, 45, 90, 180, 270];
   level.proRotation = rotations[Math.floor(Math.random() * rotations.length)];
-  if (level.mode !== "master") {
+  if (level.mode !== "master" || ["triangle", "vertical", "adjacent", "corresponding"].includes(level.scene)) {
     level.distractors = [];
     return;
   }
